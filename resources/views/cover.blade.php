@@ -94,7 +94,7 @@
                 Lista VIP
             </button>
             <p id="notifyStatus" class="text-xs text-white/70 hidden">Ya estás suscrito a las alertas ✉️</p>
-            <button onclick="window.location.href='/reservations'" 
+            <button onclick="window.location.href='{{ route('reservations.app') }}'" 
                     class="w-48 h-12 bg-[{{ $settings->button_color_cover ?? '#FF5722' }}] text-white rounded-full font-semibold text-lg transition transform hover:scale-105 animate-pulse">
                 Reservas
             </button>

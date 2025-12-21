@@ -25,6 +25,9 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'cover'])->name('cover');
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/cocktails', [CocktailController::class, 'index'])->name('cocktails.index');
+Route::get('/reservations', function () {
+    return redirect()->away('https://asador-1293f.web.app/');
+})->name('reservations.app');
 Route::resource('categories', CategoryController::class);
 Route::resource('dishes', DishController::class);
 Route::resource('cocktails', CocktailController::class);
