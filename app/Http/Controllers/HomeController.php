@@ -5,6 +5,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Models\Category;
+use App\Support\FeaturedGroupBuilder;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -12,7 +14,9 @@ class HomeController extends Controller
     public function cover()
     {
         $settings = Setting::first();
-        return view('cover', compact('settings'));
+        $featuredGroups = FeaturedGroupBuilder::build();
+
+        return view('cover', compact('settings', 'featuredGroups'));
     }
 
     public function menu()

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dish;
+use App\Models\FoodPairing;
+use App\Models\Grape;
+use App\Models\Popup;
+use App\Models\Region;
+use App\Models\Setting;
 use App\Models\Wine;
 use App\Models\WineCategory;
-use App\Models\Setting;
-use App\Models\Popup;
 use App\Models\WineType;
-use App\Models\Region;
-use App\Models\Grape;
-use App\Models\FoodPairing;
-use App\Models\Dish;
 
 use Illuminate\Http\Request;
 
@@ -37,7 +37,7 @@ class WineController extends Controller
             ->with(['type', 'region', 'grapes', 'dishes']) // ✅ Asegúrate de incluir 'dishes'
             ->get();
 
-        return view('wine.index', [
+        return view('coffee.index', [
             'settings' => $settings,
             'wines'    => $wines,
             'filters'  => true,
@@ -45,7 +45,7 @@ class WineController extends Controller
             'types'    => WineType::all(),
             'grapes'   => Grape::all(),
             'popups'   => Popup::where('active', 1)
-                                ->where('view', 'wines')
+                                ->whereIn('view', ['coffee', 'wines'])
                                 ->whereDate('start_date', '<=', now())
                                 ->whereDate('end_date', '>=', now())
                                 ->get(),
@@ -53,7 +53,7 @@ class WineController extends Controller
     }
 
     // Comportamiento sin filtros (mostrar por categoría)
-    return view('wine.index', [
+    return view('coffee.index', [
         'settings'       => $settings,
         'wineCategories' => WineCategory::with(['items' => function ($q) {
             $q->where('visible', true)
@@ -64,7 +64,7 @@ class WineController extends Controller
         'types'          => WineType::all(),
         'grapes'         => Grape::all(),
         'popups'         => Popup::where('active', 1)
-                                ->where('view', 'wines')
+                                ->whereIn('view', ['coffee', 'wines'])
                                 ->whereDate('start_date', '<=', now())
                                 ->whereDate('end_date', '>=', now())
                                 ->get(),
@@ -80,7 +80,6 @@ class WineController extends Controller
         $grapes = Grape::all();
         $foodPairings = FoodPairing::all();
         $dishes = Dish::all(); // ✅
-      
 
         return view('wine.create', compact(
             'categories',
@@ -88,7 +87,7 @@ class WineController extends Controller
             'regions',
             'grapes',
             'foodPairings',
-            'dishes' // ✅
+            'dishes'
         ));
     }
 
@@ -107,7 +106,8 @@ class WineController extends Controller
             'food_pairings.*'   => 'exists:food_pairings,id',
             'dishes'            => 'nullable|array',
             'dishes.*'          => 'exists:dishes,id', // ✅ Validación de platos
-            'image'             => 'nullable|image'
+            'image'             => 'nullable|image',
+            'featured_on_cover' => ['nullable', 'boolean'],
         ]);
     
         $wine = new Wine($request->only([
@@ -123,18 +123,20 @@ class WineController extends Controller
             $wine->image = $request->file('image')->store('wine_images', 'public');
         }
     
+        $wine->featured_on_cover = $request->boolean('featured_on_cover');
         $wine->save();
-    
+
         // ✅ Sincronizar relaciones
         $wine->grapes()->sync($request->input('grapes', []));
         $wine->foodPairings()->sync($request->input('food_pairings', []));
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ sincroniza los platos
+
     
         return redirect()->route('admin.new-panel', [
             'section' => 'wines-section',
-            'open' => 'create-wine'
-        ])
-        ->with('success', 'Artículo de Vino creado con éxito');
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Bebida de café creada con éxito');
     }
     
 
@@ -173,7 +175,8 @@ class WineController extends Controller
             'food_pairings.*'   => 'exists:food_pairings,id',
             'dishes'            => 'nullable|array',   // ✅ validación
             'dishes.*'          => 'exists:dishes,id', // ✅ validación
-            'image'             => 'nullable|image'    // ✅ faltaba la coma
+            'image'             => 'nullable|image',    // ✅ faltaba la coma
+            'featured_on_cover' => ['nullable', 'boolean'],
         ]);
     
         $data = $request->only([
@@ -189,15 +192,19 @@ class WineController extends Controller
             $data['image'] = $request->file('image')->store('wine_images', 'public');
         }
     
-        $wine->update($data);
-    
+        $wine->update($data + ['featured_on_cover' => $request->boolean('featured_on_cover')]);
+
         // ✅ Sincronizamos relaciones pivot
         $wine->grapes()->sync($request->input('grapes', []));
         $wine->foodPairings()->sync($request->input('food_pairings', []));
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ ahora guarda los platos recomendados
+
     
-        return redirect()->route('admin.new-panel', ['section' => 'wines-section'])
-            ->with('success', 'Artículo de Vino actualizado con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Bebida de café actualizada con éxito');
     }
     
     public function destroy(Wine $wine)
@@ -206,8 +213,11 @@ class WineController extends Controller
         $wine->foodPairings()->detach();
         $wine->delete();
 
-        return redirect()->route('admin.new-panel', ['section' => 'wines-section'])
-            ->with('success', 'Artículo de Vino eliminado con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Bebida de café eliminada con éxito');
     }
 
     public function toggleVisibility(Wine $wine)
@@ -215,8 +225,23 @@ class WineController extends Controller
         $wine->visible = !$wine->visible;
         $wine->save();
 
-        return redirect()->route('admin.new-panel', ['section' => 'wines-section'])
-            ->with('success', 'Visibilidad del artículo actualizada');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Visibilidad del artículo actualizada');
+    }
+
+    public function toggleFeatured(Wine $wine)
+    {
+        $wine->featured_on_cover = !$wine->featured_on_cover;
+        $wine->save();
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Destacado en portada actualizado');
     }
 
     public function reorder(Request $request)

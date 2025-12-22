@@ -97,7 +97,7 @@
             <input type="file" class="form-control" id="background_image_cocktails" name="background_image_cocktails">
         </div>
         <div class="mb-3">
-            <label for="background_image_wines" class="form-label">Imagen de Fondo de Vinos</label>
+            <label for="background_image_wines" class="form-label">Imagen de Fondo de Café</label>
             <input type="file" class="form-control" id="background_image_wines" name="background_image_wines">
         </div>
         <div class="mb-3">
@@ -113,7 +113,7 @@
             <input type="color" class="form-control" id="text_color_cocktails" name="text_color_cocktails" value="{{ $settings->text_color_cocktails ?? '#000000' }}">
         </div>
         <div class="mb-3">
-            <label for="text_color_wines" class="form-label">Color del Texto de Vinos</label>
+            <label for="text_color_wines" class="form-label">Color del Texto de Café</label>
             <input type="color" class="form-control" id="text_color_wines" name="text_color_wines" value="{{ $settings->text_color_wines ?? '#000000' }}">
         </div>
         <div class="mb-3">
@@ -129,7 +129,7 @@
             <input type="text" class="form-control" id="font_family_cocktails" name="font_family_cocktails" value="{{ $settings->font_family_cocktails ?? 'Arial' }}">
         </div>
         <div class="mb-3">
-            <label for="font_family_wines" class="form-label">Familia de Fuente de Vinos</label>
+            <label for="font_family_wines" class="form-label">Familia de Fuente de Café</label>
             <input type="text" class="form-control" id="font_family_wines" name="font_family_wines" value="{{ $settings->font_family_wines ?? 'Arial' }}">
         </div>
         <div class="mb-3">
@@ -145,7 +145,7 @@
             <input type="number" step="0.1" class="form-control" id="card_opacity_cocktails" name="card_opacity_cocktails" value="{{ $settings->card_opacity_cocktails ?? 1 }}">
         </div>
         <div class="mb-3">
-            <label for="card_opacity_wines" class="form-label">Opacidad de las Tarjetas de Vinos</label>
+            <label for="card_opacity_wines" class="form-label">Opacidad de las Tarjetas de Café</label>
             <input type="number" step="0.1" class="form-control" id="card_opacity_wines" name="card_opacity_wines" value="{{ $settings->card_opacity_wines ?? 1 }}">
         </div>
         <div class="mb-3">
@@ -161,7 +161,7 @@
             <input type="color" class="form-control" id="button_color_cocktails" name="button_color_cocktails" value="{{ $settings->button_color_cocktails ?? '#000000' }}">
         </div>
         <div class="mb-3">
-            <label for="button_color_wines" class="form-label">Color del Botón de Vinos</label>
+            <label for="button_color_wines" class="form-label">Color del Botón de Café</label>
             <input type="color" class="form-control" id="button_color_wines" name="button_color_wines" value="{{ $settings->button_color_wines ?? '#000000' }}">
         </div>
 
@@ -214,7 +214,7 @@
     <input type="color" id="card_bg_color_cocktails" name="card_bg_color_cocktails" value="{{ $settings->card_bg_color_cocktails ?? '#ffffff' }}">
 </div>
 <div class="form-group">
-    <label for="card_bg_color_wines">Color de fondo de la tarjeta (Vinos):</label>
+    <label for="card_bg_color_wines">Color de fondo de la tarjeta (Café):</label>
     <input type="color" id="card_bg_color_wines" name="card_bg_color_wines" value="{{ $settings->card_bg_color_wines ?? '#ffffff' }}">
 </div>
 
@@ -370,14 +370,14 @@
             </div>
         </section>
 
-<!-- Vinos -->
+<!-- Café -->
 <section class="mt-5">
-    <h2>Vinos</h2>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines')">Gestionar Vinos</button>
-    <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar vinos..." class="form-control mb-3">
+    <h2>Bebidas de Café</h2>
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines')">Gestionar bebidas</button>
+    <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar bebidas..." class="form-control mb-3">
 
     <div id="wines" class="hidden">
-        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nuevo vino</a>
+        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Registrar nueva bebida</a>
         <div id="winesList">
             @foreach($wines as $wine)
                 <div class="card mb-3 wine-item" data-name="{{ $wine->name }}" data-category="{{ $wine->category->name }}">
@@ -406,12 +406,12 @@
     </div>
 </section>
 
-        <!-- Categorías de Vinos -->
+        <!-- Categorías de Café -->
         <section class="mt-5">
-            <h2>Categorías de Vinos</h2>
+            <h2>Categorías de Café</h2>
             <button class="btn btn-primary mb-3" onclick="toggleVisibility('wine-categories')">Categorías</button>
             <div id="wine-categories" class="hidden">
-                <a href="{{ route('wine-categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría de vino</a>
+                <a href="{{ route('wine-categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría</a>
                 <div id="wineCategoriesList">
                     @foreach($wineCategories as $category)
                         <div class="card mb-3">

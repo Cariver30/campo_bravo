@@ -2,11 +2,18 @@
 <form method="POST" action="{{ route('admin.updateBackground') }}" enctype="multipart/form-data" class="space-y-6">
     @csrf
 
-    <h3 class="text-2xl font-bold text-gray-800">Configuración de Vinos</h3>
+    <h3 class="text-2xl font-bold text-gray-800">Configuración de Café &amp; bebidas</h3>
 
     <div>
-        <label class="block mb-2 text-sm font-medium text-gray-900" for="background_image_wines">Imagen de fondo</label>
+        <label class="block mb-2 text-sm font-medium text-gray-900" for="background_image_wines">Imagen de fondo (barra de café)</label>
         <input class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" type="file" name="background_image_wines" id="background_image_wines">
+    </div>
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900" for="coffee_hero_image">Imagen destacada (hero)</label>
+        <input class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300" type="file" name="coffee_hero_image" id="coffee_hero_image">
+        @if($settings->coffee_hero_image)
+            <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" class="mt-2 rounded-lg shadow" alt="Hero café">
+        @endif
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

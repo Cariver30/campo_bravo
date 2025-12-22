@@ -47,6 +47,10 @@
             <input type="file" class="form-control" id="image" name="image">
         </div>
 
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="featured_on_cover" name="featured_on_cover" value="1" {{ old('featured_on_cover') ? 'checked' : '' }}>
+            <label class="form-check-label" for="featured_on_cover">Destacar en la portada</label>
+        </div>
 
         <button type="submit" class="btn btn-primary">Crear</button>
     </form>

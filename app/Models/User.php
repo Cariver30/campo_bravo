@@ -20,6 +20,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'invitation_token',
+        'invitation_sent_at',
+        'invitation_accepted_at',
+        'active',
     ];
 
     /**
@@ -41,7 +46,24 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'invitation_sent_at' => 'datetime',
+            'invitation_accepted_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isServer(): bool
+    {
+        return $this->role === 'server';
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->active;
     }
 }

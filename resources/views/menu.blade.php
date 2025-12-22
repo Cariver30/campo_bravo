@@ -102,6 +102,12 @@
     </div>
 </div>
 
+@if($settings->menu_hero_image)
+    <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
+        <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" alt="Destacado del menú" class="w-full rounded-3xl shadow-2xl border border-white/10 object-cover">
+    </div>
+@endif
+
 <!-- Menú flotante móvil -->
 <div id="categoryMenu"
     class="lg:hidden fixed inset-0 bg-white text-slate-900 px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
@@ -146,7 +152,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach ($category->dishes->where('visible', true) as $dish)
-                    <div onclick="openDishModal(this)"
+                    <div id="dish{{ $dish->id }}" onclick="openDishModal(this)"
                         class="dish-card rounded-lg p-4 shadow-lg relative flex items-center cursor-pointer hover:scale-105 transition"
                         style="background-color: {{ $settings->card_bg_color_menu ?? '#191919' }};
                                opacity: {{ $settings->card_opacity_menu ?? 0.9 }};"
@@ -172,7 +178,7 @@
                                     <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Maridajes sugeridos</p>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($dish->wines as $wine)
-                                            <a href="{{ route('wines.index') }}#wine{{ $wine->id }}"
+                                            <a href="{{ route('coffee.index') }}#coffee{{ $wine->id }}"
                                                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition hover:scale-105"
                                                style="background-color: {{ $settings->category_name_bg_color_menu ?? 'rgba(254, 90, 90, 0.2)' }}; border-color: {{ $settings->button_color_menu ?? '#FFB347' }}; color: {{ $settings->text_color_menu ?? '#ffffff' }};">
                                                 <i class="fas fa-wine-glass-alt" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};"></i>
@@ -208,9 +214,9 @@
            style="background-color: {{ $actionColor }};">
             <i class="fas fa-cocktail text-lg"></i><span>Cócteles</span>
         </a>
-        <a href="/wines" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
+        <a href="/coffee" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
            style="background-color: {{ $actionColor }};">
-            <i class="fas fa-wine-glass text-lg"></i><span>Vinos</span>
+            <i class="fas fa-mug-saucer text-lg"></i><span>Café</span>
         </a>
     </div>
 </div>
@@ -232,7 +238,7 @@
             <p id="modalPrice" class="font-semibold text-lg mb-4"></p>
 
             <div id="modalWines" class="mt-4 hidden">
-                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Vinos sugeridos 🍷</h4>
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Bebidas sugeridas ☕</h4>
                 <ul id="wineList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
             </div>
         </div>
@@ -340,7 +346,7 @@
                 const li = document.createElement('li');
                 const link = document.createElement('a');
                 link.textContent = (wineName || token).trim();
-                link.href = '{{ route('wines.index') }}#wine' + (wineId || '').trim();
+                link.href = '{{ route('coffee.index') }}#coffee' + (wineId || '').trim();
                 link.className = 'text-amber-500 hover:underline';
                 li.appendChild(link);
                 wineList.appendChild(li);

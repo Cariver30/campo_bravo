@@ -23,19 +23,23 @@ class WineCategoryController extends Controller
     // Guardar nueva categoría
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|unique:wine_categories,name',
+            'show_on_cover' => ['nullable', 'boolean'],
+            'cover_title' => ['nullable', 'string', 'max:255'],
+            'cover_subtitle' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $order = (WineCategory::max('order') ?? 0) + 1;
+        $data['order'] = (WineCategory::max('order') ?? 0) + 1;
+        $data['show_on_cover'] = $request->boolean('show_on_cover');
 
-        WineCategory::create([
-            'name' => $request->name,
-            'order' => $order,
-        ]);
+        WineCategory::create($data);
 
-        return redirect()->route('admin.new-panel', ['section' => 'wine-categories'])
-            ->with('success', 'Categoría creada con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Categoría creada con éxito');
     }
 
     // Formulario para editar una categoría existente
@@ -47,14 +51,22 @@ class WineCategoryController extends Controller
     // Actualizar una categoría existente
     public function update(Request $request, WineCategory $wineCategory)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|unique:wine_categories,name,' . $wineCategory->id,
+            'show_on_cover' => ['nullable', 'boolean'],
+            'cover_title' => ['nullable', 'string', 'max:255'],
+            'cover_subtitle' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $wineCategory->update($request->only('name'));
+        $data['show_on_cover'] = $request->boolean('show_on_cover');
 
-        return redirect()->route('admin.new-panel', ['section' => 'wine-categories'])
-            ->with('success', 'Categoría actualizada con éxito');
+        $wineCategory->update($data);
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Categoría actualizada con éxito');
     }
 
     // Eliminar una categoría
@@ -62,8 +74,11 @@ class WineCategoryController extends Controller
     {
         $wineCategory->delete();
 
-        return redirect()->route('admin.new-panel', ['section' => 'wine-categories'])
-            ->with('success', 'Categoría eliminada con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Categoría eliminada con éxito');
     }
 
     public function reorder(Request $request)
@@ -78,5 +93,42 @@ class WineCategoryController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function toggleCover(WineCategory $wineCategory)
+    {
+        $wineCategory->show_on_cover = !$wineCategory->show_on_cover;
+        if ($wineCategory->show_on_cover && !$wineCategory->cover_title) {
+            $wineCategory->cover_title = $wineCategory->name;
+        }
+        $wineCategory->save();
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Categoría de café actualizada en la portada.');
+    }
+
+    public function updateFeaturedItems(Request $request, WineCategory $wineCategory)
+    {
+        $data = $request->validate([
+            'featured_items' => ['nullable', 'array'],
+            'featured_items.*' => ['integer', 'exists:wines,id'],
+        ]);
+
+        $ids = collect($data['featured_items'] ?? []);
+        $wineCategory->load('items');
+
+        foreach ($wineCategory->items as $item) {
+            $item->featured_on_cover = $ids->contains($item->id);
+            $item->save();
+        }
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'wines-section',
+            'open' => 'wine-create',
+            'expand' => 'wine-categories',
+        ])->with('success', 'Bebidas destacadas actualizadas.');
     }
 }

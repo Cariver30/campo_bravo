@@ -37,7 +37,7 @@
             <select class="form-control" id="view" name="view" required>
                 <option value="menu" {{ $popup->view == 'menu' ? 'selected' : '' }}>Menú</option>
                 <option value="cocktails" {{ $popup->view == 'cocktails' ? 'selected' : '' }}>Cocktails</option>
-                <option value="wines" {{ $popup->view == 'wines' ? 'selected' : '' }}>Vinos</option>
+                <option value="coffee" {{ $popup->view == 'coffee' ? 'selected' : '' }}>Café</option>
             </select>
         </div>
         <div class="mb-3">

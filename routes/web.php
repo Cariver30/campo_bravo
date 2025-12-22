@@ -18,6 +18,10 @@ use App\Http\Controllers\Admin\EventManagementController;
 use App\Http\Controllers\EventPublicController;
 use App\Http\Controllers\EventNotificationController;
 use App\Http\Controllers\Admin\EventPromotionController;
+use App\Http\Controllers\Admin\LoyaltyAdminController;
+use App\Http\Controllers\Loyalty\InvitationController;
+use App\Http\Controllers\Loyalty\ServerDashboardController;
+use App\Http\Controllers\Loyalty\VisitConfirmationController;
 
 use App\Http\Controllers\HomeController;
 
@@ -25,7 +29,8 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'cover'])->name('cover');
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/cocktails', [CocktailController::class, 'index'])->name('cocktails.index');
-Route::get('/wines', [WineController::class, 'index'])->name('wines.index');
+Route::get('/coffee', [WineController::class, 'index'])->name('coffee.index');
+Route::redirect('/wines', '/coffee');
 Route::get('/reservations', function () {
     return redirect()->away('https://asador-1293f.web.app/');
 })->name('reservations.app');
@@ -46,7 +51,7 @@ Route::prefix('experiencias')->name('experiences.')->group(function () {
     Route::post('/{event:slug}/notify', [EventNotificationController::class, 'subscribe'])->name('notify');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/panel', [AdminController::class, 'panel'])->name('admin.panel');
     Route::get('/admin', [AdminController::class, 'panel'])->name('admin');
     Route::get('/admin/categories', [CategoryController::class, 'showCategories'])->name('admin.categories');
@@ -79,14 +84,23 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::patch('dishes/{dish}/toggle-visibility', [DishController::class, 'toggleVisibility'])->name('dishes.toggleVisibility');
+    Route::patch('dishes/{dish}/toggle-featured', [DishController::class, 'toggleFeatured'])->name('dishes.toggleFeatured');
     Route::patch('cocktails/{cocktail}/toggle-visibility', [CocktailController::class, 'toggleVisibility'])->name('cocktails.toggleVisibility');
+    Route::patch('cocktails/{cocktail}/toggle-featured', [CocktailController::class, 'toggleFeatured'])->name('cocktails.toggleFeatured');
     Route::patch('wines/{wine}/toggle-visibility', [WineController::class, 'toggleVisibility'])->name('wines.toggleVisibility');
+    Route::patch('wines/{wine}/toggle-featured', [WineController::class, 'toggleFeatured'])->name('wines.toggleFeatured');
 
     Route::post('/admin/dishes/reorder', [DishController::class, 'reorder'])->name('dishes.reorder');
     Route::post('/admin/cocktails/reorder', [CocktailController::class, 'reorder'])->name('cocktails.reorder');
     Route::post('/admin/wines/reorder', [WineController::class, 'reorder'])->name('wines.reorder');
     Route::post('/admin/cocktail-categories/reorder', [CocktailCategoryController::class, 'reorder'])->name('cocktail-categories.reorder');
     Route::post('/admin/wine-categories/reorder', [WineCategoryController::class, 'reorder'])->name('wine-categories.reorder');
+    Route::patch('/admin/categories/{category}/toggle-cover', [CategoryController::class, 'toggleCover'])->name('categories.toggleCover');
+    Route::patch('/admin/cocktail-categories/{cocktailCategory}/toggle-cover', [CocktailCategoryController::class, 'toggleCover'])->name('cocktail-categories.toggleCover');
+    Route::patch('/admin/wine-categories/{wineCategory}/toggle-cover', [WineCategoryController::class, 'toggleCover'])->name('wine-categories.toggleCover');
+    Route::post('/admin/categories/{category}/featured-items', [CategoryController::class, 'updateFeaturedItems'])->name('categories.featuredItems');
+    Route::post('/admin/cocktail-categories/{cocktailCategory}/featured-items', [CocktailCategoryController::class, 'updateFeaturedItems'])->name('cocktail-categories.featuredItems');
+    Route::post('/admin/wine-categories/{wineCategory}/featured-items', [WineCategoryController::class, 'updateFeaturedItems'])->name('wine-categories.featuredItems');
 
     Route::resource('wine-categories', WineCategoryController::class);
     Route::resource('wines', WineController::class)->except(['index']);
@@ -102,7 +116,29 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin.popups/{popup}', [AdminController::class, 'updatePopup'])->name('admin.popups.update');
     Route::delete('/admin.popups/{popup}', [AdminController::class, 'destroyPopup'])->name('admin.popups.destroy');
     Route::patch('/admin/popups/{popup}/toggle-visibility', [AdminController::class, 'toggleVisibility'])->name('admin.popups.toggleVisibility');
+
+    Route::post('/admin/loyalty/settings', [LoyaltyAdminController::class, 'updateSettings'])->name('admin.loyalty.settings');
+    Route::post('/admin/loyalty/rewards', [LoyaltyAdminController::class, 'storeReward'])->name('admin.loyalty.rewards.store');
+    Route::put('/admin/loyalty/rewards/{loyaltyReward}', [LoyaltyAdminController::class, 'updateReward'])->name('admin.loyalty.rewards.update');
+    Route::patch('/admin/loyalty/rewards/{loyaltyReward}/toggle', [LoyaltyAdminController::class, 'toggleReward'])->name('admin.loyalty.rewards.toggle');
+    Route::delete('/admin/loyalty/rewards/{loyaltyReward}', [LoyaltyAdminController::class, 'destroyReward'])->name('admin.loyalty.rewards.destroy');
+    Route::post('/admin/loyalty/servers', [LoyaltyAdminController::class, 'storeServer'])->name('admin.loyalty.servers.store');
+    Route::post('/admin/loyalty/servers/{user}/resend', [LoyaltyAdminController::class, 'resendInvitation'])->name('admin.loyalty.servers.resend');
+    Route::patch('/admin/loyalty/servers/{user}/toggle', [LoyaltyAdminController::class, 'toggleServer'])->name('admin.loyalty.servers.toggle');
+    Route::delete('/admin/loyalty/servers/{user}', [LoyaltyAdminController::class, 'destroyServer'])->name('admin.loyalty.servers.destroy');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('/loyalty/dashboard', [ServerDashboardController::class, 'index'])->name('loyalty.dashboard');
+    Route::post('/loyalty/visits', [ServerDashboardController::class, 'storeVisit'])->name('loyalty.visit.create');
+});
+
+Route::get('/loyalty/check-in/{token}', [VisitConfirmationController::class, 'show'])->name('loyalty.visit.show');
+Route::post('/loyalty/check-in/{token}', [VisitConfirmationController::class, 'store'])->name('loyalty.visit.store');
+Route::get('/loyalty/gracias', [VisitConfirmationController::class, 'thanks'])->name('loyalty.confirm.thanks');
+
+Route::get('/loyalty/invitations', [InvitationController::class, 'show'])->name('loyalty.invitations.show');
+Route::post('/loyalty/invitations', [InvitationController::class, 'store'])->name('loyalty.invitations.store');
 
 // Rutas protegidas para usuarios autenticados sin middleware
 Route::get('/dashboard', function () {

@@ -9,28 +9,50 @@ class AddViewSettingsColumnsToSettingsTable extends Migration
     public function up()
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->string('text_color_cover')->nullable();
-            $table->string('text_color_menu')->nullable();
-            $table->decimal('card_opacity_cover', 3, 2)->nullable();
-            $table->decimal('card_opacity_menu', 3, 2)->nullable();
-            $table->string('font_family_cover')->nullable();
-            $table->string('font_family_menu')->nullable();
-            $table->string('button_color_cover')->nullable();
-            $table->string('button_color_menu')->nullable();
+            if (!Schema::hasColumn('settings', 'text_color_cover')) {
+                $table->string('text_color_cover')->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'text_color_menu')) {
+                $table->string('text_color_menu')->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'card_opacity_cover')) {
+                $table->decimal('card_opacity_cover', 3, 2)->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'card_opacity_menu')) {
+                $table->decimal('card_opacity_menu', 3, 2)->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'font_family_cover')) {
+                $table->string('font_family_cover')->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'font_family_menu')) {
+                $table->string('font_family_menu')->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'button_color_cover')) {
+                $table->string('button_color_cover')->nullable();
+            }
+            if (!Schema::hasColumn('settings', 'button_color_menu')) {
+                $table->string('button_color_menu')->nullable();
+            }
         });
     }
 
     public function down()
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->dropColumn('text_color_cover');
-            $table->dropColumn('text_color_menu');
-            $table->dropColumn('card_opacity_cover');
-            $table->dropColumn('card_opacity_menu');
-            $table->dropColumn('font_family_cover');
-            $table->dropColumn('font_family_menu');
-            $table->dropColumn('button_color_cover');
-            $table->dropColumn('button_color_menu');
+            foreach ([
+                'text_color_cover',
+                'text_color_menu',
+                'card_opacity_cover',
+                'card_opacity_menu',
+                'font_family_cover',
+                'font_family_menu',
+                'button_color_cover',
+                'button_color_menu',
+            ] as $column) {
+                if (Schema::hasColumn('settings', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 }

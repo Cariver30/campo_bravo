@@ -3,6 +3,18 @@
 @section('title', 'Panel maestro · ajustes globales')
 
 @section('content')
+@php
+    $tabLabels = [
+        'menu' => $settings->tab_label_menu ?? $settings->button_label_menu ?? 'Menú',
+        'cocktails' => $settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles',
+        'wines' => $settings->tab_label_wines ?? $settings->button_label_wines ?? 'Café & Brunch',
+        'events' => $settings->tab_label_events ?? 'Eventos',
+        'loyalty' => $settings->tab_label_loyalty ?? 'Fidelidad',
+    ];
+    $tabLabelsSingular = [
+        'cocktails' => \Illuminate\Support\Str::singular($tabLabels['cocktails']) ?: $tabLabels['cocktails'],
+    ];
+@endphp
 <div class="space-y-10">
     <section class="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl relative overflow-hidden">
         <div class="absolute inset-y-0 -right-10 opacity-20 pointer-events-none hidden md:block">
@@ -12,7 +24,7 @@
             <div>
                 <p class="uppercase tracking-[0.3em] text-xs text-amber-500 mb-3">Sistema creativo</p>
                 <h1 class="text-3xl md:text-4xl font-semibold text-slate-900 mb-3">Panel de experiencias</h1>
-                <p class="text-slate-600 max-w-2xl">Controla menú, estilos, cócteles, vinos y eventos desde una interfaz cohesionada.</p>
+                <p class="text-slate-600 max-w-2xl">Controla menú, estilos, cócteles, café y eventos desde una interfaz cohesionada.</p>
             </div>
             <a href="{{ route('admin.events.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500/90 text-slate-900 font-semibold shadow-md hover:bg-amber-400/90 transition">
                 <span>🎟️</span> Gestionar eventos
@@ -28,8 +40,8 @@
         </article>
         <article class="glass-card">
             <p class="text-xs uppercase tracking-widest text-slate-400 mb-1">Bebidas</p>
-            <h3 class="text-xl font-semibold text-slate-900">Cócteles + Vinos</h3>
-            <p class="text-sm text-slate-600 mt-2">Estilos, maridajes y ajustes.</p>
+            <h3 class="text-xl font-semibold text-slate-900">Cócteles + Café</h3>
+            <p class="text-sm text-slate-600 mt-2">Recetas calientes, frías y maridajes.</p>
         </article>
         <article class="glass-card">
             <p class="text-xs uppercase tracking-widest text-slate-400 mb-1">Difusión</p>
@@ -43,12 +55,28 @@
         <div class="flex flex-wrap gap-3 mb-6" id="adminTabs">
             <button class="tab-button active" data-section="dashboard">Dashboard</button>
             <button class="tab-button" data-section="general">Configuraciones</button>
-            <button class="tab-button" data-section="menu">Menú</button>
-            <button class="tab-button" data-section="cocktails">Cócteles</button>
-            <button class="tab-button" data-section="wines">Vinos</button>
-            <button class="tab-button" data-section="events">Eventos</button>
-            <button class="tab-button" data-section="campaigns">Campañas</button>
-            <button class="tab-button" data-section="popups">Pop-ups</button>
+            @if($settings->show_tab_menu)
+                <button class="tab-button" data-section="menu">{{ $tabLabels['menu'] }}</button>
+            @endif
+            @if($settings->show_tab_cocktails)
+                <button class="tab-button" data-section="cocktails">{{ $tabLabels['cocktails'] }}</button>
+            @endif
+            <button class="tab-button" data-section="featured">Lo más vendido</button>
+            @if($settings->show_tab_wines)
+                <button class="tab-button" data-section="wines">{{ $tabLabels['wines'] }}</button>
+            @endif
+            @if($settings->show_tab_events)
+                <button class="tab-button" data-section="events">{{ $tabLabels['events'] }}</button>
+            @endif
+            @if($settings->show_tab_campaigns)
+                <button class="tab-button" data-section="campaigns">Campañas</button>
+            @endif
+            @if($settings->show_tab_popups)
+                <button class="tab-button" data-section="popups">Pop-ups</button>
+            @endif
+            @if($settings->show_tab_loyalty)
+                <button class="tab-button" data-section="loyalty-section">{{ $tabLabels['loyalty'] }}</button>
+            @endif
         </div>
 
         <div class="space-y-8">
@@ -56,13 +84,13 @@
                 <div class="grid lg:grid-cols-3 gap-6">
                     <article class="module-card">
                         <div class="text-3xl mb-3">🍽️</div>
-                        <h4 class="text-lg font-semibold text-slate-900">Menú</h4>
+                        <h4 class="text-lg font-semibold text-slate-900">{{ $tabLabels['menu'] }}</h4>
                         <p class="text-sm text-slate-600 mb-4">Gestiona platos, categorías y estilos.</p>
-                        <button class="ghost-button" data-section="menu">Ir a Menú</button>
+                        <button class="ghost-button" data-section="menu">Ir a {{ $tabLabels['menu'] }}</button>
                     </article>
                     <article class="module-card">
                         <div class="text-3xl mb-3">🎟️</div>
-                        <h4 class="text-lg font-semibold text-slate-900">Eventos</h4>
+                        <h4 class="text-lg font-semibold text-slate-900">{{ $tabLabels['events'] }}</h4>
                         <p class="text-sm text-slate-600 mb-4">Crea experiencias y secciones.</p>
                         <a href="{{ route('admin.events.index') }}" class="primary-button">Gestor de eventos</a>
                     </article>
@@ -85,7 +113,7 @@
 
             <div id="menu" class="section-panel">
                 <div class="inner-panel space-y-4">
-                    <h3 class="inner-title">Menú principal</h3>
+                    <h3 class="inner-title">{{ $tabLabels['menu'] }}</h3>
             <div class="subnav">
                 <button class="subnav-button active" data-target="menu-create">Crear nuevo plato</button>
                 <button class="subnav-button" data-target="menu-config">Configuración de Menú</button>
@@ -106,26 +134,30 @@
 
             <div id="cocktails" class="section-panel">
                 <div class="inner-panel space-y-4">
-                    <h3 class="inner-title">Cócteles</h3>
+                    <h3 class="inner-title">{{ $tabLabels['cocktails'] }}</h3>
                     <div class="subnav">
-                        <button class="subnav-button active" data-target="cocktail-create">Crear cocktail</button>
-                        <button class="subnav-button" data-target="cocktail-config">Configuración de Cócteles</button>
+                        <button class="subnav-button active" data-target="cocktail-create">Crear {{ \Illuminate\Support\Str::lower($tabLabelsSingular['cocktails']) }}</button>
+                        <button class="subnav-button" data-target="cocktail-config">Configuración de {{ $tabLabels['cocktails'] }}</button>
                     </div>
                     <div id="cocktail-create" class="subnav-panel show">
-                        @include('admin.partials.manage-cocktails')
+                        @include('admin.partials.manage-cocktails', ['cocktailLabel' => $tabLabels['cocktails']])
                     </div>
                     <div id="cocktail-config" class="subnav-panel">
-                        @include('admin.partials.cocktails-config')
+                        @include('admin.partials.cocktails-config', ['cocktailLabel' => $tabLabels['cocktails']])
                     </div>
                 </div>
             </div>
 
+            <div id="featured" class="section-panel">
+                @include('admin.partials.featured-tabs')
+            </div>
+
             <div id="wines" class="section-panel">
                 <div class="inner-panel space-y-4">
-                    <h3 class="inner-title">Vinos</h3>
+                    <h3 class="inner-title">{{ $tabLabels['wines'] }}</h3>
                     <div class="subnav">
-                        <button class="subnav-button active" data-target="wine-create">Crear vino</button>
-                        <button class="subnav-button" data-target="wine-config">Configuración de Vinos</button>
+                        <button class="subnav-button active" data-target="wine-create">Crear bebida</button>
+                        <button class="subnav-button" data-target="wine-config">Configuración de Café</button>
                         <button class="subnav-button" data-target="wine-advanced">Gestión avanzada</button>
                     </div>
                     <div id="wine-create" class="subnav-panel show">
@@ -142,7 +174,7 @@
 
             <div id="events" class="section-panel">
                 <div class="inner-panel">
-                    <h3 class="inner-title">Eventos especiales</h3>
+                    <h3 class="inner-title">{{ $tabLabels['events'] }}</h3>
                     <p class="inner-text">Configura eventos, mapa de secciones y taquillas.</p>
                     <a href="{{ route('admin.events.index') }}" class="primary-button mt-4 inline-flex">Ir a gestor de eventos</a>
                 </div>
@@ -169,6 +201,10 @@
                     <h3 class="inner-title">Pop-ups</h3>
                     @include('admin.partials.manage-popups')
                 </div>
+            </div>
+
+            <div id="loyalty-section" class="section-panel">
+                @include('admin.partials.loyalty')
             </div>
         </div>
     </section>
@@ -242,6 +278,13 @@
         padding: 1.5rem;
         border: 1px solid #e2e8f0;
         box-shadow: 0 10px 25px rgba(15,23,42,0.05);
+    }
+    .feature-card {
+        background: #ffffff;
+        border-radius: 1.25rem;
+        padding: 1.5rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 18px rgba(15,23,42,0.05);
     }
     .inner-title {
         font-size: 1.25rem;

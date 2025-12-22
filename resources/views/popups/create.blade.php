@@ -35,7 +35,7 @@
             <select class="form-control" id="view" name="view" required>
                 <option value="menu">Menú</option>
                 <option value="cocktails">Cocktails</option>
-                <option value="wines">Vinos</option>
+                <option value="coffee">Café</option>
             </select>
         </div>
         <div class="mb-3">

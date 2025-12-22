@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Artículo de Vino</title>
+    <title>Editar bebida de café</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="container mt-5">
-    <h1>Editar Artículo de Vino</h1>
+    <h1>Editar bebida de café</h1>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -57,9 +57,9 @@
             </select>
         </div>
 
-        <!-- Tipo de Vino -->
+        <!-- Método o estilo -->
         <div class="mb-3">
-            <label for="type_id" class="form-label">Tipo de Vino</label>
+            <label for="type_id" class="form-label">Método o estilo</label>
             <select class="form-select" id="type_id" name="type_id">
                 <option value="">Seleccionar</option>
                 @foreach($types as $type)
@@ -122,6 +122,11 @@
         <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="visible" name="visible" value="1" {{ $wine->visible ? 'checked' : '' }}>
             <label class="form-check-label" for="visible">Visible</label>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="featured_on_cover" name="featured_on_cover" value="1" {{ old('featured_on_cover', $wine->featured_on_cover) ? 'checked' : '' }}>
+            <label class="form-check-label" for="featured_on_cover">Destacar en la portada</label>
         </div>
 
         <button type="submit" class="btn btn-primary">Actualizar</button>

@@ -56,6 +56,12 @@
         </button>
     </header>
 
+    @if($settings->cocktail_hero_image)
+        <div class="max-w-5xl mx-auto px-4 mt-6">
+            <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="w-full rounded-3xl shadow-2xl border border-white/20 object-cover">
+        </div>
+    @endif
+
     <!-- Menú lateral desktop -->
     <div class="hidden lg:block">
         <aside class="fixed top-0 left-0 z-30 w-64 h-screen p-6 overflow-y-auto bg-white text-slate-900 shadow-2xl space-y-3">
@@ -123,7 +129,7 @@
                 </div>
                 <div class="grid gap-6 md:grid-cols-2">
                     @foreach ($category->items->where('visible', true) as $item)
-                        <article class="rounded-3xl border p-4 flex gap-4 items-center shadow-xl hover:shadow-2xl transition hover:-translate-y-1 cursor-pointer"
+                        <article id="cocktail{{ $item->id }}" class="rounded-3xl border p-4 flex gap-4 items-center shadow-xl hover:shadow-2xl transition hover:-translate-y-1 cursor-pointer"
                                  data-cocktail-card
                                  data-name="{{ $item->name }}"
                                  data-description="{{ strip_tags($item->description) }}"
@@ -174,9 +180,9 @@
                style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};">
                 <i class="fas fa-utensils text-lg"></i><span>Menú</span>
             </a>
-            <a href="/wines" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
+            <a href="/coffee" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
                style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};">
-                <i class="fas fa-wine-glass text-lg"></i><span>Vinos</span>
+                <i class="fas fa-mug-saucer text-lg"></i><span>Café</span>
             </a>
         </div>
     </div>

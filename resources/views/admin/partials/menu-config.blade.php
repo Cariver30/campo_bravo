@@ -10,6 +10,15 @@
         <input type="file" name="background_image_menu" id="background_image_menu" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 dark:placeholder-gray-400 focus:outline-none">
     </div>
 
+    {{-- Imagen destacada --}}
+    <div>
+        <label for="menu_hero_image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Imagen destacada del menú (hero)</label>
+        <input type="file" name="menu_hero_image" id="menu_hero_image" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+        @if($settings->menu_hero_image)
+            <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" class="mt-2 rounded-lg shadow" alt="Hero menú">
+        @endif
+    </div>
+
     {{-- Color de texto --}}
     <div>
         <label for="text_color_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color del Texto</label>

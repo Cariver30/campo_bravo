@@ -29,6 +29,7 @@ class CocktailController extends Controller
     public function create()
     {
         $categories = CocktailCategory::all();
+
         return view('cocktail.create', compact('categories'));
     }
 
@@ -39,7 +40,8 @@ class CocktailController extends Controller
             'description' => 'nullable',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
-            'image' => 'nullable|image'
+            'image' => 'nullable|image',
+            'featured_on_cover' => ['nullable', 'boolean'],
         ]);
 
         $cocktail = new Cocktail($request->all());
@@ -48,14 +50,20 @@ class CocktailController extends Controller
             $cocktail->image = $request->file('image')->store('cocktail_images', 'public');
         }
 
+        $cocktail->featured_on_cover = $request->boolean('featured_on_cover');
         $cocktail->save();
 
-        return redirect()->route('admin.new-panel', ['section' => 'cocktails-section', 'open' => 'create-cocktail'])->with('success', 'Artículo de Cocktail creado con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'cocktails-section',
+            'open' => 'cocktail-create',
+            'expand' => 'cocktail-categories',
+        ])->with('success', 'Artículo de Cocktail creado con éxito');
     }
 
     public function edit(Cocktail $cocktail)
     {
         $categories = CocktailCategory::all();
+
         return view('cocktail.edit', compact('cocktail', 'categories'));
     }
 
@@ -66,13 +74,15 @@ class CocktailController extends Controller
             'description' => 'nullable',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
-            'image' => 'nullable|image'
+            'image' => 'nullable|image',
+            'featured_on_cover' => ['nullable', 'boolean'],
         ]);
 
         $data = $request->all();
 
         // Asegúrate de convertir el valor del checkbox visible a un valor booleano
         $data['visible'] = $request->has('visible') ? true : false;
+        $data['featured_on_cover'] = $request->boolean('featured_on_cover');
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('cocktail_images', 'public');
@@ -80,13 +90,21 @@ class CocktailController extends Controller
 
         $cocktail->update($data);
 
-        return redirect()->route('admin.new-panel', ['section' => 'cocktails-section'])->with('success', 'Artículo de Cocktail actualizado con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'cocktails-section',
+            'open' => 'cocktail-create',
+            'expand' => 'cocktail-categories',
+        ])->with('success', 'Artículo de Cocktail actualizado con éxito');
     }
 
     public function destroy(Cocktail $cocktail)
     {
         $cocktail->delete();
-        return redirect()->route('admin.new-panel', ['section' => 'cocktails-section'])->with('success', 'Artículo de Cocktail eliminado con éxito');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'cocktails-section',
+            'open' => 'cocktail-create',
+            'expand' => 'cocktail-categories',
+        ])->with('success', 'Artículo de Cocktail eliminado con éxito');
     }
 
     public function toggleVisibility(Cocktail $cocktail)
@@ -94,7 +112,23 @@ class CocktailController extends Controller
         $cocktail->visible = !$cocktail->visible;
         $cocktail->save();
 
-        return redirect()->route('admin.new-panel', ['section' => 'cocktails-section'])->with('success', 'Visibilidad del artículo de Cocktail actualizada');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'cocktails-section',
+            'open' => 'cocktail-create',
+            'expand' => 'cocktail-categories',
+        ])->with('success', 'Visibilidad del artículo de Cocktail actualizada');
+    }
+
+    public function toggleFeatured(Cocktail $cocktail)
+    {
+        $cocktail->featured_on_cover = !$cocktail->featured_on_cover;
+        $cocktail->save();
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'cocktails-section',
+            'open' => 'cocktail-create',
+            'expand' => 'cocktail-categories',
+        ])->with('success', 'Destacado en portada actualizado.');
     }
 
     public function reorder(Request $request)

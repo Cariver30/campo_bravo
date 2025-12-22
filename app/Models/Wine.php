@@ -18,7 +18,13 @@ class Wine extends Model
         'region_id',
         'image',
         'visible',
+        'featured_on_cover',
         'position',
+    ];
+
+    protected $casts = [
+        'visible' => 'boolean',
+        'featured_on_cover' => 'boolean',
     ];
 
     /**

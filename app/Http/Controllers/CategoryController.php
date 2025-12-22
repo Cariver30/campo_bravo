@@ -30,16 +30,23 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required',
+            'show_on_cover' => ['nullable', 'boolean'],
+            'cover_title' => ['nullable', 'string', 'max:255'],
+            'cover_subtitle' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $category = new Category;
-        $category->name = $request->name;
-        $category->order = (Category::max('order') ?? 0) + 1;
-        $category->save();
+        $data['order'] = (Category::max('order') ?? 0) + 1;
+        $data['show_on_cover'] = $request->boolean('show_on_cover');
 
-        return redirect()->route('admin.new-panel', ['section' => 'menu-section', 'open' => 'menu-config'])->with('success', 'Categoría creada con éxito.');
+        Category::create($data);
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'menu-section',
+            'open' => 'menu-create',
+            'expand' => 'dish-categories',
+        ])->with('success', 'Categoría creada con éxito.');
     }
 
     /**
@@ -63,14 +70,22 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required',
+            'show_on_cover' => ['nullable', 'boolean'],
+            'cover_title' => ['nullable', 'string', 'max:255'],
+            'cover_subtitle' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $category->name = $request->name;
-        $category->save();
+        $data['show_on_cover'] = $request->boolean('show_on_cover');
 
-        return redirect()->route('admin.new-panel', ['section' => 'menu-section', 'open' => 'menu-config'])->with('success', 'Categoría actualizada con éxito.');
+        $category->update($data);
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'menu-section',
+            'open' => 'menu-create',
+            'expand' => 'dish-categories',
+        ])->with('success', 'Categoría actualizada con éxito.');
     }
 
     /**
@@ -80,7 +95,11 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        return redirect()->route('admin.new-panel', ['section' => 'menu-section', 'open' => 'menu-config'])->with('success', 'Categoría eliminada con éxito.');
+        return redirect()->route('admin.new-panel', [
+            'section' => 'menu-section',
+            'open' => 'menu-create',
+            'expand' => 'dish-categories',
+        ])->with('success', 'Categoría eliminada con éxito.');
     }
 
     public function updateOrder(Request $request)
@@ -101,5 +120,43 @@ class CategoryController extends Controller
     {
         $categories = Category::all(); // Get all categories from your database
         return response()->json($categories); // Return the categories as a JSON response
+    }
+
+    public function toggleCover(Category $category)
+    {
+        $category->show_on_cover = !$category->show_on_cover;
+        if ($category->show_on_cover && !$category->cover_title) {
+            $category->cover_title = $category->name;
+        }
+        $category->save();
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'menu-section',
+            'open' => 'menu-create',
+            'expand' => 'dish-categories',
+        ])->with('success', 'Se actualizó la visibilidad en portada.');
+    }
+
+    public function updateFeaturedItems(Request $request, Category $category)
+    {
+        $data = $request->validate([
+            'featured_items' => ['nullable', 'array'],
+            'featured_items.*' => ['integer', 'exists:dishes,id'],
+        ]);
+
+        $ids = collect($data['featured_items'] ?? []);
+
+        $category->load('dishes');
+
+        foreach ($category->dishes as $dish) {
+            $dish->featured_on_cover = $ids->contains($dish->id);
+            $dish->save();
+        }
+
+        return redirect()->route('admin.new-panel', [
+            'section' => 'menu-section',
+            'open' => 'menu-create',
+            'expand' => 'dish-categories',
+        ])->with('success', 'Destacados actualizados.');
     }
 }

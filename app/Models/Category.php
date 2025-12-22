@@ -9,7 +9,17 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'order'];
+    protected $fillable = [
+        'name',
+        'order',
+        'show_on_cover',
+        'cover_title',
+        'cover_subtitle',
+    ];
+
+    protected $casts = [
+        'show_on_cover' => 'boolean',
+    ];
 
     public function dishes()
     {

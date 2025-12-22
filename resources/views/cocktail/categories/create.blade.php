@@ -32,6 +32,18 @@
             <label for="name" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="show_on_cover" name="show_on_cover" value="1" {{ old('show_on_cover') ? 'checked' : '' }}>
+            <label class="form-check-label" for="show_on_cover">Mostrar como pestaña en la portada</label>
+        </div>
+        <div class="mb-3">
+            <label for="cover_title" class="form-label">Nombre público</label>
+            <input type="text" class="form-control" id="cover_title" name="cover_title" value="{{ old('cover_title') }}">
+        </div>
+        <div class="mb-3">
+            <label for="cover_subtitle" class="form-label">Descripción breve</label>
+            <input type="text" class="form-control" id="cover_subtitle" name="cover_subtitle" value="{{ old('cover_subtitle') }}">
+        </div>
         <button type="submit" class="btn btn-primary">Crear</button>
     </form>
 </div>

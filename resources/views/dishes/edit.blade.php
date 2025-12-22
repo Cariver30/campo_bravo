@@ -54,6 +54,10 @@
             <input type="checkbox" class="form-check-input" id="visible" name="visible" {{ $dish->visible ? 'checked' : '' }}>
             <label class="form-check-label" for="visible">Visible</label>
         </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="featured_on_cover" name="featured_on_cover" value="1" {{ old('featured_on_cover', $dish->featured_on_cover) ? 'checked' : '' }}>
+            <label class="form-check-label" for="featured_on_cover">Destacar en la portada</label>
+        </div>
         <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>
 </div>
