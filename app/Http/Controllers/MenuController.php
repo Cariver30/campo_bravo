@@ -3,29 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Setting;
 use App\Models\Popup;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Models\Setting;
 
 class MenuController extends Controller
 {
     public function index()
-{
-    $settings = Setting::first();
+    {
+        $settings = Setting::first();
 
-    $categories = Category::with(['dishes' => function($q) {
-        $q->where('visible', true)->with('wines'); // ✅ Cargar vinos asociados a cada plato
-    }])->get();
+        $categories = Category::with([
+                'dishes' => function ($query) {
+                    $query->where('visible', true)
+                        ->with('wines')
+                        ->orderBy('position');
+                },
+            ])
+            ->orderBy('order')
+            ->get();
 
-    $popups = Popup::where('active', 1)
-                ->where('view', 'menu')
-                ->whereDate('start_date', '<=', now())
-                ->whereDate('end_date', '>=', now())
-                ->get();
+        $popups = Popup::where('active', 1)
+            ->where('view', 'menu')
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->get();
 
-    return view('menu', compact('settings', 'categories', 'popups'));
+        return view('menu', compact('settings', 'categories', 'popups'));
+    }
 }
-
-}
-
