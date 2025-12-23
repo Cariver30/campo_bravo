@@ -22,9 +22,15 @@ class CoverCarouselController extends Controller
             'subtitle' => ['nullable', 'string', 'max:255'],
             'link_label' => ['nullable', 'string', 'max:80'],
             'link_url' => ['nullable', 'url'],
-            'image' => ['required', 'image'],
+            'image' => ['nullable', 'image'],
             'position' => ['nullable', 'integer', 'min:0'],
         ]);
+
+        if (! $request->hasFile('image')) {
+            return back()
+                ->withInput()
+                ->withErrors(['image' => 'Debes subir una imagen para esta tarjeta del carrusel.']);
+        }
 
         $path = $request->file('image')->store('cover_carousel', 'public');
 
