@@ -93,7 +93,8 @@
             @foreach($ctaVisibility as $field => $label)
                 <div class="col-md-4">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="{{ $field }}" name="{{ $field }}" {{ ($settings->{$field} ?? true) ? 'checked' : '' }}>
+                        <input type="hidden" name="{{ $field }}" value="0">
+                        <input class="form-check-input" type="checkbox" id="{{ $field }}" name="{{ $field }}" value="1" {{ ($settings->{$field} ?? true) ? 'checked' : '' }}>
                         <label class="form-check-label" for="{{ $field }}">{{ $label }}</label>
                     </div>
                 </div>
@@ -235,43 +236,50 @@
         <div class="row g-3 mt-3">
             <div class="col-md-4">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="show_tab_menu" name="show_tab_menu" {{ $settings->show_tab_menu ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_menu" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_menu" name="show_tab_menu" value="1" {{ $settings->show_tab_menu ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_menu">Mostrar Menú</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="show_tab_cocktails" name="show_tab_cocktails" {{ $settings->show_tab_cocktails ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_cocktails" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_cocktails" name="show_tab_cocktails" value="1" {{ $settings->show_tab_cocktails ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_cocktails">Mostrar Bebidas</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="show_tab_wines" name="show_tab_wines" {{ $settings->show_tab_wines ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_wines" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_wines" name="show_tab_wines" value="1" {{ $settings->show_tab_wines ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_wines">Mostrar Café &amp; Brunch</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" id="show_tab_events" name="show_tab_events" {{ $settings->show_tab_events ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_events" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_events" name="show_tab_events" value="1" {{ $settings->show_tab_events ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_events">Mostrar Eventos</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" id="show_tab_campaigns" name="show_tab_campaigns" {{ $settings->show_tab_campaigns ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_campaigns" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_campaigns" name="show_tab_campaigns" value="1" {{ $settings->show_tab_campaigns ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_campaigns">Mostrar Campañas</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" id="show_tab_popups" name="show_tab_popups" {{ $settings->show_tab_popups ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_popups" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_popups" name="show_tab_popups" value="1" {{ $settings->show_tab_popups ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_popups">Mostrar Pop-ups</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" id="show_tab_loyalty" name="show_tab_loyalty" {{ $settings->show_tab_loyalty ? 'checked' : '' }}>
+                    <input type="hidden" name="show_tab_loyalty" value="0">
+                    <input class="form-check-input" type="checkbox" id="show_tab_loyalty" name="show_tab_loyalty" value="1" {{ $settings->show_tab_loyalty ? 'checked' : '' }}>
                     <label class="form-check-label" for="show_tab_loyalty">Mostrar Fidelidad</label>
                 </div>
             </div>
@@ -311,7 +319,8 @@
     <div class="border rounded-3 p-3 mb-4">
         <h5 class="mb-3">Control de Lista VIP</h5>
         <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="show_cta_vip" name="show_cta_vip" {{ ($settings->show_cta_vip ?? true) ? 'checked' : '' }}>
+            <input type="hidden" name="show_cta_vip" value="0">
+            <input class="form-check-input" type="checkbox" id="show_cta_vip" name="show_cta_vip" value="1" {{ ($settings->show_cta_vip ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="show_cta_vip">Mostrar tarjeta VIP en la portada</label>
         </div>
         <div class="row g-3">
