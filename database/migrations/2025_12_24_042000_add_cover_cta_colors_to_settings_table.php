@@ -22,10 +22,10 @@ return new class extends Migration
                 $textColumn = "cover_cta_{$key}_text_color";
 
                 if (!Schema::hasColumn('settings', $bgColumn)) {
-                    $table->string($bgColumn)->nullable()->after('cover_highlight_3_description');
+                    $table->text($bgColumn)->nullable()->after('cover_highlight_3_description');
                 }
                 if (!Schema::hasColumn('settings', $textColumn)) {
-                    $table->string($textColumn)->nullable()->after($bgColumn);
+                    $table->text($textColumn)->nullable()->after($bgColumn);
                 }
             }
         });
