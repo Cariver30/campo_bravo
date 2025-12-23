@@ -7,6 +7,7 @@ use App\Models\CoverCarouselItem;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CoverCarouselController extends Controller
 {
@@ -30,9 +31,7 @@ class CoverCarouselController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('cover_carousel', 'public');
         } else {
-            $settings = Setting::first();
-            $path = $settings?->logo ?: 'default-logo.png';
-
+            $path = $this->resolveFallbackImagePath();
             if (! $path) {
                 return back()
                     ->withInput()
@@ -101,5 +100,43 @@ class CoverCarouselController extends Controller
             'section' => 'general',
             'focus' => 'cover-carousel-panel',
         ])->with('success', 'Elemento eliminado.');
+    }
+
+    protected function resolveFallbackImagePath(): ?string
+    {
+        $settings = Setting::first();
+        if ($settings && $settings->logo) {
+            return $settings->logo;
+        }
+
+        $placeholderPath = 'cover_carousel/default-placeholder.svg';
+        if (! Storage::disk('public')->exists($placeholderPath)) {
+            Storage::disk('public')->put($placeholderPath, $this->defaultPlaceholderSvg());
+        }
+
+        return $placeholderPath;
+    }
+
+    protected function defaultPlaceholderSvg(): string
+    {
+        return <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+    <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1e1b4b;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#grad)"/>
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+          font-family="Arial, Helvetica, sans-serif" font-size="48" fill="#ffffff" opacity="0.85">
+        Café Negro
+    </text>
+    <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle"
+          font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#ffffff" opacity="0.65">
+        Imagen pendiente
+    </text>
+</svg>
+SVG;
     }
 }
