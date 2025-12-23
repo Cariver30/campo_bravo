@@ -10,16 +10,16 @@ return new class extends Migration
     {
         Schema::table('settings', function (Blueprint $table) {
             if (!Schema::hasColumn('settings', 'cover_hero_kicker')) {
-                $table->string('cover_hero_kicker')->nullable()->after('text_color_cover_secondary');
+                $table->text('cover_hero_kicker')->nullable()->after('text_color_cover_secondary');
             }
             if (!Schema::hasColumn('settings', 'cover_hero_title')) {
-                $table->string('cover_hero_title')->nullable()->after('cover_hero_kicker');
+                $table->text('cover_hero_title')->nullable()->after('cover_hero_kicker');
             }
             if (!Schema::hasColumn('settings', 'cover_hero_paragraph')) {
                 $table->text('cover_hero_paragraph')->nullable()->after('cover_hero_title');
             }
             if (!Schema::hasColumn('settings', 'cover_location_text')) {
-                $table->string('cover_location_text')->nullable()->after('cover_hero_paragraph');
+                $table->text('cover_location_text')->nullable()->after('cover_hero_paragraph');
             }
 
             for ($i = 1; $i <= 3; $i++) {
@@ -28,10 +28,10 @@ return new class extends Migration
                 $descriptionColumn = "cover_highlight_{$i}_description";
 
                 if (!Schema::hasColumn('settings', $labelColumn)) {
-                    $table->string($labelColumn)->nullable()->after('cover_location_text');
+                    $table->text($labelColumn)->nullable()->after('cover_location_text');
                 }
                 if (!Schema::hasColumn('settings', $titleColumn)) {
-                    $table->string($titleColumn)->nullable()->after($labelColumn);
+                    $table->text($titleColumn)->nullable()->after($labelColumn);
                 }
                 if (!Schema::hasColumn('settings', $descriptionColumn)) {
                     $table->text($descriptionColumn)->nullable()->after($titleColumn);
