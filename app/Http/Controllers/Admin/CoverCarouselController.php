@@ -11,6 +11,12 @@ class CoverCarouselController extends Controller
 {
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'subtitle' => filled($request->input('subtitle')) ? $request->input('subtitle') : null,
+            'link_label' => filled($request->input('link_label')) ? $request->input('link_label') : null,
+            'link_url' => filled($request->input('link_url')) ? $request->input('link_url') : null,
+        ]);
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
@@ -40,6 +46,12 @@ class CoverCarouselController extends Controller
 
     public function update(Request $request, CoverCarouselItem $coverCarouselItem): RedirectResponse
     {
+        $request->merge([
+            'subtitle' => filled($request->input('subtitle')) ? $request->input('subtitle') : null,
+            'link_label' => filled($request->input('link_label')) ? $request->input('link_label') : null,
+            'link_url' => filled($request->input('link_url')) ? $request->input('link_url') : null,
+        ]);
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
@@ -60,7 +72,7 @@ class CoverCarouselController extends Controller
             'link_label' => $data['link_label'] ?? null,
             'link_url' => $data['link_url'] ?? null,
             'position' => $data['position'] ?? $coverCarouselItem->position,
-            'visible' => $request->boolean('visible'),
+            'visible' => $request->boolean('visible', $coverCarouselItem->visible),
         ])->save();
 
         return redirect()->route('admin.new-panel', [

@@ -81,6 +81,7 @@
                         </td>
                         <td class="text-center">
                                 <div class="form-check d-flex justify-content-center">
+                                    <input type="hidden" name="visible" value="0">
                                     <input class="form-check-input" type="checkbox" name="visible" value="1" {{ $item->visible ? 'checked' : '' }}>
                                 </div>
                         </td>
