@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CoverCarouselItem;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -26,13 +27,18 @@ class CoverCarouselController extends Controller
             'position' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        if (! $request->hasFile('image')) {
-            return back()
-                ->withInput()
-                ->withErrors(['image' => 'Debes subir una imagen para esta tarjeta del carrusel.']);
-        }
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('cover_carousel', 'public');
+        } else {
+            $settings = Setting::first();
+            $path = $settings?->logo ?: 'default-logo.png';
 
-        $path = $request->file('image')->store('cover_carousel', 'public');
+            if (! $path) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['image' => 'Debes subir una imagen para esta tarjeta del carrusel o cargar un logo en configuraciones.']);
+            }
+        }
 
         CoverCarouselItem::create([
             'title' => $data['title'],
