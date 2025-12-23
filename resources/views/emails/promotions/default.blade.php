@@ -61,7 +61,7 @@
         </div>
     </div>
     <div class="footer">
-        © {{ date('Y') }} Asador San Miguel · Este correo fue enviado desde nuestro panel de experiencias.
+        © {{ date('Y') }} {{ config('app.name', 'Café Negro') }} · Este correo fue enviado desde nuestro panel de experiencias.
     </div>
 </body>
 </html>

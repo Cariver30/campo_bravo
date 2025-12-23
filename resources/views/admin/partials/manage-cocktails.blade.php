@@ -14,25 +14,34 @@
         <div id="cocktailsList">
             @foreach($cocktails as $cocktail)
                 <div class="card mb-3 cocktail-item" data-name="{{ $cocktail->name }}" data-category="{{ $cocktail->category->name }}">
-                    <div class="card-body">
-                        <h3 class="card-title">{{ $cocktail->name }}</h3>
-                        <img src="{{ asset('storage/' . $cocktail->image) }}" alt="{{ $cocktail->name }}" class="img-thumbnail" style="max-width: 200px;">
-                        <p class="card-text">{{ $cocktail->description }}</p>
-                        <p class="card-text">${{ $cocktail->price }}</p>
-                        <a href="{{ route('cocktails.edit', $cocktail) }}" class="btn btn-outline-primary">Editar</a>
-                        <button class="btn btn-outline-danger" form="delete-cocktail-{{ $cocktail->id }}">Eliminar</button>
-                        <form id="delete-cocktail-{{ $cocktail->id }}" method="POST" action="{{ route('cocktails.destroy', $cocktail) }}" style="display:none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                        <form method="POST" action="{{ route('cocktails.toggleVisibility', $cocktail) }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn {{ $cocktail->visible ? 'btn-success' : 'btn-warning' }}">
-                                {{ $cocktail->visible ? 'Visible' : 'Oculto' }}
-                            </button>
-                        </form>
+                    <div class="card-body d-flex gap-3 flex-wrap">
+                        <div class="flex-shrink-0">
+                            <img src="{{ asset('storage/' . $cocktail->image) }}" alt="{{ $cocktail->name }}" class="rounded-3 shadow-sm" style="width: 140px; height: 140px; object-fit: cover;">
+                        </div>
+                        <div class="flex-fill">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                <h3 class="card-title mb-0">{{ $cocktail->name }}</h3>
+                                <span class="badge {{ $cocktail->visible ? 'bg-success' : 'bg-secondary' }}">{{ $cocktail->visible ? 'Visible' : 'Oculto' }}</span>
+                            </div>
+                            <p class="card-text small text-muted mb-2">{{ $cocktail->description }}</p>
+                            <p class="card-text fw-semibold">${{ $cocktail->price }}</p>
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <a href="{{ route('cocktails.edit', $cocktail) }}" class="btn btn-outline-primary btn-sm">Editar</a>
+                                <button class="btn btn-outline-danger btn-sm" form="delete-cocktail-{{ $cocktail->id }}">Eliminar</button>
+                                <form method="POST" action="{{ route('cocktails.toggleVisibility', $cocktail) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm {{ $cocktail->visible ? 'btn-success' : 'btn-outline-secondary' }}">
+                                        {{ $cocktail->visible ? 'Ocultar' : 'Mostrar' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
+                    <form id="delete-cocktail-{{ $cocktail->id }}" method="POST" action="{{ route('cocktails.destroy', $cocktail) }}" style="display:none;">
+                        @csrf
+                        @method('DELETE')
+                    </form>
                 </div>
             @endforeach
         </div>

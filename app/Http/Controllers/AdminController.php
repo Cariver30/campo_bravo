@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\CoverCarouselItem;
 use App\Models\Dish;
 use App\Models\Cocktail;
 use App\Models\CocktailCategory;
@@ -57,7 +58,10 @@ class AdminController extends Controller
         $popups = Popup::all(); // Asegúrate de obtener todos los popups
 
 
-        return view('admin', compact('categories', 'dishes', 'cocktails', 'cocktailCategories', 'wines', 'wineCategories', 'settings','popups'));
+        $carouselItems = CoverCarouselItem::orderBy('position')->get();
+        $managers = User::where('role', 'manager')->orderBy('name')->get();
+
+        return view('admin', compact('categories', 'dishes', 'cocktails', 'cocktailCategories', 'wines', 'wineCategories', 'settings','popups', 'carouselItems', 'managers'));
     }
 
     public function newAdminPanel()
@@ -75,8 +79,10 @@ $regions = Region::all();
 $grapes = Grape::all();
 $foodPairings = FoodPairing::all();
         $featuredGroups = FeaturedGroupBuilder::build(true);
+        $carouselItems = CoverCarouselItem::orderBy('position')->get();
         $loyaltyRewards = LoyaltyReward::orderBy('points_required')->get();
         $servers = User::where('role', 'server')->orderBy('name')->get();
+        $managers = User::where('role', 'manager')->orderBy('name')->get();
         $loyaltyCustomers = LoyaltyCustomer::orderByDesc('points')->limit(8)->get();
 
         
@@ -98,7 +104,9 @@ $foodPairings = FoodPairing::all();
             'featuredGroups',
             'loyaltyRewards',
             'servers',
-            'loyaltyCustomers'
+            'loyaltyCustomers',
+            'carouselItems',
+            'managers'
         ));
     }
 
@@ -187,15 +195,6 @@ $foodPairings = FoodPairing::all();
             $settings->logo = $path;
         }
 
-        if ($request->hasFile('cover_gallery_image_1')) {
-            $settings->cover_gallery_image_1 = $request->file('cover_gallery_image_1')->store('cover_gallery', 'public');
-        }
-        if ($request->hasFile('cover_gallery_image_2')) {
-            $settings->cover_gallery_image_2 = $request->file('cover_gallery_image_2')->store('cover_gallery', 'public');
-        }
-        if ($request->hasFile('cover_gallery_image_3')) {
-            $settings->cover_gallery_image_3 = $request->file('cover_gallery_image_3')->store('cover_gallery', 'public');
-        }
         if ($request->hasFile('menu_hero_image')) {
             $settings->menu_hero_image = $request->file('menu_hero_image')->store('hero_images', 'public');
         }
@@ -222,6 +221,27 @@ $foodPairings = FoodPairing::all();
         }
 
         $settings->text_color_cover = $request->input('text_color_cover', $settings->text_color_cover);
+        if (Schema::hasColumn('settings', 'text_color_cover_secondary')) {
+            $settings->text_color_cover_secondary = $request->input('text_color_cover_secondary', $settings->text_color_cover_secondary);
+        }
+        if (Schema::hasColumn('settings', 'cover_hero_kicker')) {
+            $settings->cover_hero_kicker = $request->input('cover_hero_kicker', $settings->cover_hero_kicker);
+            $settings->cover_hero_title = $request->input('cover_hero_title', $settings->cover_hero_title);
+            $settings->cover_hero_paragraph = $request->input('cover_hero_paragraph', $settings->cover_hero_paragraph);
+            $settings->cover_location_text = $request->input('cover_location_text', $settings->cover_location_text);
+            $settings->cover_cta_menu_bg_color = $request->input('cover_cta_menu_bg_color', $settings->cover_cta_menu_bg_color);
+            $settings->cover_cta_menu_text_color = $request->input('cover_cta_menu_text_color', $settings->cover_cta_menu_text_color);
+            $settings->cover_cta_cafe_bg_color = $request->input('cover_cta_cafe_bg_color', $settings->cover_cta_cafe_bg_color);
+            $settings->cover_cta_cafe_text_color = $request->input('cover_cta_cafe_text_color', $settings->cover_cta_cafe_text_color);
+            $settings->cover_cta_cocktails_bg_color = $request->input('cover_cta_cocktails_bg_color', $settings->cover_cta_cocktails_bg_color);
+            $settings->cover_cta_cocktails_text_color = $request->input('cover_cta_cocktails_text_color', $settings->cover_cta_cocktails_text_color);
+            $settings->cover_cta_events_bg_color = $request->input('cover_cta_events_bg_color', $settings->cover_cta_events_bg_color);
+            $settings->cover_cta_events_text_color = $request->input('cover_cta_events_text_color', $settings->cover_cta_events_text_color);
+            $settings->cover_cta_reservations_bg_color = $request->input('cover_cta_reservations_bg_color', $settings->cover_cta_reservations_bg_color);
+            $settings->cover_cta_reservations_text_color = $request->input('cover_cta_reservations_text_color', $settings->cover_cta_reservations_text_color);
+            $settings->cover_cta_vip_bg_color = $request->input('cover_cta_vip_bg_color', $settings->cover_cta_vip_bg_color);
+            $settings->cover_cta_vip_text_color = $request->input('cover_cta_vip_text_color', $settings->cover_cta_vip_text_color);
+        }
         $settings->text_color_menu = $request->input('text_color_menu', $settings->text_color_menu);
         $settings->text_color_cocktails = $request->input('text_color_cocktails', $settings->text_color_cocktails);
         $settings->text_color_wines = $request->input('text_color_wines', $settings->text_color_wines);
@@ -290,9 +310,27 @@ $foodPairings = FoodPairing::all();
             $settings->show_tab_loyalty = $request->boolean('show_tab_loyalty');
         }
 
+        if (Schema::hasColumn('settings', 'show_cta_menu')) {
+            $settings->show_cta_menu = $request->boolean('show_cta_menu', $settings->show_cta_menu);
+            $settings->show_cta_cafe = $request->boolean('show_cta_cafe', $settings->show_cta_cafe);
+            $settings->show_cta_cocktails = $request->boolean('show_cta_cocktails', $settings->show_cta_cocktails);
+            $settings->show_cta_events = $request->boolean('show_cta_events', $settings->show_cta_events);
+            $settings->show_cta_reservations = $request->boolean('show_cta_reservations', $settings->show_cta_reservations);
+        }
+        if (Schema::hasColumn('settings', 'show_cta_vip')) {
+            $settings->show_cta_vip = $request->boolean('show_cta_vip', $settings->show_cta_vip);
+        }
+
+        if (Schema::hasColumn('settings', 'featured_card_bg_color')) {
+            $settings->featured_card_bg_color = $request->input('featured_card_bg_color', $settings->featured_card_bg_color);
+            $settings->featured_card_text_color = $request->input('featured_card_text_color', $settings->featured_card_text_color);
+            $settings->featured_tab_bg_color = $request->input('featured_tab_bg_color', $settings->featured_tab_bg_color);
+            $settings->featured_tab_text_color = $request->input('featured_tab_text_color', $settings->featured_tab_text_color);
+        }
+
         $settings->save();
 
-        return redirect()->route('admin.new-panel')->with('success', 'Configuraciones actualizadas con éxito.');
+        return redirect()->route('admin.new-panel', ['section' => 'general'])->with('success', 'Configuraciones actualizadas con éxito.');
     }
 
     

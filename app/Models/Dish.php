@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Cocktail;
 
 class Dish extends Model
 {
@@ -36,6 +37,11 @@ class Dish extends Model
 public function wines()
 {
     return $this->belongsToMany(Wine::class);
+}
+
+public function cocktails()
+{
+    return $this->belongsToMany(Cocktail::class, 'cocktail_dish');
 }
 
 }

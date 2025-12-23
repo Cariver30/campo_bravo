@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cocktail;
 use App\Models\CocktailCategory;
 use App\Models\Setting;
+use App\Models\Dish;
 use App\Models\Popup;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class CocktailController extends Controller
     public function index()
 {
     $settings = Setting::first();
-    $cocktailCategories = CocktailCategory::with('items')->get();
+    $cocktailCategories = CocktailCategory::with(['items.dishes'])->get();
     $popups = Popup::where('active', 1)
                     ->where('view', 'cocktails')
                     ->whereDate('start_date', '<=', now())
@@ -29,8 +30,9 @@ class CocktailController extends Controller
     public function create()
     {
         $categories = CocktailCategory::all();
+        $dishes = Dish::orderBy('name')->get();
 
-        return view('cocktail.create', compact('categories'));
+        return view('cocktail.create', compact('categories','dishes'));
     }
 
     public function store(Request $request)
@@ -42,9 +44,11 @@ class CocktailController extends Controller
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
+            'dishes' => ['nullable', 'array'],
+            'dishes.*' => ['integer', 'exists:dishes,id'],
         ]);
 
-        $cocktail = new Cocktail($request->all());
+        $cocktail = new Cocktail($request->except('dishes'));
 
         if ($request->hasFile('image')) {
             $cocktail->image = $request->file('image')->store('cocktail_images', 'public');
@@ -52,9 +56,10 @@ class CocktailController extends Controller
 
         $cocktail->featured_on_cover = $request->boolean('featured_on_cover');
         $cocktail->save();
+        $cocktail->dishes()->sync($request->input('dishes', []));
 
         return redirect()->route('admin.new-panel', [
-            'section' => 'cocktails-section',
+            'section' => 'cocktails',
             'open' => 'cocktail-create',
             'expand' => 'cocktail-categories',
         ])->with('success', 'Artículo de Cocktail creado con éxito');
@@ -63,8 +68,9 @@ class CocktailController extends Controller
     public function edit(Cocktail $cocktail)
     {
         $categories = CocktailCategory::all();
+        $dishes = Dish::orderBy('name')->get();
 
-        return view('cocktail.edit', compact('cocktail', 'categories'));
+        return view('cocktail.edit', compact('cocktail', 'categories','dishes'));
     }
 
     public function update(Request $request, Cocktail $cocktail)
@@ -76,9 +82,11 @@ class CocktailController extends Controller
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
+            'dishes' => ['nullable','array'],
+            'dishes.*' => ['integer','exists:dishes,id'],
         ]);
 
-        $data = $request->all();
+        $data = $request->except('dishes');
 
         // Asegúrate de convertir el valor del checkbox visible a un valor booleano
         $data['visible'] = $request->has('visible') ? true : false;
@@ -89,6 +97,7 @@ class CocktailController extends Controller
         }
 
         $cocktail->update($data);
+        $cocktail->dishes()->sync($request->input('dishes', []));
 
         return redirect()->route('admin.new-panel', [
             'section' => 'cocktails-section',

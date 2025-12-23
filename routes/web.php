@@ -19,6 +19,8 @@ use App\Http\Controllers\EventPublicController;
 use App\Http\Controllers\EventNotificationController;
 use App\Http\Controllers\Admin\EventPromotionController;
 use App\Http\Controllers\Admin\LoyaltyAdminController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\CoverCarouselController;
 use App\Http\Controllers\Loyalty\InvitationController;
 use App\Http\Controllers\Loyalty\ServerDashboardController;
 use App\Http\Controllers\Loyalty\VisitConfirmationController;
@@ -51,7 +53,7 @@ Route::prefix('experiencias')->name('experiences.')->group(function () {
     Route::post('/{event:slug}/notify', [EventNotificationController::class, 'subscribe'])->name('notify');
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::get('/admin/panel', [AdminController::class, 'panel'])->name('admin.panel');
     Route::get('/admin', [AdminController::class, 'panel'])->name('admin');
     Route::get('/admin/categories', [CategoryController::class, 'showCategories'])->name('admin.categories');
@@ -59,11 +61,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::post('/update-category-order', [CategoryController::class, 'updateOrder'])->name('categories.reorder');
     Route::get('/categories/json', [CategoryController::class, 'getCategoriesJson']);
-
-    Route::get('/admin/settings/edit', [SettingController::class, 'edit'])->name('settings.edit');
-    Route::put('/admin/settings/update', [SettingController::class, 'update'])->name('settings.update');
-
-    Route::post('/admin/update-background', [AdminController::class, 'updateBackground'])->name('admin.updateBackground');
 
     Route::prefix('admin/events')->name('admin.events.')->group(function () {
         Route::get('/', [EventManagementController::class, 'index'])->name('index');
@@ -108,6 +105,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('regions', App\Http\Controllers\RegionController::class);
     Route::resource('food-pairings', FoodPairingController::class);
     Route::resource('grapes', App\Http\Controllers\GrapeController::class);
+    Route::resource('cover-carousel', CoverCarouselController::class)->only(['store', 'update', 'destroy']);
 
     Route::get('/admin/popups', [AdminController::class, 'indexPopups'])->name('admin.popups.index');
     Route::get('/admin/popups/create', [AdminController::class, 'createPopup'])->name('admin.popups.create');
@@ -128,7 +126,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/loyalty/servers/{user}', [LoyaltyAdminController::class, 'destroyServer'])->name('admin.loyalty.servers.destroy');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/settings/edit', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::put('/admin/settings/update', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/admin/update-background', [AdminController::class, 'updateBackground'])->name('admin.updateBackground');
+    Route::post('/admin/managers', [UserManagementController::class, 'storeManager'])->name('admin.managers.store');
+    Route::patch('/admin/managers/{user}/toggle', [UserManagementController::class, 'toggleManager'])->name('admin.managers.toggle');
+    Route::delete('/admin/managers/{user}', [UserManagementController::class, 'destroyManager'])->name('admin.managers.destroy');
+});
+
+Route::middleware(['auth', 'role:server'])->group(function () {
     Route::get('/loyalty/dashboard', [ServerDashboardController::class, 'index'])->name('loyalty.dashboard');
     Route::post('/loyalty/visits', [ServerDashboardController::class, 'storeVisit'])->name('loyalty.visit.create');
 });
@@ -142,8 +149,17 @@ Route::post('/loyalty/invitations', [InvitationController::class, 'store'])->nam
 
 // Rutas protegidas para usuarios autenticados sin middleware
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+    $user = auth()->user();
+    if (! $user) {
+        return redirect()->route('login');
+    }
+
+    if ($user->isServer()) {
+        return redirect()->route('loyalty.dashboard');
+    }
+
+    return redirect()->route('admin.new-panel');
+})->middleware(['auth'])->name('dashboard');
 
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -154,4 +170,6 @@ require __DIR__.'/auth.php';
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', function () {
+    return redirect()->route('cover');
+})->name('home');

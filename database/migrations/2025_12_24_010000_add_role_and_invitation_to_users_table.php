@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('admin')->after('remember_token');
-            $table->string('invitation_token')->nullable()->after('role');
-            $table->timestamp('invitation_sent_at')->nullable()->after('invitation_token');
-            $table->timestamp('invitation_accepted_at')->nullable()->after('invitation_sent_at');
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('admin')->after('remember_token');
+            }
+            if (!Schema::hasColumn('users', 'invitation_token')) {
+                $table->string('invitation_token')->nullable()->after('role');
+            }
+            if (!Schema::hasColumn('users', 'invitation_sent_at')) {
+                $table->timestamp('invitation_sent_at')->nullable()->after('invitation_token');
+            }
+            if (!Schema::hasColumn('users', 'invitation_accepted_at')) {
+                $table->timestamp('invitation_accepted_at')->nullable()->after('invitation_sent_at');
+            }
         });
     }
 
@@ -25,12 +33,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
+            $columns = collect([
                 'role',
                 'invitation_token',
                 'invitation_sent_at',
                 'invitation_accepted_at',
-            ]);
+            ])->filter(fn ($column) => Schema::hasColumn('users', $column))->all();
+
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 };

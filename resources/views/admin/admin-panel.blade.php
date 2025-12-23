@@ -4,6 +4,7 @@
 
 @section('content')
 @php
+    $currentUser = auth()->user();
     $tabLabels = [
         'menu' => $settings->tab_label_menu ?? $settings->button_label_menu ?? 'Menú',
         'cocktails' => $settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles',
@@ -54,7 +55,9 @@
     <section class="glass-card">
         <div class="flex flex-wrap gap-3 mb-6" id="adminTabs">
             <button class="tab-button active" data-section="dashboard">Dashboard</button>
-            <button class="tab-button" data-section="general">Configuraciones</button>
+            @if($currentUser?->isAdmin())
+                <button class="tab-button" data-section="general">Configuraciones</button>
+            @endif
             @if($settings->show_tab_menu)
                 <button class="tab-button" data-section="menu">{{ $tabLabels['menu'] }}</button>
             @endif
@@ -103,13 +106,20 @@
                 </div>
             </div>
 
-            <div id="general" class="section-panel">
-                <div class="inner-panel">
-                    <h3 class="inner-title">Configuración general</h3>
-                    <p class="inner-text">Logo, redes, info fija y estilo del cover.</p>
-                    @include('admin.partials.general-config')
+            @if($currentUser?->isAdmin())
+                <div id="general" class="section-panel">
+                    <div class="inner-panel">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                            <div>
+                                <h3 class="inner-title mb-1">Configuración general</h3>
+                                <p class="inner-text m-0">Logo, redes, info fija y estilo del cover.</p>
+                            </div>
+                            <button type="button" class="btn btn-outline-light btn-sm" data-section="dashboard">Cerrar</button>
+                        </div>
+                        @include('admin.partials.general-config')
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div id="menu" class="section-panel">
                 <div class="inner-panel space-y-4">
@@ -409,6 +419,22 @@
         const section = params.get('section');
         if (section && document.getElementById(section)) {
             openSection(section);
+        }
+
+        const focus = params.get('focus');
+        if (focus) {
+            setTimeout(() => {
+                const anchor = document.getElementById(focus);
+                if (anchor) {
+                    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    anchor.classList.add('shadow-lg');
+                    anchor.style.boxShadow = '0 0 0 3px rgba(251,191,36,0.45)';
+                    setTimeout(() => {
+                        anchor.classList.remove('shadow-lg');
+                        anchor.style.boxShadow = '';
+                    }, 1800);
+                }
+            }, 250);
         }
     });
 </script>

@@ -43,11 +43,7 @@
 <body class="text-white content-layer">
     <header class="max-w-6xl mx-auto px-4 pt-10 flex flex-col items-center gap-6">
         <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="Logo" class="w-40 md:w-56 object-contain">
-        <div class="text-center space-y-2">
-            <p class="text-xs tracking-[0.4em] uppercase text-amber-300">Mixología</p>
-            <h1 class="text-4xl font-semibold">Carta de cócteles</h1>
-        </div>
-        <button type="button"
+            <button type="button"
                 id="openDrawer"
                 class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg text-white focus:ring-4 focus:ring-amber-300 lg:hidden"
                 style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};"
@@ -65,7 +61,6 @@
     <!-- Menú lateral desktop -->
     <div class="hidden lg:block">
         <aside class="fixed top-0 left-0 z-30 w-64 h-screen p-6 overflow-y-auto bg-white text-slate-900 shadow-2xl space-y-3">
-            <h2 class="text-sm tracking-[0.4em] uppercase text-slate-500">Categorías</h2>
             @foreach ($cocktailCategories as $category)
                 <a href="#category{{ $category->id }}"
                    class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 hover:bg-slate-100 transition text-sm font-semibold category-link"
@@ -80,10 +75,8 @@
     <!-- Drawer móvil -->
     <aside id="cocktailDrawer"
            class="lg:hidden fixed inset-0 z-50 p-6 overflow-y-auto transition-transform -translate-y-full bg-white text-slate-800 shadow-2xl"
-           tabindex="-1"
-           aria-labelledby="cocktailDrawerLabel">
-        <div class="flex items-center justify-between mb-6">
-            <h2 id="cocktailDrawerLabel" class="text-lg font-semibold uppercase tracking-widest text-slate-600">Categorías</h2>
+           tabindex="-1">
+        <div class="flex items-center justify-end mb-6">
             <button type="button"
                     data-close-drawer
                     aria-controls="cocktailDrawer"
@@ -150,19 +143,29 @@
                                    style="color: {{ $settings->text_color_cocktails ?? '#ffffff' }}; opacity: 0.8;">
                                     {{ $item->description }}
                                 </p>
-                                <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
-                                          style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}33; border-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}; color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
-                                        <i class="fa-solid fa-droplet"></i> {{ $item->volume ?? 'Clásico' }}
-                                    </span>
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/15"
-                                          style="background-color: rgba(255,255,255,0.12); color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
-                                        <i class="fa-solid fa-star" style="color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};"></i> Mix ideal
-                                    </span>
-                                </div>
+                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
+                                      style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}33; border-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}; color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
+                                    <i class="fa-solid fa-droplet"></i> {{ $item->volume ?? 'Clásico' }}
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/15"
+                                      style="background-color: rgba(255,255,255,0.12); color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
+                                    <i class="fa-solid fa-star" style="color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};"></i> Mix ideal
+                                </span>
                             </div>
-                        </article>
-                    @endforeach
+                            @if($item->dishes->count())
+                                <div class="mt-4 border border-white/10 rounded-2xl p-3">
+                                    <p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-2">Platos sugeridos</p>
+                                    <div class="flex flex-wrap gap-2 text-xs text-white/85">
+                                        @foreach($item->dishes as $dish)
+                                            <span class="px-3 py-1 rounded-full bg-white/10 border border-white/20">{{ $dish->name }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </article>
+                @endforeach
                 </div>
             </section>
         @endforeach

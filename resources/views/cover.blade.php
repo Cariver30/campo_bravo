@@ -10,17 +10,69 @@
     <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
+    @php
+        if (!function_exists('cover_card_color')) {
+            function cover_card_color(?string $hex, $opacity)
+            {
+                $opacity = is_numeric($opacity) ? max(0, min(1, $opacity)) : 0.85;
+                if (!$hex) {
+                    return "rgba(0,0,0,{$opacity})";
+                }
+                $hex = ltrim($hex, '#');
+                if (strlen($hex) === 3) {
+                    $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                }
+                if (strlen($hex) !== 6) {
+                    return "rgba(0,0,0,{$opacity})";
+                }
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
+                return "rgba({$r},{$g},{$b},{$opacity})";
+            }
+        }
+        $coverBaseColor = $settings->text_color_cover ?? '#ffffff';
+        $coverBodyColor = $settings->text_color_cover_secondary ?? $coverBaseColor;
+        $coverCardBackground = cover_card_color($settings->card_bg_color_cover ?? null, $settings->card_opacity_cover ?? 0.85);
+        $pointsPerVisit = $settings->loyalty_points_per_visit ?? 10;
+    @endphp
     <style>
         :root {
             --accent-color: {{ $settings->button_color_cover ?? '#FF5722' }};
-            --cover-text-color: {{ $settings->text_color_cover ?? '#ffffff' }};
+            --cover-heading-color: {{ $coverBaseColor }};
+            --cover-body-color: {{ $coverBodyColor }};
+            --cover-body-soft: {{ cover_card_color($coverBodyColor, 0.65) }};
         }
         body {
             font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};
             @if($settings && $settings->background_image_cover)
-                background: url('{{ asset('storage/' . $settings->background_image_cover) }}') no-repeat center center fixed;
+                background: none;
             @endif
             background-size: cover;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            width: 100vw;
+            height: 100vh;
+            @if($settings && $settings->background_image_cover)
+                background: url('{{ asset('storage/' . $settings->background_image_cover) }}') no-repeat center center;
+                background-size: cover;
+            @endif
+        }
+        .cover-theme {
+            color: var(--cover-body-color);
+        }
+        .cover-text-primary {
+            color: var(--cover-heading-color);
+        }
+        .cover-text-muted {
+            color: var(--cover-body-color);
+        }
+        .cover-text-soft {
+            color: var(--cover-body-soft);
         }
         .vip-button {
             position: relative;
@@ -58,124 +110,144 @@
         }
     </style>
 </head>
-@php
-    if (!function_exists('cover_card_color')) {
-        function cover_card_color(?string $hex, $opacity)
-        {
-            $opacity = is_numeric($opacity) ? max(0, min(1, $opacity)) : 0.85;
-            if (!$hex) {
-                return "rgba(0,0,0,{$opacity})";
-            }
-            $hex = ltrim($hex, '#');
-            if (strlen($hex) === 3) {
-                $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-            }
-            if (strlen($hex) !== 6) {
-                return "rgba(0,0,0,{$opacity})";
-            }
-            $r = hexdec(substr($hex, 0, 2));
-            $g = hexdec(substr($hex, 2, 2));
-            $b = hexdec(substr($hex, 4, 2));
-            return "rgba({$r},{$g},{$b},{$opacity})";
-        }
-    }
-    $coverCardBackground = cover_card_color($settings->card_bg_color_cover ?? null, $settings->card_opacity_cover ?? 0.85);
-@endphp
-<body class="relative min-h-screen bg-black/50 text-white flex flex-col items-center justify-center">
+<body class="relative min-h-screen bg-black/50 flex flex-col items-center cover-theme">
 
-    <!-- Logo centrado arriba -->
-    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-        <img src="{{ asset('storage/' . $settings->logo) }}" alt="Logo del Restaurante" class="w-52 max-w-xs mx-auto">
-    </div>
+    <header class="w-full py-6 flex justify-center z-30">
+        <img src="{{ asset('storage/' . $settings->logo) }}" alt="Logo del Restaurante" class="w-52 max-w-xs mx-auto drop-shadow-lg">
+    </header>
 
     <!-- Contenedor central -->
-    <main class="z-20 w-full px-4">
+    <main class="z-20 w-full px-4 pb-16">
         @if(session('notification_success'))
             <div id="subscriptionStatus" class="max-w-md mx-auto mb-6 bg-emerald-500/20 border border-emerald-400/30 rounded-2xl px-4 py-3 text-sm text-emerald-100">
                 {{ session('notification_success') }}
             </div>
         @endif
 
-        <div class="max-w-6xl mx-auto space-y-10" style="color: var(--cover-text-color);">
+        <div class="max-w-6xl mx-auto space-y-10" style="color: var(--cover-body-color);">
             <section class="rounded-3xl p-8 backdrop-blur space-y-8 border border-white/10" style="background-color: {{ $coverCardBackground }};">
                 <div class="flex flex-col lg:flex-row gap-8">
+                    @php
+                        $heroKicker = trim($settings->cover_hero_kicker ?? '') ?: 'Café · desayuno · brunch';
+                        $heroTitle = trim($settings->cover_hero_title ?? '') ?: 'Bienvenido a Café Negro. Aquí el visitante decide rápido a qué experiencia ir.';
+                        $heroParagraph = trim($settings->cover_hero_paragraph ?? '') ?: 'Todos los colores, tipografías y textos provienen del panel de configuraciones. Ajusta allá y verás los cambios inmediatamente.';
+                        $locationText = trim($settings->cover_location_text ?? '') ?: 'Café Negro · Miramar';
+                    @endphp
                     <div class="flex-1 space-y-4">
-                        <p class="text-amber-300 uppercase tracking-[0.45em] text-xs">Café · desayuno · brunch</p>
-                        <h1 class="text-4xl lg:text-5xl font-semibold leading-tight" style="font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};">
-                            Bienvenido a Café Negro. Aquí el visitante decide rápido a qué experiencia ir.
+                        <p class="text-amber-300 uppercase tracking-[0.45em] text-xs">{{ $heroKicker }}</p>
+                        <h1 class="text-4xl lg:text-5xl font-semibold leading-tight cover-text-primary" style="font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};">
+                            {{ $heroTitle }}
                         </h1>
-                        <p class="text-white/75 text-lg">Todos los colores, tipografías y textos provienen del panel de configuraciones. Ajusta allá y verás los cambios inmediatamente.</p>
+                        <p class="cover-text-muted text-lg">{{ $heroParagraph }}</p>
                     </div>
-                    <div class="w-full max-w-md space-y-4 bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.35em] text-white/60 mb-1">Horarios</p>
-                            <p class="text-white/80 whitespace-pre-line text-sm">{{ $settings->business_hours ?? "Viernes y sábado 12pm – 10pm\nDomingo 12pm – 8pm" }}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 text-sm text-white/80">
-                            <div class="rounded-xl border border-white/15 p-3">
-                                <p class="text-white/60 uppercase text-xs tracking-[0.3em] mb-1">Teléfono</p>
-                                <p>{{ $settings->phone_number ?? '787-000-0000' }}</p>
+                    <div class="w-full max-w-md space-y-4">
+                        <article class="space-y-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.35em] cover-text-soft mb-1">Horarios</p>
+                                <p class="cover-text-muted whitespace-pre-line text-sm">{{ $settings->business_hours ?? "Viernes y sábado 12pm – 10pm\nDomingo 12pm – 8pm" }}</p>
                             </div>
-                            <div class="rounded-xl border border-white/15 p-3">
-                                <p class="text-white/60 uppercase text-xs tracking-[0.3em] mb-1">Ubicación</p>
-                                <p>Café Negro · Miramar</p>
+                            <div class="grid grid-cols-2 gap-3 text-sm cover-text-muted">
+                                <div class="rounded-xl border border-white/15 p-3">
+                                    <p class="cover-text-soft uppercase text-xs tracking-[0.3em] mb-1">Teléfono</p>
+                                    <p>{{ $settings->phone_number ?? '787-000-0000' }}</p>
+                                </div>
+                                <div class="rounded-xl border border-white/15 p-3">
+                                    <p class="cover-text-soft uppercase text-xs tracking-[0.3em] mb-1">Ubicación</p>
+                                    <p>{{ $locationText }}</p>
+                                </div>
                             </div>
-                        </div>
+                        </article>
+                        <article class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
+                            <div class="flex items-start gap-3">
+                                <svg viewBox="0 0 64 64" class="w-10 h-10 text-amber-200">
+                                    <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="none"></circle>
+                                    <path d="M18 32h28M32 18v28" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                                </svg>
+                                <div>
+                                    <p class="text-xs uppercase tracking-[0.35em] cover-text-soft mb-1">Fidelidad</p>
+                                    <h3 class="text-xl font-semibold cover-text-primary">Suma {{ $pointsPerVisit }} pts por visita</h3>
+                                    <p class="cover-text-muted text-sm">Escanea el QR del mesero y canjea tus visitas por flights privados, desayunos y experiencias.</p>
+                                </div>
+                            </div>
+                        </article>
                     </div>
-                </div>
-
-                <div class="grid md:grid-cols-3 gap-4">
-                    <article class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-2">Origen invitado</p>
-                        <h3 class="text-2xl font-semibold">Huehuetenango</h3>
-                        <p class="text-white/70 text-sm">Notas a cacao oscuro, miel y flor de azahar.</p>
-                    </article>
-                    <article class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-2">Método estrella</p>
-                        <h3 class="text-2xl font-semibold">V60</h3>
-                        <p class="text-white/70 text-sm">Extracción lenta con servicio en mesa.</p>
-                    </article>
-                    <article class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-2">Experiencia</p>
-                        <h3 class="text-2xl font-semibold">Brunch Board</h3>
-                        <p class="text-white/70 text-sm">Maridaje salado/dulce + flight de bebidas.</p>
-                    </article>
-                </div>
-
-                <div class="grid md:grid-cols-3 gap-4 pt-2">
-                @php
-                    $defaultCaptions = [
-                        'Café de origen servido en mesa',
-                        'Desayunos y brunch artesanales',
-                        'Mimosas y mocktails frescos',
-                    ];
-                    $heroImages = collect([
-                        ['src' => $settings->cover_gallery_image_1 ?? null],
-                        ['src' => $settings->cover_gallery_image_2 ?? null],
-                        ['src' => $settings->cover_gallery_image_3 ?? null],
-                    ])->filter(fn($img) => !empty($img['src']))->values();
-                    if ($heroImages->isEmpty()) {
-                        $heroImages = collect([
-                            ['src' => 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=800&q=80'],
-                            ['src' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80'],
-                            ['src' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80'],
-                        ]);
-                    }
-                    $heroImages = $heroImages->map(function ($image, $index) use ($defaultCaptions) {
-                        $image['caption'] = $image['caption'] ?? ($defaultCaptions[$index] ?? $defaultCaptions[0]);
-                        return $image;
-                    });
-                @endphp
-                @foreach($heroImages as $image)
-                    <figure class="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                        <img src="{{ $image['src'] }}" alt="{{ $image['caption'] }}" class="w-full h-48 object-cover">
-                            <figcaption class="px-4 py-3 text-sm text-white/80">{{ $image['caption'] }}</figcaption>
-                        </figure>
-                    @endforeach
                 </div>
             </section>
 
-            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @php
+                $carouselSlides = $carouselItems->map(function ($item) {
+                    return [
+                        'title' => $item->title,
+                        'subtitle' => $item->subtitle,
+                        'link_label' => $item->link_label,
+                        'link_url' => $item->link_url,
+                        'image_url' => asset('storage/' . $item->image_path),
+                    ];
+                });
+                if ($carouselSlides->isEmpty()) {
+                    $carouselSlides = collect([
+                        [
+                            'title' => 'Chemex de la casa',
+                            'subtitle' => 'Huehuetenango · naranja · panela',
+                            'image_url' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+                            'link_label' => 'Ver método',
+                            'link_url' => url('/coffee'),
+                        ],
+                        [
+                            'title' => 'Brunch board',
+                            'subtitle' => 'Dulce + salado + flight',
+                            'image_url' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+                            'link_label' => 'Reservar mesa',
+                            'link_url' => route('reservations.app'),
+                        ],
+                        [
+                            'title' => 'Mocktail Tropical',
+                            'subtitle' => 'Piña rostizada, ginger y bitters',
+                            'image_url' => 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=800&q=80',
+                            'link_label' => 'Ir a bebidas',
+                            'link_url' => url('/cocktails'),
+                        ],
+                    ]);
+                }
+            @endphp
+
+            @if($carouselSlides->isNotEmpty())
+                <section class="rounded-3xl p-6 backdrop-blur border border-white/10 space-y-6" style="background-color: {{ cover_card_color($settings->card_bg_color_cover ?? '#000000', 0.85) }};">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.4em] cover-text-soft mb-1">Cata rápida</p>
+                            <h3 class="text-2xl font-semibold cover-text-primary">Platillos que tienes que pedir</h3>
+                            <p class="text-sm cover-text-muted">Desliza para ver highlights de temporada y recomendaciones del barista.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10 transition" data-carousel="prev">&larr;</button>
+                            <button class="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10 transition" data-carousel="next">&rarr;</button>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div id="coverCarouselTrack" class="flex gap-4 overflow-hidden scroll-smooth snap-x snap-mandatory">
+                            @foreach($carouselSlides as $slide)
+                                <article class="min-w-[260px] max-w-[320px] flex-shrink-0 snap-start bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                                    <div class="h-44">
+                                        <img src="{{ $slide['image_url'] }}" alt="{{ $slide['title'] }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="p-4 space-y-2">
+                                        <p class="text-xs uppercase tracking-[0.35em] cover-text-soft">{{ $slide['subtitle'] ?? 'Recomendado' }}</p>
+                                        <h4 class="text-xl font-semibold cover-text-primary">{{ $slide['title'] }}</h4>
+                                        @if(!empty($slide['link_label']) && !empty($slide['link_url']))
+                                            <a href="{{ $slide['link_url'] }}" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-300 hover:text-amber-200 transition">
+                                                {{ $slide['link_label'] }} <span>&rarr;</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+            @endif
+
+            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
                 @php
                     $ctaLabel = function ($value, $default) {
                         if (is_null($value)) {
@@ -185,107 +257,114 @@
                         return $trimmed === '' ? null : $trimmed;
                     };
                     $ctaCards = collect([
-                        ['title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null],
-                        ['title' => $ctaLabel($settings->button_label_wines ?? null, 'Cafe'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null],
-                        ['title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null],
-                        ['title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null],
-                        ['title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null],
-                    ])->filter(fn($card) => filled($card['title']))->values();
+                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Cafe'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
+                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
+                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
+                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => 'Alertas privadas', 'copy' => 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.', 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
+                    ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground) {
+                        $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
+                        $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
+                        $card['bg_color'] = $bg ?: $coverCardBackground;
+                        $card['text_color'] = $text ?: 'var(--cover-body-color)';
+                        return $card;
+                    })->values();
                 @endphp
                 @foreach($ctaCards as $card)
-                    <article class="bg-white/5 border border-white/10 rounded-2xl p-0 overflow-hidden flex flex-col" style="background-color: {{ $coverCardBackground }};">
+                    <article class="border border-white/10 rounded-2xl p-0 overflow-hidden flex flex-col" style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }};">
                         @if(!empty($card['image']))
                             <div class="h-40 overflow-hidden">
                                 <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" class="w-full h-full object-cover">
                             </div>
                         @endif
                         <div class="p-5 flex flex-col gap-3">
-                        <p class="text-xs uppercase tracking-[0.35em] text-white/60">{{ $card['subtitle'] }}</p>
-                        <h3 class="text-2xl font-semibold">{{ $card['title'] }}</h3>
-                        <p class="text-white/70 text-sm flex-1">{{ $card['copy'] }}</p>
-                        <button onclick="window.location.href='{{ $card['action'] }}'"
-                                class="w-full rounded-full py-3 font-semibold transition"
-                                style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                            Abrir sección
-                        </button>
+                            <p class="text-xs uppercase tracking-[0.35em]" style="opacity: 0.8;">{{ $card['subtitle'] }}</p>
+                            <h3 class="text-2xl font-semibold">{{ $card['title'] }}</h3>
+                            <p class="text-sm flex-1">{{ $card['copy'] }}</p>
+                            @if($card['type'] === 'vip')
+                                <button data-open-notify
+                                        class="w-full rounded-full py-3 font-semibold transition vip-button"
+                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                    {{ $card['title'] }}
+                                </button>
+                            @else
+                                <button onclick="window.location.href='{{ $card['action'] }}'"
+                                        class="w-full rounded-full py-3 font-semibold transition"
+                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                    Abrir sección
+                                </button>
+                            @endif
                         </div>
                     </article>
                 @endforeach
-                <article class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3" style="background-color: {{ $coverCardBackground }};">
-                    <p class="text-xs uppercase tracking-[0.3em] text-white/60">Lista VIP</p>
-                    <p class="text-white/80 text-sm flex-1">Recibe lanzamientos de micro lotes, eventos privados y cenas a puerta cerrada.</p>
-                    <button id="openNotifyModal"
-                            class="vip-button"
-                            style="font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                        {{ $settings->button_label_vip ?? 'Lista VIP' }}
-                    </button>
-                    <p id="notifyStatus" class="text-xs text-white/70 hidden">Ya estás suscrito a las alertas ✉️</p>
-                </article>
             </section>
 
-            <section class="grid lg:grid-cols-[minmax(0,1fr)_320px] gap-10">
-                @php $initialGroup = $featuredGroups->first(); @endphp
-                <div class="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur space-y-6">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.4em] text-white/60">Lo más vendido</p>
-                        <h3 class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
-                        <p class="text-white/70 text-sm">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
-                    </div>
-                    @if($featuredGroups->isNotEmpty())
-                        <div class="flex flex-wrap gap-3 text-sm text-white/80">
-                            @foreach($featuredGroups as $group)
-                                <button class="px-4 py-2 rounded-full border hover:bg-white/10 transition {{ $loop->first ? 'bg-white/15 border-white/60' : '' }}"
-                                        data-featured-tab="{{ $group['slug'] }}"
-                                        style="border-color: {{ $settings->button_color_cover ?? '#ffffff' }}44; color: var(--cover-text-color);">
-                                    {{ $group['title'] }}
-                                </button>
-                            @endforeach
-                        </div>
-                        <div class="space-y-6">
-                            <div>
-                                <p id="featuredTag" class="text-xs uppercase tracking-[0.35em] text-amber-300 mb-2">{{ $initialGroup['subtitle'] ?? '' }}</p>
-                                <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Sin datos' }}</h3>
-                                <p id="featuredDescription" class="text-white/70 mt-2">{{ $initialGroup['source_label'] ?? '' }}</p>
-                            </div>
-                            <div id="featuredItems" class="space-y-4">
-                                @forelse($initialGroup['items'] ?? [] as $item)
-                                    <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 border-b border-white/10 group">
-                                        <div class="flex items-start gap-3">
-                                            @if(!empty($item['image']))
-                                                <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border border-white/20">
-                                            @else
-                                                <div class="w-14 h-14 rounded-xl border border-white/20 flex items-center justify-center text-lg">☆</div>
-                                            @endif
-                                            <div>
-                                                <p class="text-lg font-semibold group-hover:text-amber-200 transition">{{ $item['title'] }}</p>
-                                                <p class="text-white/60 text-sm">{{ $item['subtitle'] }}</p>
-                                            </div>
-                                        </div>
-                                        @if(!empty($item['price']))
-                                            <span class="text-amber-300 font-semibold">${{ number_format($item['price'], 2) }}</span>
-                                        @endif
-                                    </a>
-                                @empty
-                                    <p class="text-white/60 text-sm">Marca platos o bebidas como destacados dentro de la categoría seleccionada.</p>
-                                @endforelse
-                            </div>
-                        </div>
-                    @else
-                        <div class="p-6 border border-white/10 rounded-2xl bg-black/20">
-                            <p class="text-white/70 text-sm">Estamos preparando nuevas experiencias. Vuelve pronto para descubrir los rituales de café y brunch más pedidos.</p>
-                        </div>
-                    @endif
+            @php
+                $initialGroup = $featuredGroups->first();
+                $featuredCardBgHex = $settings->featured_card_bg_color ?? '#0f172a';
+                $featuredCardBg = cover_card_color($featuredCardBgHex, 0.65);
+                $featuredCardText = $settings->featured_card_text_color ?? '#ffffff';
+                $featuredTabBgHex = $settings->featured_tab_bg_color ?? '#ffffff';
+                $featuredTabBg = cover_card_color($featuredTabBgHex, 0.2);
+                $featuredTabText = $settings->featured_tab_text_color ?? '#ffffff';
+            @endphp
+
+            <section class="rounded-3xl p-6 backdrop-blur space-y-6 border border-white/10" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }};">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.4em]" style="opacity: 0.7;">Lo más vendido</p>
+                    <h3 class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
+                    <p class="text-sm" style="opacity: 0.85;">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
                 </div>
-                <aside class="bg-gradient-to-br from-amber-500/30 via-orange-400/20 to-rose-400/20 border border-white/10 rounded-3xl p-6">
-                    <p class="text-xs uppercase tracking-[0.4em] text-white/60 mb-3">Barista highlight</p>
-                    <h4 class="text-2xl font-semibold mb-2">Espresso + Tonic</h4>
-                    <p class="text-white/80 mb-6">Shot doble, reducción cítrica y espuma de mandarina. Refrescante y brillante para quienes buscan energía fría.</p>
-                    <ul class="space-y-3 text-sm text-white/80">
-                        <li class="flex items-center gap-2"><i class="fas fa-mug-hot text-white"></i> Espresso etíope natural</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-ice-cubes text-white"></i> Tonic botánico</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-lemon text-white"></i> Ralladura cítrica y bitters</li>
-                    </ul>
-                </aside>
+                @if($featuredGroups->isNotEmpty())
+                    <div class="flex flex-wrap gap-3 text-sm">
+                        @foreach($featuredGroups as $group)
+                            <button class="px-4 py-2 rounded-full transition"
+                                    data-featured-tab="{{ $group['slug'] }}"
+                                    data-active-bg="{{ $featuredTabBg }}"
+                                    data-inactive-bg="transparent"
+                                    data-text="{{ $featuredTabText }}"
+                                    data-border="{{ $featuredTabText }}33"
+                                    style="border: 1px solid {{ $featuredTabText }}33; color: {{ $featuredTabText }}; background-color: {{ $loop->first ? $featuredTabBg : 'transparent' }};">
+                                {{ $group['title'] }}
+                            </button>
+                        @endforeach
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <p id="featuredTag" class="text-xs uppercase tracking-[0.35em] mb-2">{{ $initialGroup['subtitle'] ?? '' }}</p>
+                            <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Sin datos' }}</h3>
+                            <p id="featuredDescription" class="mt-2" style="opacity: 0.8;">{{ $initialGroup['source_label'] ?? '' }}</p>
+                        </div>
+                        <div id="featuredItems" class="space-y-4">
+                            @forelse($initialGroup['items'] ?? [] as $item)
+                                <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 border-b border-white/10 group" style="color: {{ $featuredCardText }};">
+                                    <div class="flex items-start gap-3">
+                                        @if(!empty($item['image']))
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border border-white/20">
+                                        @else
+                                            <div class="w-14 h-14 rounded-xl border border-white/20 flex items-center justify-center text-lg">☆</div>
+                                        @endif
+                                        <div>
+                                            <p class="text-lg font-semibold">{{ $item['title'] }}</p>
+                                            <p class="text-sm" style="opacity: 0.8;">{{ $item['subtitle'] }}</p>
+                                        </div>
+                                    </div>
+                                    @if(!empty($item['price']))
+                                        <span class="text-amber-300 font-semibold">${{ number_format($item['price'], 2) }}</span>
+                                    @endif
+                                </a>
+                            @empty
+                                <p class="cover-text-soft text-sm">Marca platos o bebidas como destacados dentro de la categoría seleccionada.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                @else
+                    <div class="p-6 border border-white/10 rounded-2xl bg-black/20">
+                        <p class="text-sm">Estamos preparando nuevas experiencias. Vuelve pronto para descubrir los rituales de café y brunch más pedidos.</p>
+                    </div>
+                @endif
+
             </section>
         </div>
     </main>
@@ -294,16 +373,19 @@
     <footer class="fixed bottom-6 left-0 right-0 z-40">
         <div class="flex justify-center gap-6">
             <a href="{{ $settings->facebook_url ?? '#' }}" target="_blank" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] text-white flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black">
+               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
+               style="color: var(--cover-text-strong);">
                 <i class="fab fa-facebook-f"></i>
             </a>
             
             <a href="{{ $settings->instagram_url ?? '#' }}" target="_blank" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] text-white flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black">
+               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
+               style="color: var(--cover-text-strong);">
                 <i class="fab fa-instagram"></i>
             </a>
             <a href="tel:{{ $settings->phone_number ?? '#' }}" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] text-white flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black">
+               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
+               style="color: var(--cover-text-strong);">
                 <i class="fas fa-phone"></i>
             </a>
         </div>
@@ -365,9 +447,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('notifyModal');
-            const openBtn = document.getElementById('openNotifyModal');
+            const openButtons = document.querySelectorAll('[data-open-notify]');
             const closeBtn = document.getElementById('closeNotifyModal');
-            const statusBadge = document.getElementById('notifyStatus');
             const flash = document.getElementById('subscriptionStatus');
             const isRegistered = localStorage.getItem('eventNotifyRegistered') === '1';
 
@@ -380,7 +461,7 @@
                 document.body.classList.remove('overflow-hidden');
             };
 
-            openBtn?.addEventListener('click', openModal);
+            openButtons.forEach(btn => btn.addEventListener('click', openModal));
             closeBtn?.addEventListener('click', closeModal);
             modal?.addEventListener('click', (e) => {
                 if (e.target === modal) closeModal();
@@ -390,9 +471,8 @@
                 localStorage.setItem('eventNotifyRegistered', '1');
             }
 
-            if (isRegistered && statusBadge) {
-                statusBadge.classList.remove('hidden');
-                openBtn.textContent = 'Actualizar datos';
+            if (isRegistered) {
+                openButtons.forEach(btn => btn.textContent = 'Actualizar datos');
             } else if (window.innerWidth < 768 && !modal.classList.contains('hidden')) {
                 // already open due to errors
             } else if (window.innerWidth < 768 && !isRegistered) {
@@ -430,20 +510,22 @@
                                 }
                                 <div>
                                     <p class="text-lg font-semibold group-hover:text-amber-200 transition">${item.title ?? ''}</p>
-                                    <p class="text-white/60 text-sm">${item.subtitle ?? ''}</p>
+                                    <p class="cover-text-soft text-sm">${item.subtitle ?? ''}</p>
                                 </div>
                             </div>
                             ${item.price ? `<span class="text-amber-300 font-semibold">$${item.price}</span>` : ''}
                         </a>
                     `).join('')
-                    : '<p class="text-white/60 text-sm">Agrega elementos destacados desde el panel para mostrarlos aquí.</p>';
+                    : '<p class="cover-text-soft text-sm">Agrega elementos destacados desde el panel para mostrarlos aquí.</p>';
 
                 featuredButtons.forEach(btn => {
                     if (btn.dataset.featuredTab === slug) {
-                        btn.classList.add('bg-white/15', 'border-white/60');
+                        btn.style.backgroundColor = btn.dataset.activeBg;
                     } else {
-                        btn.classList.remove('bg-white/15', 'border-white/60');
+                        btn.style.backgroundColor = btn.dataset.inactiveBg;
                     }
+                    btn.style.borderColor = btn.dataset.border;
+                    btn.style.color = btn.dataset.text;
                 });
             };
 
@@ -453,6 +535,22 @@
 
             if (featuredButtons.length) {
                 renderFeatured(featuredButtons[0].dataset.featuredTab);
+            }
+
+            const carouselTrack = document.getElementById('coverCarouselTrack');
+            const prevBtn = document.querySelector('[data-carousel="prev"]');
+            const nextBtn = document.querySelector('[data-carousel="next"]');
+            if (carouselTrack && prevBtn && nextBtn) {
+                const scrollAmount = () => {
+                    const card = carouselTrack.querySelector('article');
+                    return card ? card.getBoundingClientRect().width + 16 : 320;
+                };
+                prevBtn.addEventListener('click', () => {
+                    carouselTrack.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+                });
+                nextBtn.addEventListener('click', () => {
+                    carouselTrack.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+                });
             }
 
             // If validation errors opened the modal, highlight status

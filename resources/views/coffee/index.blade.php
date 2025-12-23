@@ -31,11 +31,8 @@
 <body class="text-white min-h-screen pb-32">
 
     <header class="max-w-6xl mx-auto px-4 py-12 space-y-6">
-        <div class="text-center space-y-4">
+        <div class="text-center">
             <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="mx-auto h-28" alt="Logo Café">
-            <p class="text-amber-300 uppercase tracking-[0.4em] text-xs">Café · Desayunos · Brunch</p>
-            <h1 class="text-4xl md:text-5xl font-semibold leading-tight">Barra de café curada, desayunos artesanales y pequeños rituales de mañana.</h1>
-            <p class="text-white/80 max-w-3xl mx-auto">Seleccionamos micro lotes latinoamericanos, métodos clásicos y bebidas creativas frías para acompañar panadería de temporada y opciones plant-based.</p>
         </div>
 
         @if($popups->count())
@@ -59,65 +56,6 @@
             <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" alt="Destacado café" class="w-full rounded-3xl border border-white/10 shadow-2xl object-cover">
         </div>
     @endif
-
-    <section class="max-w-6xl mx-auto px-4">
-        <form method="GET" action="{{ route('coffee.index') }}"
-              class="bg-white/10 border border-white/10 rounded-3xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 backdrop-blur">
-
-            <div>
-                <label class="text-xs uppercase tracking-[0.3em] text-white/70 mb-1 block">Origen</label>
-                <select name="region" class="rounded-2xl px-3 py-2 text-slate-900 w-full">
-                    <option value="">Todos</option>
-                    @foreach($regions as $region)
-                        <option value="{{ $region->id }}" {{ request('region') == $region->id ? 'selected' : '' }}>
-                            {{ $region->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="text-xs uppercase tracking-[0.3em] text-white/70 mb-1 block">Método</label>
-                <select name="type" class="rounded-2xl px-3 py-2 text-slate-900 w-full">
-                    <option value="">Todos</option>
-                    @foreach($types as $type)
-                        <option value="{{ $type->id }}" {{ request('type') == $type->id ? 'selected' : '' }}>
-                            {{ $type->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="text-xs uppercase tracking-[0.3em] text-white/70 mb-1 block">Perfil</label>
-                <select name="grape" class="rounded-2xl px-3 py-2 text-slate-900 w-full">
-                    <option value="">Todos</option>
-                    @foreach($grapes as $grape)
-                        <option value="{{ $grape->id }}" {{ request('grape') == $grape->id ? 'selected' : '' }}>
-                            {{ $grape->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="text-xs uppercase tracking-[0.3em] text-white/70 mb-1 block">Precio máx.</label>
-                <input type="number" name="max_price" class="rounded-2xl px-3 py-2 text-slate-900 w-full" value="{{ request('max_price') }}" placeholder="15" />
-            </div>
-
-            <div class="flex sm:flex-col items-stretch gap-3 mt-4 sm:mt-0">
-                <button type="submit"
-                        class="w-full rounded-2xl px-4 py-3 font-semibold text-white"
-                        style="background-color: {{ $settings->button_color_wines ?? '#d97706' }};">
-                    Filtrar
-                </button>
-                <a href="{{ route('coffee.index') }}"
-                   class="w-full text-center rounded-2xl px-4 py-3 font-semibold text-white border border-white/30 hover:bg-white/10 transition">
-                    Limpiar
-                </a>
-            </div>
-        </form>
-    </section>
 
     <main class="max-w-6xl mx-auto px-4 py-10 space-y-12">
         @if($filters && $wines->count())
@@ -218,28 +156,6 @@
             @endforeach
         @endif
     </main>
-
-    <section class="max-w-6xl mx-auto px-4">
-        <div class="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col lg:flex-row gap-6">
-            <div class="flex-1 space-y-3">
-                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Brunch x Café</p>
-                <h3 class="text-3xl font-semibold">Crea tu flight personal</h3>
-                <p class="text-white/80">Combina un filtrado, bebida fría y un plato del brunch board. El barista guía las notas sensoriales y personaliza toppings.</p>
-                <div class="flex flex-wrap gap-3 text-sm">
-                    <span class="px-4 py-2 rounded-full border border-white/20 text-white/80">Flight 3 bebidas · $18</span>
-                    <span class="px-4 py-2 rounded-full border border-white/20 text-white/80">Board salado/dulce · $14</span>
-                </div>
-            </div>
-            <div class="flex flex-col gap-3">
-                <a href="/menu" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-semibold bg-white text-slate-900 shadow">
-                    <i class="fas fa-utensils"></i> Ver cartas de brunch
-                </a>
-                <a href="{{ route('reservations.app') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-semibold border border-white/30 text-white hover:bg-white/10 transition">
-                    <i class="fas fa-calendar-check"></i> Reservar mesa
-                </a>
-            </div>
-        </div>
-    </section>
 
     <div class="fixed bottom-5 left-0 right-0 flex justify-center z-50">
         <div class="flex items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl"

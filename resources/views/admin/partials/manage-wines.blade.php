@@ -9,25 +9,34 @@
         <div id="winesList">
             @foreach($wines as $wine)
                 <div class="card mb-3 wine-item" data-name="{{ $wine->name }}" data-category="{{ $wine->category->name }}">
-                    <div class="card-body">
-                        <h3 class="card-title">{{ $wine->name }}</h3>
-                        <img src="{{ asset('storage/' . $wine->image) }}" alt="{{ $wine->name }}" class="img-thumbnail" style="max-width: 200px;">
-                        <p class="card-text">{{ $wine->description }}</p>
-                        <p class="card-text">${{ $wine->price }}</p>
-                        <a href="{{ route('wines.edit', $wine) }}" class="btn btn-outline-primary">Editar</a>
-                        <button class="btn btn-outline-danger" form="delete-wine-{{ $wine->id }}">Eliminar</button>
-                        <form id="delete-wine-{{ $wine->id }}" method="POST" action="{{ route('wines.destroy', $wine) }}" style="display:none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                        <form method="POST" action="{{ route('wines.toggleVisibility', $wine) }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-outline-secondary">
-                                {{ $wine->visible ? 'Ocultar' : 'Mostrar' }}
-                            </button>
-                        </form>
+                    <div class="card-body d-flex gap-3 flex-wrap">
+                        <div class="flex-shrink-0">
+                            <img src="{{ asset('storage/' . $wine->image) }}" alt="{{ $wine->name }}" class="rounded-3 shadow-sm" style="width: 140px; height: 140px; object-fit: cover;">
+                        </div>
+                        <div class="flex-fill">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                <h3 class="card-title mb-0">{{ $wine->name }}</h3>
+                                <span class="badge {{ $wine->visible ? 'bg-success' : 'bg-secondary' }}">{{ $wine->visible ? 'Visible' : 'Oculto' }}</span>
+                            </div>
+                            <p class="card-text small text-muted mb-2">{{ $wine->description }}</p>
+                            <p class="card-text fw-semibold">${{ $wine->price }}</p>
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <a href="{{ route('wines.edit', $wine) }}" class="btn btn-outline-primary btn-sm">Editar</a>
+                                <button class="btn btn-outline-danger btn-sm" form="delete-wine-{{ $wine->id }}">Eliminar</button>
+                                <form method="POST" action="{{ route('wines.toggleVisibility', $wine) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm {{ $wine->visible ? 'btn-success' : 'btn-outline-secondary' }}">
+                                        {{ $wine->visible ? 'Ocultar' : 'Mostrar' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
+                    <form id="delete-wine-{{ $wine->id }}" method="POST" action="{{ route('wines.destroy', $wine) }}" style="display:none;">
+                        @csrf
+                        @method('DELETE')
+                    </form>
                 </div>
             @endforeach
         </div>

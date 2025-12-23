@@ -9,6 +9,98 @@
         @endif
     </div>
 
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Imágenes para los CTA de portada</h5>
+        <p class="text-muted small mb-3">Cada botón (Menú, Café, Bebidas, Eventos, Reservas) puede mostrar una imagen. Deja el campo vacío para usar solo texto.</p>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">CTA Menú</label>
+                <input type="file" class="form-control" name="cta_image_menu">
+                @if($settings->cta_image_menu)
+                    <img src="{{ asset('storage/' . $settings->cta_image_menu) }}" class="img-fluid rounded mt-2" alt="CTA Menú">
+                @endif
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">CTA Café</label>
+                <input type="file" class="form-control" name="cta_image_cafe">
+                @if($settings->cta_image_cafe)
+                    <img src="{{ asset('storage/' . $settings->cta_image_cafe) }}" class="img-fluid rounded mt-2" alt="CTA Café">
+                @endif
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">CTA Bebidas</label>
+                <input type="file" class="form-control" name="cta_image_cocktails">
+                @if($settings->cta_image_cocktails)
+                    <img src="{{ asset('storage/' . $settings->cta_image_cocktails) }}" class="img-fluid rounded mt-2" alt="CTA Bebidas">
+                @endif
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">CTA Eventos</label>
+                <input type="file" class="form-control" name="cta_image_events">
+                @if($settings->cta_image_events)
+                    <img src="{{ asset('storage/' . $settings->cta_image_events) }}" class="img-fluid rounded mt-2" alt="CTA Eventos">
+                @endif
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">CTA Reservas</label>
+                <input type="file" class="form-control" name="cta_image_reservations">
+                @if($settings->cta_image_reservations)
+                    <img src="{{ asset('storage/' . $settings->cta_image_reservations) }}" class="img-fluid rounded mt-2" alt="CTA Reservas">
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Colores individuales de CTA</h5>
+        @php
+            $ctaKeys = [
+                'menu' => 'Menú',
+                'cafe' => 'Café & Brunch',
+                'cocktails' => 'Bebidas',
+                'events' => 'Eventos',
+                'reservations' => 'Reservas',
+            ];
+        @endphp
+        <div class="row g-3">
+            @foreach($ctaKeys as $key => $label)
+                <div class="col-md-6">
+                    <label class="form-label">Fondo {{ $label }}</label>
+                    <input type="color" class="form-control" name="cover_cta_{{ $key }}_bg_color" value="{{ $settings->{'cover_cta_'.$key.'_bg_color'} ?? '#000000' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Texto {{ $label }}</label>
+                    <input type="color" class="form-control" name="cover_cta_{{ $key }}_text_color" value="{{ $settings->{'cover_cta_'.$key.'_text_color'} ?? '#ffffff' }}">
+                </div>
+            @endforeach
+        </div>
+        <small class="text-muted d-block mt-2">Si dejas un color vacío usará el fondo genérico configurado arriba.</small>
+    </div>
+
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Visibilidad de CTA principales</h5>
+        <p class="text-muted small mb-3">Decide qué botones se muestran en la portada. La tarjeta VIP se controla abajo.</p>
+        <div class="row g-3">
+            @php
+                $ctaVisibility = [
+                    'show_cta_menu' => 'Mostrar CTA Menú',
+                    'show_cta_cafe' => 'Mostrar CTA Café & Brunch',
+                    'show_cta_cocktails' => 'Mostrar CTA Bebidas',
+                    'show_cta_events' => 'Mostrar CTA Eventos',
+                    'show_cta_reservations' => 'Mostrar CTA Reservas',
+                ];
+            @endphp
+            @foreach($ctaVisibility as $field => $label)
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="{{ $field }}" name="{{ $field }}" {{ ($settings->{$field} ?? true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="{{ $field }}">{{ $label }}</label>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <div class="mb-3">
         <label for="facebook_url" class="form-label">Facebook URL</label>
         <input type="url" class="form-control" id="facebook_url" name="facebook_url" value="{{ $settings->facebook_url ?? '' }}">
@@ -39,6 +131,11 @@
         <input type="color" class="form-control" id="text_color_cover" name="text_color_cover" value="{{ $settings->text_color_cover ?? '#000000' }}">
     </div>
     <div class="mb-3">
+        <label for="text_color_cover_secondary" class="form-label">Color secundario de textos (párrafos)</label>
+        <input type="color" class="form-control" id="text_color_cover_secondary" name="text_color_cover_secondary" value="{{ $settings->text_color_cover_secondary ?? '#bfbfbf' }}">
+        <small class="text-muted">Se aplica a descripciones, figcaption y textos largos.</small>
+    </div>
+    <div class="mb-3">
         <label for="background_image_cover" class="form-label">Imagen de Fondo Cover</label>
         <input type="file" class="form-control" id="background_image_cover" name="background_image_cover">
     </div>
@@ -50,6 +147,27 @@
         <label for="card_bg_color_cover" class="form-label">Color de fondo de tarjetas Cover</label>
         <input type="color" class="form-control" id="card_bg_color_cover" name="card_bg_color_cover" value="{{ $settings->card_bg_color_cover ?? '#000000' }}">
         <small class="text-muted">Se mezcla con la opacidad configurada arriba.</small>
+    </div>
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Textos principales del cover</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="cover_hero_kicker" class="form-label">Etiqueta superior (ej. Café · desayuno)</label>
+                <input type="text" class="form-control" id="cover_hero_kicker" name="cover_hero_kicker" value="{{ $settings->cover_hero_kicker ?? '' }}">
+            </div>
+            <div class="col-md-6">
+                <label for="cover_location_text" class="form-label">Texto de ubicación</label>
+                <input type="text" class="form-control" id="cover_location_text" name="cover_location_text" value="{{ $settings->cover_location_text ?? '' }}" placeholder="Café Negro · Miramar">
+            </div>
+            <div class="col-12">
+                <label for="cover_hero_title" class="form-label">Título principal</label>
+                <input type="text" class="form-control" id="cover_hero_title" name="cover_hero_title" value="{{ $settings->cover_hero_title ?? '' }}" placeholder="Bienvenido a Café Negro. ...">
+            </div>
+            <div class="col-12">
+                <label for="cover_hero_paragraph" class="form-label">Descripción</label>
+                <textarea class="form-control" id="cover_hero_paragraph" name="cover_hero_paragraph" rows="3">{{ $settings->cover_hero_paragraph ?? '' }}</textarea>
+            </div>
+        </div>
     </div>
     <div class="mb-3">
         <label for="button_color_cover" class="form-label">Color del Botón de Cover</label>
@@ -169,74 +287,117 @@
     </div>
 
     <div class="border rounded-3 p-3 mb-4">
-        <h5 class="mb-3">Galería visual del cover</h5>
-        <p class="text-muted small mb-3">Estas imágenes se muestran en la tarjeta hero (café, brunch y mimosas). Sube fotos horizontales en alta resolución.</p>
+        <h5 class="mb-3">Colores para “Lo más vendido”</h5>
         <div class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Imagen 1</label>
-                <input type="file" class="form-control" name="cover_gallery_image_1">
-                @if($settings->cover_gallery_image_1)
-                    <img src="{{ asset('storage/' . $settings->cover_gallery_image_1) }}" class="img-fluid rounded mt-2" alt="Cover 1">
-                @endif
+            <div class="col-md-6">
+                <label class="form-label" for="featured_card_bg_color">Fondo de la tarjeta</label>
+                <input type="color" class="form-control" id="featured_card_bg_color" name="featured_card_bg_color" value="{{ $settings->featured_card_bg_color ?? '#0f172a' }}">
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Imagen 2</label>
-                <input type="file" class="form-control" name="cover_gallery_image_2">
-                @if($settings->cover_gallery_image_2)
-                    <img src="{{ asset('storage/' . $settings->cover_gallery_image_2) }}" class="img-fluid rounded mt-2" alt="Cover 2">
-                @endif
+            <div class="col-md-6">
+                <label class="form-label" for="featured_card_text_color">Texto de la tarjeta</label>
+                <input type="color" class="form-control" id="featured_card_text_color" name="featured_card_text_color" value="{{ $settings->featured_card_text_color ?? '#ffffff' }}">
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Imagen 3</label>
-                <input type="file" class="form-control" name="cover_gallery_image_3">
-                @if($settings->cover_gallery_image_3)
-                    <img src="{{ asset('storage/' . $settings->cover_gallery_image_3) }}" class="img-fluid rounded mt-2" alt="Cover 3">
-                @endif
+            <div class="col-md-6">
+                <label class="form-label" for="featured_tab_bg_color">Fondo de pestañas activas</label>
+                <input type="color" class="form-control" id="featured_tab_bg_color" name="featured_tab_bg_color" value="{{ $settings->featured_tab_bg_color ?? '#ffffff' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="featured_tab_text_color">Texto/borde de pestañas</label>
+                <input type="color" class="form-control" id="featured_tab_text_color" name="featured_tab_text_color" value="{{ $settings->featured_tab_text_color ?? '#ffffff' }}">
             </div>
         </div>
     </div>
 
     <div class="border rounded-3 p-3 mb-4">
-        <h5 class="mb-3">Imágenes para los CTA de portada</h5>
-        <p class="text-muted small mb-3">Opcional: cada botón puede mostrar una miniatura. Deja el campo vacío para usar solo texto.</p>
+        <h5 class="mb-3">Control de Lista VIP</h5>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="show_cta_vip" name="show_cta_vip" {{ ($settings->show_cta_vip ?? true) ? 'checked' : '' }}>
+            <label class="form-check-label" for="show_cta_vip">Mostrar tarjeta VIP en la portada</label>
+        </div>
         <div class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">CTA Menú</label>
-                <input type="file" class="form-control" name="cta_image_menu">
-                @if($settings->cta_image_menu)
-                    <img src="{{ asset('storage/' . $settings->cta_image_menu) }}" class="img-fluid rounded mt-2" alt="CTA Menú">
-                @endif
+            <div class="col-md-6">
+                <label class="form-label" for="cover_cta_vip_bg_color">Color de fondo</label>
+                <input type="color" class="form-control" id="cover_cta_vip_bg_color" name="cover_cta_vip_bg_color" value="{{ $settings->cover_cta_vip_bg_color ?? '#0f172a' }}">
             </div>
-            <div class="col-md-4">
-                <label class="form-label">CTA Café</label>
-                <input type="file" class="form-control" name="cta_image_cafe">
-                @if($settings->cta_image_cafe)
-                    <img src="{{ asset('storage/' . $settings->cta_image_cafe) }}" class="img-fluid rounded mt-2" alt="CTA Café">
-                @endif
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">CTA Cócteles</label>
-                <input type="file" class="form-control" name="cta_image_cocktails">
-                @if($settings->cta_image_cocktails)
-                    <img src="{{ asset('storage/' . $settings->cta_image_cocktails) }}" class="img-fluid rounded mt-2" alt="CTA Cócteles">
-                @endif
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">CTA Eventos</label>
-                <input type="file" class="form-control" name="cta_image_events">
-                @if($settings->cta_image_events)
-                    <img src="{{ asset('storage/' . $settings->cta_image_events) }}" class="img-fluid rounded mt-2" alt="CTA Eventos">
-                @endif
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">CTA Reservas</label>
-                <input type="file" class="form-control" name="cta_image_reservations">
-                @if($settings->cta_image_reservations)
-                    <img src="{{ asset('storage/' . $settings->cta_image_reservations) }}" class="img-fluid rounded mt-2" alt="CTA Reservas">
-                @endif
+            <div class="col-md-6">
+                <label class="form-label" for="cover_cta_vip_text_color">Color de texto</label>
+                <input type="color" class="form-control" id="cover_cta_vip_text_color" name="cover_cta_vip_text_color" value="{{ $settings->cover_cta_vip_text_color ?? '#ffffff' }}">
             </div>
         </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
 </form>
+
+@include('admin.partials.cover-carousel')
+
+@if(auth()->user()?->isAdmin())
+    <div class="border rounded-3 p-3 mt-4">
+        <h5 class="mb-3">Gerentes (solo admin)</h5>
+        <form method="POST" action="{{ route('admin.managers.store') }}" class="row g-3 align-items-end mb-4">
+            @csrf
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Nombre</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Correo</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Contraseña</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Confirmación</label>
+                <input type="password" name="password_confirmation" class="form-control" required>
+            </div>
+            <div class="col-12 text-end">
+                <button class="btn btn-dark">Crear gerente</button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($managers as $manager)
+                        <tr>
+                            <td>{{ $manager->name }}</td>
+                            <td>{{ $manager->email }}</td>
+                            <td>
+                                <span class="badge {{ $manager->active ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $manager->active ? 'Activo' : 'Bloqueado' }}</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                    <form method="POST" action="{{ route('admin.managers.toggle', $manager) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="btn btn-sm {{ $manager->active ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                                            {{ $manager->active ? 'Bloquear' : 'Reactivar' }}
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.managers.destroy', $manager) }}" onsubmit="return confirm('¿Eliminar gerente?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Aún no has creado gerentes.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
