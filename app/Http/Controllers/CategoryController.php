@@ -71,13 +71,19 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $data = $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
             'show_on_cover' => ['nullable', 'boolean'],
             'cover_title' => ['nullable', 'string', 'max:255'],
             'cover_subtitle' => ['nullable', 'string', 'max:255'],
         ]);
 
         $data['show_on_cover'] = $request->boolean('show_on_cover');
+        $data['cover_title'] = filled($data['cover_title']) ? $data['cover_title'] : null;
+        $data['cover_subtitle'] = filled($data['cover_subtitle']) ? $data['cover_subtitle'] : null;
+
+        if ($data['show_on_cover'] && blank($data['cover_title'])) {
+            $data['cover_title'] = $data['name'];
+        }
 
         $category->update($data);
 

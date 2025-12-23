@@ -141,6 +141,7 @@
                                 <input type="text" name="cover_subtitle" class="form-control form-control-sm" value="{{ $category->cover_subtitle }}">
                             </div>
                             <div class="col-md-2 form-check mt-4">
+                                <input type="hidden" name="show_on_cover" value="0">
                                 <input type="checkbox" class="form-check-input" id="cover-show-{{ $category->id }}" name="show_on_cover" value="1" {{ $category->show_on_cover ? 'checked' : '' }}>
                                 <label class="form-check-label small" for="cover-show-{{ $category->id }}">Mostrar en portada</label>
                             </div>

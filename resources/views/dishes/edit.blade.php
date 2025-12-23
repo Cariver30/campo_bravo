@@ -79,6 +79,7 @@
                 </div>
 
                 <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <input type="hidden" name="visible" value="0">
                     <input type="checkbox" id="visible" name="visible" value="1" {{ old('visible', $dish->visible) ? 'checked' : '' }}
                            class="w-5 h-5 rounded border-white/30 bg-transparent text-emerald-400 focus:ring-emerald-400" />
                     <label for="visible" class="text-sm text-white/80">
@@ -87,6 +88,7 @@
                 </div>
 
                 <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <input type="hidden" name="featured_on_cover" value="0">
                     <input type="checkbox" id="featured_on_cover" name="featured_on_cover" value="1" {{ old('featured_on_cover', $dish->featured_on_cover) ? 'checked' : '' }}
                            class="w-5 h-5 rounded border-white/30 bg-transparent text-emerald-400 focus:ring-emerald-400" />
                     <label for="featured_on_cover" class="text-sm text-white/80">
