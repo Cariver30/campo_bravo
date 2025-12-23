@@ -133,9 +133,9 @@
                                  data-image="{{ asset('storage/' . $item->image) }}"
                                  style="background-color: var(--card-bg); opacity: var(--card-opacity); color: var(--text-color); border-color: rgba(255,255,255,0.15);">
                             <div class="relative shrink-0">
-                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}"
-                                     class="w-24 h-24 rounded-full object-cover"
-                                     style="border: 4px solid rgba(255,255,255,0.15);">
+                                <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="{{ $item->name }}"
+                                     class="w-24 h-24 rounded-full object-cover bg-white/5"
+                                     style="border: 4px solid rgba(255,255,255,0.15); padding: 4px;">
                                 <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-xs rounded-full bg-[var(--accent)] text-slate-900 font-semibold border border-white/40">
                                     ${{ number_format($item->price, 0) }}
                                 </span>

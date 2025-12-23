@@ -170,9 +170,9 @@
                         <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
 
 
-                        <img src="{{ asset('storage/' . $dish->image) }}"
+                        <img src="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
                              alt="{{ $dish->name }}"
-                             class="h-24 w-24 rounded-full object-cover mr-4">
+                             class="h-24 w-24 rounded-full object-cover mr-4 border border-white/10">
 
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $dish->name }}</h3>

@@ -76,11 +76,7 @@
                         <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.9), transparent 60%);"></div>
                         <div class="relative space-y-3">
                             <div class="flex items-center gap-4">
-                                @if($coffee->image)
-                                    <img src="{{ asset('storage/' . $coffee->image) }}" class="h-16 w-16 rounded-2xl object-cover" alt="{{ $coffee->name }}">
-                                @else
-                                    <div class="h-16 w-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">☕</div>
-                                @endif
+                                <img src="{{ $coffee->image ? asset('storage/' . $coffee->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="h-16 w-16 rounded-2xl object-cover border border-white/10" alt="{{ $coffee->name }}">
                                 <div>
                                     <p class="text-xs uppercase tracking-[0.3em] text-white/60">{{ $coffee->type->name ?? 'Método signature' }}</p>
                                     <h3 class="text-xl font-semibold">{{ $coffee->name }}</h3>
@@ -125,11 +121,7 @@
                         @foreach($category->items as $coffee)
                             <article id="coffee{{ $coffee->id }}" class="bg-white/5 border border-white/10 rounded-3xl p-5 backdrop-blur flex flex-col gap-4">
                                 <div class="flex items-start gap-4">
-                                    @if($coffee->image)
-                                        <img src="{{ asset('storage/' . $coffee->image) }}" class="h-16 w-16 rounded-2xl object-cover" alt="{{ $coffee->name }}">
-                                    @else
-                                        <div class="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">☕</div>
-                                    @endif
+                                    <img src="{{ $coffee->image ? asset('storage/' . $coffee->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="h-16 w-16 rounded-2xl object-cover border border-white/10" alt="{{ $coffee->name }}">
                                     <div>
                                         <h3 class="text-xl font-semibold">{{ $coffee->name }}</h3>
                                         <p class="text-white/60 text-sm">{{ $coffee->type->name ?? 'Método signature' }} · {{ $coffee->region->name ?? 'Origen mixto' }}</p>
