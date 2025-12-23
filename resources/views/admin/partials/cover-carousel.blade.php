@@ -43,8 +43,7 @@
             <thead>
                 <tr>
                     <th>Preview</th>
-                    <th>Título</th>
-                    <th>Subtítulo</th>
+                    <th>Contenido</th>
                     <th>CTA</th>
                     <th>Posición</th>
                     <th>Visible</th>
@@ -58,49 +57,103 @@
                             <img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->title }}" class="img-fluid rounded">
                         </td>
                         <td>
-                            <form action="{{ route('cover-carousel.update', $item) }}" method="POST" enctype="multipart/form-data" class="row g-2">
-                                @csrf
-                                @method('PUT')
-                                <div class="col-12">
-                                    <input type="text" name="title" value="{{ $item->title }}" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-12">
-                                    <input type="text" name="subtitle" value="{{ $item->subtitle }}" class="form-control form-control-sm" placeholder="Subtítulo">
-                                </div>
-                                <div class="col-12">
-                                    <input type="file" name="image" class="form-control form-control-sm">
-                                    <small class="text-muted">Solo si deseas reemplazar la imagen.</small>
-                                </div>
+                            <strong>{{ $item->title }}</strong>
+                            <p class="text-muted small mb-1">{{ $item->subtitle }}</p>
+                            <small class="text-muted">ID: {{ $item->id }}</small>
                         </td>
                         <td>
-                                <input type="text" name="link_label" value="{{ $item->link_label }}" class="form-control form-control-sm mb-2" placeholder="Ej. Ver plato">
-                                <input type="url" name="link_url" value="{{ $item->link_url }}" class="form-control form-control-sm" placeholder="https://">
+                            <p class="mb-1">
+                                <span class="badge bg-secondary">{{ $item->link_label ?? 'Sin label' }}</span>
+                            </p>
+                            <a href="{{ $item->link_url }}" target="_blank" class="small text-decoration-underline">
+                                {{ $item->link_url ?: 'Sin URL' }}
+                            </a>
                         </td>
+                        <td class="text-center">{{ $item->position }}</td>
                         <td class="text-center">
-                                <input type="number" name="position" value="{{ $item->position }}" class="form-control form-control-sm" min="0">
-                        </td>
-                        <td class="text-center">
-                                <div class="form-check d-flex justify-content-center">
-                                    <input type="hidden" name="visible" value="0">
-                                    <input class="form-check-input" type="checkbox" name="visible" value="1" {{ $item->visible ? 'checked' : '' }}>
-                                </div>
+                            <span class="badge {{ $item->visible ? 'bg-success' : 'bg-secondary' }}">
+                                {{ $item->visible ? 'Activo' : 'Oculto' }}
+                            </span>
                         </td>
                         <td class="text-end">
-                                <button class="btn btn-sm btn-outline-primary mb-2 w-100">Guardar</button>
-                            </form>
-                            <form action="{{ route('cover-carousel.destroy', $item) }}" method="POST" onsubmit="return confirm('¿Eliminar esta tarjeta del carrusel?');">
+                            <div class="d-flex flex-column gap-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-carousel-edit="item-{{ $item->id }}">
+                                    Editar
+                                </button>
+                                <form action="{{ route('cover-carousel.destroy', $item) }}" method="POST" onsubmit="return confirm('¿Eliminar esta tarjeta del carrusel?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger w-100">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="carousel-edit-item-{{ $item->id }}" class="d-none bg-light">
+                        <td colspan="6">
+                            <form action="{{ route('cover-carousel.update', $item) }}" method="POST" enctype="multipart/form-data" class="row g-3">
                                 @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger w-100">Eliminar</button>
+                                @method('PUT')
+                                <div class="col-md-6">
+                                    <label class="form-label">Título</label>
+                                    <input type="text" name="title" value="{{ $item->title }}" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Subtítulo</label>
+                                    <input type="text" name="subtitle" value="{{ $item->subtitle }}" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Label del botón</label>
+                                    <input type="text" name="link_label" value="{{ $item->link_label }}" class="form-control form-control-sm" placeholder="Ej. Ver plato">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">URL</label>
+                                    <input type="url" name="link_url" value="{{ $item->link_url }}" class="form-control form-control-sm" placeholder="https://">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Posición</label>
+                                    <input type="number" name="position" value="{{ $item->position }}" class="form-control form-control-sm" min="0">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input type="hidden" name="visible" value="0">
+                                        <input class="form-check-input" type="checkbox" name="visible" value="1" {{ $item->visible ? 'checked' : '' }} id="visible-item-{{ $item->id }}">
+                                        <label class="form-check-label small" for="visible-item-{{ $item->id }}">Visible</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Imagen</label>
+                                    <input type="file" name="image" class="form-control form-control-sm">
+                                    <small class="text-muted">Sube una nueva imagen para reemplazar la actual.</small>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-carousel-edit="item-{{ $item->id }}">Cerrar</button>
+                                    <button class="btn btn-primary btn-sm">Guardar cambios</button>
+                                </div>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted">Aún no hay tarjetas en el carrusel.</td>
+                        <td colspan="6" class="text-center text-muted">Aún no hay tarjetas en el carrusel.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.querySelectorAll('[data-carousel-edit]').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-carousel-edit');
+            const row = document.getElementById(`carousel-edit-${targetId}`);
+            if (row) {
+                row.classList.toggle('d-none');
+            }
+        });
+    });
+</script>
+@endpush
