@@ -19,21 +19,24 @@
             min-height: 100vh;
             margin: 0;
             @if($settings && $settings->background_image_cocktails)
-                background: url('{{ asset('storage/' . $settings->background_image_cocktails) }}') no-repeat center center fixed;
+                background: none;
             @else
                 background: radial-gradient(circle at top, #1f1b2e, #0b0a13);
             @endif
             background-size: cover;
         }
-        @if(!empty($settings->overlay_color_cocktails))
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background: {{ $settings->overlay_color_cocktails }};
             z-index: 0;
+            @if($settings && $settings->background_image_cocktails)
+                background: url('{{ asset('storage/' . $settings->background_image_cocktails) }}') no-repeat center center;
+                background-size: cover;
+            @else
+                background: {{ $settings->overlay_color_cocktails ?? 'rgba(0,0,0,0.45)' }};
+            @endif
         }
-        @endif
         .content-layer {
             position: relative;
             z-index: 1;

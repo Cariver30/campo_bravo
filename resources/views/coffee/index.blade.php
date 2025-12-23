@@ -13,7 +13,7 @@
         body {
             font-family: {{ $settings->font_family_wines ?? 'ui-sans-serif' }};
             @if($settings && $settings->background_image_wines)
-                background: url('{{ asset("storage/" . $settings->background_image_wines) }}') no-repeat center center fixed;
+                background: none;
             @else
                 background: radial-gradient(circle at top, #f4ede0, #d2b48c);
             @endif
@@ -23,8 +23,13 @@
             content: '';
             position: fixed;
             inset: 0;
-            background: rgba(5, 5, 5, 0.55);
             z-index: -1;
+            @if($settings && $settings->background_image_wines)
+                background: url('{{ asset("storage/" . $settings->background_image_wines) }}') no-repeat center center;
+                background-size: cover;
+            @else
+                background: rgba(5, 5, 5, 0.55);
+            @endif
         }
     </style>
 </head>

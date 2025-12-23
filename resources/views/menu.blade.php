@@ -22,7 +22,7 @@
         body {
             font-family: {{ $settings->font_family_menu ?? 'ui-sans-serif' }};
             @if($settings && $settings->background_image_menu)
-                background: url('{{ asset('storage/' . $settings->background_image_menu) }}') no-repeat center center fixed;
+                background: none;
             @else
                 background: radial-gradient(circle at top, #f3eada, #d9c7a1);
             @endif
@@ -35,7 +35,12 @@
             content: '';
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45);
+            @if($settings && $settings->background_image_menu)
+                background: url('{{ asset('storage/' . $settings->background_image_menu) }}') no-repeat center center;
+                background-size: cover;
+            @else
+                background: rgba(0, 0, 0, 0.45);
+            @endif
             z-index: -1;
         }
 

@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('cover_carousel_items', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('subtitle')->nullable();
+            $table->text('subtitle')->nullable();
             $table->string('image_path');
             $table->string('link_label')->nullable();
-            $table->string('link_url')->nullable();
+            $table->text('link_url')->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->boolean('visible')->default(true);
             $table->timestamps();
