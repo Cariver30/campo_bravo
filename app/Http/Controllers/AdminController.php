@@ -301,24 +301,24 @@ $foodPairings = FoodPairing::all();
             $settings->tab_label_wines = $this->resolveTabLabel($request->input('tab_label_wines'), $buttonLabelWines);
             $settings->tab_label_events = $this->resolveTabLabel($request->input('tab_label_events'), $buttonLabelEvents ?: 'Eventos');
             $settings->tab_label_loyalty = $this->resolveTabLabel($request->input('tab_label_loyalty'), $settings->tab_label_loyalty ?? 'Fidelidad');
-            $settings->show_tab_menu = $request->boolean('show_tab_menu');
-            $settings->show_tab_cocktails = $request->boolean('show_tab_cocktails');
-            $settings->show_tab_wines = $request->boolean('show_tab_wines');
-            $settings->show_tab_events = $request->boolean('show_tab_events');
-            $settings->show_tab_campaigns = $request->boolean('show_tab_campaigns');
-            $settings->show_tab_popups = $request->boolean('show_tab_popups');
-            $settings->show_tab_loyalty = $request->boolean('show_tab_loyalty');
+            $settings->show_tab_menu = $request->boolean('show_tab_menu', (bool) $settings->show_tab_menu);
+            $settings->show_tab_cocktails = $request->boolean('show_tab_cocktails', (bool) $settings->show_tab_cocktails);
+            $settings->show_tab_wines = $request->boolean('show_tab_wines', (bool) $settings->show_tab_wines);
+            $settings->show_tab_events = $request->boolean('show_tab_events', (bool) $settings->show_tab_events);
+            $settings->show_tab_campaigns = $request->boolean('show_tab_campaigns', (bool) $settings->show_tab_campaigns);
+            $settings->show_tab_popups = $request->boolean('show_tab_popups', (bool) $settings->show_tab_popups);
+            $settings->show_tab_loyalty = $request->boolean('show_tab_loyalty', (bool) $settings->show_tab_loyalty);
         }
 
         if (Schema::hasColumn('settings', 'show_cta_menu')) {
-            $settings->show_cta_menu = $request->boolean('show_cta_menu', $settings->show_cta_menu);
-            $settings->show_cta_cafe = $request->boolean('show_cta_cafe', $settings->show_cta_cafe);
-            $settings->show_cta_cocktails = $request->boolean('show_cta_cocktails', $settings->show_cta_cocktails);
-            $settings->show_cta_events = $request->boolean('show_cta_events', $settings->show_cta_events);
-            $settings->show_cta_reservations = $request->boolean('show_cta_reservations', $settings->show_cta_reservations);
+            $settings->show_cta_menu = $request->boolean('show_cta_menu', (bool) $settings->show_cta_menu);
+            $settings->show_cta_cafe = $request->boolean('show_cta_cafe', (bool) $settings->show_cta_cafe);
+            $settings->show_cta_cocktails = $request->boolean('show_cta_cocktails', (bool) $settings->show_cta_cocktails);
+            $settings->show_cta_events = $request->boolean('show_cta_events', (bool) $settings->show_cta_events);
+            $settings->show_cta_reservations = $request->boolean('show_cta_reservations', (bool) $settings->show_cta_reservations);
         }
         if (Schema::hasColumn('settings', 'show_cta_vip')) {
-            $settings->show_cta_vip = $request->boolean('show_cta_vip', $settings->show_cta_vip);
+            $settings->show_cta_vip = $request->boolean('show_cta_vip', (bool) $settings->show_cta_vip);
         }
 
         if (Schema::hasColumn('settings', 'featured_card_bg_color')) {
