@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\CoverCarouselItem;
 use App\Models\Dish;
 use App\Models\Cocktail;
 use App\Models\CocktailCategory;
@@ -22,6 +21,7 @@ use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 
 class AdminController extends Controller
@@ -58,10 +58,9 @@ class AdminController extends Controller
         $popups = Popup::all(); // Asegúrate de obtener todos los popups
 
 
-        $carouselItems = CoverCarouselItem::orderBy('position')->get();
         $managers = User::where('role', 'manager')->orderBy('name')->get();
 
-        return view('admin', compact('categories', 'dishes', 'cocktails', 'cocktailCategories', 'wines', 'wineCategories', 'settings','popups', 'carouselItems', 'managers'));
+        return view('admin', compact('categories', 'dishes', 'cocktails', 'cocktailCategories', 'wines', 'wineCategories', 'settings','popups', 'managers'));
     }
 
     public function newAdminPanel()
@@ -79,7 +78,6 @@ $regions = Region::all();
 $grapes = Grape::all();
 $foodPairings = FoodPairing::all();
         $featuredGroups = FeaturedGroupBuilder::build(true);
-        $carouselItems = CoverCarouselItem::orderBy('position')->get();
         $loyaltyRewards = LoyaltyReward::orderBy('points_required')->get();
         $servers = User::where('role', 'server')->orderBy('name')->get();
         $managers = User::where('role', 'manager')->orderBy('name')->get();
@@ -105,7 +103,6 @@ $foodPairings = FoodPairing::all();
             'loyaltyRewards',
             'servers',
             'loyaltyCustomers',
-            'carouselItems',
             'managers'
         ));
     }
@@ -193,6 +190,25 @@ $foodPairings = FoodPairing::all();
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
             $settings->logo = $path;
+        }
+
+        if ($request->boolean('remove_menu_hero_image')) {
+            if ($settings->menu_hero_image) {
+                Storage::disk('public')->delete($settings->menu_hero_image);
+            }
+            $settings->menu_hero_image = null;
+        }
+        if ($request->boolean('remove_cocktail_hero_image')) {
+            if ($settings->cocktail_hero_image) {
+                Storage::disk('public')->delete($settings->cocktail_hero_image);
+            }
+            $settings->cocktail_hero_image = null;
+        }
+        if ($request->boolean('remove_coffee_hero_image')) {
+            if ($settings->coffee_hero_image) {
+                Storage::disk('public')->delete($settings->coffee_hero_image);
+            }
+            $settings->coffee_hero_image = null;
         }
 
         if ($request->hasFile('menu_hero_image')) {

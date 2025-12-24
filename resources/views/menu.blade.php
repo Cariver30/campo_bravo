@@ -76,6 +76,13 @@
             transform: translateY(0);
         }
 
+        .hero-media {
+            width: 100%;
+            max-height: 420px;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
         @media (max-width: 768px) {
             body {
                 background-position: center top;
@@ -109,7 +116,7 @@
 
 @if($settings->menu_hero_image)
     <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
-        <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" alt="Destacado del menú" class="w-full rounded-3xl shadow-2xl border border-white/10 object-cover">
+        <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" alt="Destacado del menú" class="hero-media rounded-3xl shadow-2xl border border-white/10">
     </div>
 @endif
 

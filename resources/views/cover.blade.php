@@ -174,79 +174,6 @@
                 </div>
             </section>
 
-            @php
-                $carouselSlides = $carouselItems->map(function ($item) {
-                    return [
-                        'title' => $item->title,
-                        'subtitle' => $item->subtitle,
-                        'link_label' => $item->link_label,
-                        'link_url' => $item->link_url,
-                        'image_url' => asset('storage/' . $item->image_path),
-                    ];
-                });
-                if ($carouselSlides->isEmpty()) {
-                    $carouselSlides = collect([
-                        [
-                            'title' => 'Chemex de la casa',
-                            'subtitle' => 'Huehuetenango · naranja · panela',
-                            'image_url' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
-                            'link_label' => 'Ver método',
-                            'link_url' => url('/coffee'),
-                        ],
-                        [
-                            'title' => 'Brunch board',
-                            'subtitle' => 'Dulce + salado + flight',
-                            'image_url' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
-                            'link_label' => 'Reservar mesa',
-                            'link_url' => route('reservations.app'),
-                        ],
-                        [
-                            'title' => 'Mocktail Tropical',
-                            'subtitle' => 'Piña rostizada, ginger y bitters',
-                            'image_url' => 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=800&q=80',
-                            'link_label' => 'Ir a bebidas',
-                            'link_url' => url('/cocktails'),
-                        ],
-                    ]);
-                }
-            @endphp
-
-            @if($carouselSlides->isNotEmpty())
-                <section class="rounded-3xl p-6 backdrop-blur border border-white/10 space-y-6" style="background-color: {{ cover_card_color($settings->card_bg_color_cover ?? '#000000', 0.85) }};">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.4em] cover-text-soft mb-1">Cata rápida</p>
-                            <h3 class="text-2xl font-semibold cover-text-primary">Platillos que tienes que pedir</h3>
-                            <p class="text-sm cover-text-muted">Desliza para ver highlights de temporada y recomendaciones del barista.</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button class="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10 transition" data-carousel="prev">&larr;</button>
-                            <button class="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white/10 transition" data-carousel="next">&rarr;</button>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <div id="coverCarouselTrack" class="flex gap-4 overflow-hidden scroll-smooth snap-x snap-mandatory">
-                            @foreach($carouselSlides as $slide)
-                                <article class="min-w-[260px] max-w-[320px] flex-shrink-0 snap-start bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                                    <div class="h-44">
-                                        <img src="{{ $slide['image_url'] }}" alt="{{ $slide['title'] }}" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="p-4 space-y-2">
-                                        <p class="text-xs uppercase tracking-[0.35em] cover-text-soft">{{ $slide['subtitle'] ?? 'Recomendado' }}</p>
-                                        <h4 class="text-xl font-semibold cover-text-primary">{{ $slide['title'] }}</h4>
-                                        @if(!empty($slide['link_label']) && !empty($slide['link_url']))
-                                            <a href="{{ $slide['link_url'] }}" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-300 hover:text-amber-200 transition">
-                                                {{ $slide['link_label'] }} <span>&rarr;</span>
-                                            </a>
-                                        @endif
-                                    </div>
-                                </article>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-            @endif
-
             <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
                 @php
                     $ctaLabel = function ($value, $default) {
@@ -537,22 +464,6 @@
 
             if (featuredButtons.length) {
                 renderFeatured(featuredButtons[0].dataset.featuredTab);
-            }
-
-            const carouselTrack = document.getElementById('coverCarouselTrack');
-            const prevBtn = document.querySelector('[data-carousel="prev"]');
-            const nextBtn = document.querySelector('[data-carousel="next"]');
-            if (carouselTrack && prevBtn && nextBtn) {
-                const scrollAmount = () => {
-                    const card = carouselTrack.querySelector('article');
-                    return card ? card.getBoundingClientRect().width + 16 : 320;
-                };
-                prevBtn.addEventListener('click', () => {
-                    carouselTrack.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
-                });
-                nextBtn.addEventListener('click', () => {
-                    carouselTrack.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
-                });
             }
 
             // If validation errors opened the modal, highlight status

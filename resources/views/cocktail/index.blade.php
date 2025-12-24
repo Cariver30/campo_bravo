@@ -41,6 +41,14 @@
             position: relative;
             z-index: 1;
         }
+
+        .hero-media {
+            width: 100%;
+            max-height: 420px;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 1.5rem;
+        }
     </style>
 </head>
 <body class="text-white content-layer">
@@ -57,7 +65,7 @@
 
     @if($settings->cocktail_hero_image)
         <div class="max-w-5xl mx-auto px-4 mt-6">
-            <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="w-full rounded-3xl shadow-2xl border border-white/20 object-cover">
+            <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="hero-media shadow-2xl border border-white/20">
         </div>
     @endif
 

@@ -338,8 +338,6 @@
     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
 </form>
 
-@include('admin.partials.cover-carousel')
-
 @if(auth()->user()?->isAdmin())
     <div class="border rounded-3 p-3 mt-4">
         <h5 class="mb-3">Gerentes (solo admin)</h5>

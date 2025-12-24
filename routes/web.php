@@ -20,7 +20,6 @@ use App\Http\Controllers\EventNotificationController;
 use App\Http\Controllers\Admin\EventPromotionController;
 use App\Http\Controllers\Admin\LoyaltyAdminController;
 use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\CoverCarouselController;
 use App\Http\Controllers\Loyalty\InvitationController;
 use App\Http\Controllers\Loyalty\ServerDashboardController;
 use App\Http\Controllers\Loyalty\VisitConfirmationController;
@@ -29,7 +28,7 @@ use App\Http\Controllers\HomeController;
 
 // Rutas públicas
 Route::get('/', [HomeController::class, 'cover'])->name('cover');
-Route::get('/menu', [MenuController::class, 'index']);
+Route::get('/menu', [MenuController::class, 'index'])->name('menu');
 Route::get('/cocktails', [CocktailController::class, 'index'])->name('cocktails.index');
 Route::get('/coffee', [WineController::class, 'index'])->name('coffee.index');
 Route::redirect('/wines', '/coffee');
@@ -105,7 +104,6 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('regions', App\Http\Controllers\RegionController::class);
     Route::resource('food-pairings', FoodPairingController::class);
     Route::resource('grapes', App\Http\Controllers\GrapeController::class);
-    Route::resource('cover-carousel', CoverCarouselController::class)->only(['store', 'update', 'destroy']);
 
     Route::get('/admin/popups', [AdminController::class, 'indexPopups'])->name('admin.popups.index');
     Route::get('/admin/popups/create', [AdminController::class, 'createPopup'])->name('admin.popups.create');
