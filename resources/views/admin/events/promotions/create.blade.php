@@ -42,8 +42,9 @@
             <input type="file" name="hero_image" class="input-control">
         </div>
         <div>
-            <label class="input-label">Contenido HTML</label>
-            <textarea name="body_html" rows="8" class="input-control" required placeholder="Puedes usar HTML sencillo con <p>, <strong>, etc.">{{ old('body_html') }}</textarea>
+            <label class="input-label">Contenido (se transforma a HTML automáticamente)</label>
+            <textarea name="body_html" rows="8" class="input-control" required placeholder="Escribe texto plano o pega HTML. Nosotros lo convertimos a párrafos automáticamente.">{{ old('body_html') }}</textarea>
+            <p class="text-xs text-slate-400 mt-2">Tip: si solo escribes texto normal, lo transformaremos en párrafos HTML con el template por defecto.</p>
         </div>
         <div>
             <label class="input-label">Assets (PDF, GIF, videos)</label>

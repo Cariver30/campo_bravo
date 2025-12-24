@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventPromotionController extends Controller
 {
@@ -51,11 +52,13 @@ class EventPromotionController extends Controller
             }
         }
 
+        $bodyHtml = $this->normalizeBodyHtml($data['body_html']);
+
         $promotion = EventPromotion::create([
             'title' => $data['title'],
             'subject' => $data['subject'],
             'preview_text' => $data['preview_text'] ?? null,
-            'body_html' => $data['body_html'],
+            'body_html' => $bodyHtml,
             'hero_image' => $data['hero_image'] ?? null,
             'attachments' => $attachments,
             'status' => $request->boolean('send_now') ? 'sending' : 'draft',
@@ -162,5 +165,44 @@ class EventPromotionController extends Controller
             'send_count' => $sent,
             'send_error' => empty($errors) ? null : implode('; ', $errors),
         ]);
+    }
+
+    protected function normalizeBodyHtml(string $content): string
+    {
+        $trimmed = trim($content);
+        if ($trimmed === '') {
+            return '<p></p>';
+        }
+
+        if (preg_match('/<[^>]+>/', $trimmed)) {
+            return $trimmed;
+        }
+
+        $lines = preg_split("/\r\n|\r|\n/", $trimmed);
+        $paragraphs = [];
+        $buffer = [];
+
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                if (!empty($buffer)) {
+                    $paragraphs[] = implode(' ', $buffer);
+                    $buffer = [];
+                }
+            } else {
+                $buffer[] = trim($line);
+            }
+        }
+
+        if (!empty($buffer)) {
+            $paragraphs[] = implode(' ', $buffer);
+        }
+
+        if (empty($paragraphs)) {
+            $paragraphs[] = $trimmed;
+        }
+
+        return collect($paragraphs)
+            ->map(fn ($paragraph) => '<p>'.nl2br(e($paragraph)).'</p>')
+            ->implode("\n");
     }
 }
