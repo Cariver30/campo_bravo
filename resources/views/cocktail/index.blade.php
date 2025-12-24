@@ -7,11 +7,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    @php
+        if (!function_exists('cocktail_mix_color')) {
+            function cocktail_mix_color(?string $hexColor, float $opacity = 1): string {
+                $hex = $hexColor ?: '#191919';
+                $hex = str_replace('#', '', $hex);
+                if (strlen($hex) === 3) {
+                    $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+                }
+                $int = hexdec($hex);
+                $r = ($int >> 16) & 255;
+                $g = ($int >> 8) & 255;
+                $b = $int & 255;
+                $opacity = max(0, min(1, $opacity));
+                return "rgba({$r}, {$g}, {$b}, {$opacity})";
+            }
+        }
+
+        $cocktailCardColor = cocktail_mix_color($settings->card_bg_color_cocktails ?? '#191919', $settings->card_opacity_cocktails ?? 0.95);
+    @endphp
     <style>
         :root {
             --accent: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};
-            --card-bg: {{ $settings->card_bg_color_cocktails ?? 'rgba(25,25,25,0.95)' }};
-            --card-opacity: {{ $settings->card_opacity_cocktails ?? 0.95 }};
+            --card-bg: {{ $cocktailCardColor }};
             --text-color: {{ $settings->text_color_cocktails ?? '#ffffff' }};
         }
         body {
@@ -139,7 +157,7 @@
                                  data-description="{{ strip_tags($item->description) }}"
                                  data-price="{{ number_format($item->price, 2) }}"
                                  data-image="{{ asset('storage/' . $item->image) }}"
-                                 style="background-color: var(--card-bg); opacity: var(--card-opacity); color: var(--text-color); border-color: rgba(255,255,255,0.15);">
+                                 style="background-color: var(--card-bg); color: var(--text-color); border-color: rgba(255,255,255,0.15);">
                             <div class="relative shrink-0">
                                 <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="{{ $item->name }}"
                                      class="w-24 h-24 rounded-full object-cover bg-white/5"
