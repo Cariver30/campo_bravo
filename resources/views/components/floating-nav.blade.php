@@ -10,12 +10,12 @@
     ];
 @endphp
 
-<div class="fixed bottom-5 left-0 right-0 z-50 flex justify-center content-layer">
-    <div class="flex flex-wrap lg:flex-nowrap items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl"
+<div class="fixed bottom-5 left-0 right-0 z-50 content-layer px-4">
+    <div class="flex w-full flex-nowrap items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl overflow-x-auto"
          style="background-color: {{ $background ?? 'rgba(0,0,0,0.55)' }};">
         @foreach($navLinks as $link)
             <a href="{{ $link['href'] }}"
-               class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
+               class="flex flex-shrink-0 items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105 whitespace-nowrap"
                style="background-color: {{ $buttonColor ?? '#000' }};">
                 <i class="{{ $link['icon'] }} text-lg"></i>
                 <span>{{ $link['label'] }}</span>
