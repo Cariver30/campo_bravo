@@ -25,13 +25,12 @@
         }
 
         $cocktailCardColor = cocktail_mix_color($settings->card_bg_color_cocktails ?? '#191919', $settings->card_opacity_cocktails ?? 0.95);
+        $accentColor = $settings->button_color_cocktails ?? '#ff5c5c';
+        $textColor = $settings->text_color_cocktails ?? '#ffffff';
+        $accentSoftBackground = cocktail_mix_color($accentColor, 0.2);
+        $overlayColor = $settings->overlay_color_cocktails ?? 'rgba(0,0,0,0.45)';
     @endphp
     <style>
-        :root {
-            --accent: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};
-            --card-bg: {{ $cocktailCardColor }};
-            --text-color: {{ $settings->text_color_cocktails ?? '#ffffff' }};
-        }
         body {
             font-family: {{ $settings->font_family_cocktails ?? '\'Inter\', sans-serif' }};
             min-height: 100vh;
@@ -94,7 +93,7 @@
                 <a href="#category{{ $category->id }}"
                    class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 hover:bg-slate-100 transition text-sm font-semibold category-link"
                    data-category-link="#category{{ $category->id }}">
-                    <i class="fa-solid fa-martini-glass-citrus text-[var(--accent)]"></i>
+                    <i class="fa-solid fa-martini-glass-citrus" style="color: {{ $accentColor }};"></i>
                     {{ $category->name }}
                 </a>
             @endforeach
@@ -124,14 +123,14 @@
         </div>
     </aside>
 
-    <div id="cocktailOverlay" class="fixed inset-0 z-40 hidden lg:hidden" style="background-color: var(--overlay-color);"></div>
+    <div id="cocktailOverlay" class="fixed inset-0 z-40 hidden lg:hidden" style="background-color: {{ $overlayColor }};"></div>
 
     <!-- Chips móviles -->
     <div class="lg:hidden content-layer sticky top-20 z-30 px-4">
         <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory">
             @foreach ($cocktailCategories as $category)
                 <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold backdrop-blur-md hover:scale-105 transition"
-                        style="color: {{ $settings->text_color_cocktails ?? '#fff' }}; border-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}; background-color: {{ ($settings->button_color_cocktails ?? '#ff5c5c').'33' }};"
+                        style="color: {{ $textColor }}; border-color: {{ $accentColor }}; background-color: {{ $accentSoftBackground }};"
                         data-category-link="#category{{ $category->id }}">
                     {{ $category->name }}
                 </button>
@@ -157,29 +156,30 @@
                                  data-description="{{ strip_tags($item->description) }}"
                                  data-price="{{ number_format($item->price, 2) }}"
                                  data-image="{{ asset('storage/' . $item->image) }}"
-                                 style="background-color: var(--card-bg); color: var(--text-color); border-color: rgba(255,255,255,0.15);">
+                                 style="background-color: {{ $cocktailCardColor }}; color: {{ $textColor }}; border-color: rgba(255,255,255,0.15);">
                             <div class="relative shrink-0">
                                 <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="{{ $item->name }}"
                                      class="w-24 h-24 rounded-full object-cover bg-white/5"
                                      style="border: 4px solid rgba(255,255,255,0.15); padding: 4px;">
-                                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-xs rounded-full bg-[var(--accent)] text-slate-900 font-semibold border border-white/40">
+                                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-xs rounded-full text-slate-900 font-semibold border border-white/40"
+                                      style="background-color: {{ $accentColor }};">
                                     ${{ number_format($item->price, 0) }}
                                 </span>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-xl font-semibold" style="color: var(--text-color);">{{ $item->name }}</h3>
+                                <h3 class="text-xl font-semibold" style="color: {{ $textColor }};">{{ $item->name }}</h3>
                                 <p class="text-sm leading-relaxed line-clamp-3"
-                                   style="color: {{ $settings->text_color_cocktails ?? '#ffffff' }}; opacity: 0.8;">
+                                   style="color: {{ $textColor }}; opacity: 0.8;">
                                     {{ $item->description }}
                                 </p>
                             <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
                                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
-                                      style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}33; border-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }}; color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
+                                      style="background-color: {{ $accentSoftBackground }}; border-color: {{ $accentColor }}; color: {{ $textColor }};">
                                     <i class="fa-solid fa-droplet"></i> {{ $item->volume ?? 'Clásico' }}
                                 </span>
                                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/15"
-                                      style="background-color: rgba(255,255,255,0.12); color: {{ $settings->text_color_cocktails ?? '#ffffff' }};">
-                                    <i class="fa-solid fa-star" style="color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};"></i> Mix ideal
+                                      style="background-color: rgba(255,255,255,0.12); color: {{ $textColor }};">
+                                    <i class="fa-solid fa-star" style="color: {{ $accentColor }};"></i> Mix ideal
                                 </span>
                             </div>
                             @if($item->dishes->count())
