@@ -305,16 +305,18 @@
                 $featuredCardBgHex = $settings->featured_card_bg_color ?? '#0f172a';
                 $featuredCardBg = cover_card_color($featuredCardBgHex, 0.65);
                 $featuredCardText = $settings->featured_card_text_color ?? '#ffffff';
+                $featuredMutedText = cover_card_color($featuredCardText, 0.75);
+                $featuredBorderColor = cover_card_color($featuredCardText, 0.2);
                 $featuredTabBgHex = $settings->featured_tab_bg_color ?? '#ffffff';
                 $featuredTabBg = cover_card_color($featuredTabBgHex, 0.2);
                 $featuredTabText = $settings->featured_tab_text_color ?? '#ffffff';
             @endphp
 
-            <section class="rounded-3xl p-6 backdrop-blur space-y-6 border border-white/10" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }};">
+            <section class="rounded-3xl p-6 backdrop-blur space-y-6 border" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }}; border-color: {{ $featuredBorderColor }}; font-family: {{ $settings->font_family_cover ?? 'inherit' }};">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.4em]" style="opacity: 0.7;">Lo más vendido</p>
+                    <p class="text-xs uppercase tracking-[0.4em]" style="color: {{ $featuredMutedText }};">Lo más vendido</p>
                     <h3 class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
-                    <p class="text-sm" style="opacity: 0.85;">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
+                    <p class="text-sm" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
                 </div>
                 @if($featuredGroups->isNotEmpty())
                     <div class="flex flex-wrap gap-3 text-sm">
@@ -323,35 +325,35 @@
                                     data-featured-tab="{{ $group['slug'] }}"
                                     data-active-bg="{{ $featuredTabBg }}"
                                     data-inactive-bg="transparent"
-                                    data-text="{{ $featuredTabText }}"
-                                    data-border="{{ $featuredTabText }}33"
-                                    style="border: 1px solid {{ $featuredTabText }}33; color: {{ $featuredTabText }}; background-color: {{ $loop->first ? $featuredTabBg : 'transparent' }};">
+                                    data-text="{{ $featuredCardText }}"
+                                    data-border="{{ $featuredBorderColor }}"
+                                    style="border: 1px solid {{ $featuredBorderColor }}; color: {{ $featuredCardText }}; background-color: {{ $loop->first ? $featuredTabBg : 'transparent' }};">
                                 {{ $group['title'] }}
                             </button>
                         @endforeach
                     </div>
                     <div class="space-y-6">
                         <div>
-                            <p id="featuredTag" class="text-xs uppercase tracking-[0.35em] mb-2">{{ $initialGroup['subtitle'] ?? '' }}</p>
+                            <p id="featuredTag" class="text-xs uppercase tracking-[0.35em] mb-2" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? '' }}</p>
                             <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Sin datos' }}</h3>
-                            <p id="featuredDescription" class="mt-2" style="opacity: 0.8;">{{ $initialGroup['source_label'] ?? '' }}</p>
+                            <p id="featuredDescription" class="mt-2" style="color: {{ $featuredMutedText }};">{{ $initialGroup['source_label'] ?? '' }}</p>
                         </div>
                         <div id="featuredItems" class="space-y-4">
                             @forelse($initialGroup['items'] ?? [] as $item)
-                                <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 border-b border-white/10 group" style="color: {{ $featuredCardText }};">
+                                <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 group" style="color: {{ $featuredCardText }}; border-bottom: 1px solid {{ $featuredBorderColor }};">
                                     <div class="flex items-start gap-3">
                                         @if(!empty($item['image']))
-                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border border-white/20">
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border" style="border-color: {{ $featuredBorderColor }};">
                                         @else
-                                            <div class="w-14 h-14 rounded-xl border border-white/20 flex items-center justify-center text-lg">☆</div>
+                                            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg" style="border:1px solid {{ $featuredBorderColor }};">☆</div>
                                         @endif
                                         <div>
                                             <p class="text-lg font-semibold">{{ $item['title'] }}</p>
-                                            <p class="text-sm" style="opacity: 0.8;">{{ $item['subtitle'] }}</p>
+                                            <p class="text-sm" style="color: {{ $featuredMutedText }};">{{ $item['subtitle'] }}</p>
                                         </div>
                                     </div>
                                     @if(!empty($item['price']))
-                                        <span class="text-amber-300 font-semibold">${{ number_format($item['price'], 2) }}</span>
+                                        <span class="font-semibold" style="color: {{ $settings->button_color_cover ?? $featuredCardText }};">${{ number_format($item['price'], 2) }}</span>
                                     @endif
                                 </a>
                             @empty
@@ -484,6 +486,10 @@
             }
 
             const featuredData = @json($featuredGroupsPayload);
+            const featuredTextColor = "{{ $featuredCardText }}";
+            const featuredMutedColor = "{{ $featuredMutedText }}";
+            const featuredBorderColor = "{{ $featuredBorderColor }}";
+            const featuredAccentColor = "{{ $settings->button_color_cover ?? $featuredCardText }}";
 
             const featuredButtons = document.querySelectorAll('[data-featured-tab]');
             const tagEl = document.getElementById('featuredTag');
@@ -502,30 +508,26 @@
                 descriptionEl.textContent = group.source || '';
                 itemsEl.innerHTML = (group.items || []).length
                     ? group.items.map(item => `
-                        <a href="${item.link || '#'}" class="flex items-start justify-between gap-4 pb-3 border-b border-white/10 group">
+                        <a href="${item.link || '#'}" class="flex items-start justify-between gap-4 pb-3 group" style="color:${featuredTextColor}; border-bottom:1px solid ${featuredBorderColor};">
                             <div class="flex items-start gap-3">
                                 ${item.image
-                                    ? `<img src="${item.image}" alt="${item.title || ''}" class="w-14 h-14 rounded-xl object-cover border border-white/20">`
-                                    : `<div class="w-14 h-14 rounded-xl border border-white/20 flex items-center justify-center text-lg">☆</div>`
+                                    ? `<img src="${item.image}" alt="${item.title || ''}" class="w-14 h-14 rounded-xl object-cover border" style="border-color:${featuredBorderColor};">`
+                                    : `<div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg" style="border:1px solid ${featuredBorderColor};">☆</div>`
                                 }
                                 <div>
-                                    <p class="text-lg font-semibold group-hover:text-amber-200 transition">${item.title ?? ''}</p>
-                                    <p class="cover-text-soft text-sm">${item.subtitle ?? ''}</p>
+                                    <p class="text-lg font-semibold">${item.title ?? ''}</p>
+                                    <p class="text-sm" style="color:${featuredMutedColor};">${item.subtitle ?? ''}</p>
                                 </div>
                             </div>
-                            ${item.price ? `<span class="text-amber-300 font-semibold">$${item.price}</span>` : ''}
+                            ${item.price ? `<span class="font-semibold" style="color:${featuredAccentColor};">$${item.price}</span>` : ''}
                         </a>
                     `).join('')
                     : '<p class="cover-text-soft text-sm">Agrega elementos destacados desde el panel para mostrarlos aquí.</p>';
 
                 featuredButtons.forEach(btn => {
-                    if (btn.dataset.featuredTab === slug) {
-                        btn.style.backgroundColor = btn.dataset.activeBg;
-                    } else {
-                        btn.style.backgroundColor = btn.dataset.inactiveBg;
-                    }
-                    btn.style.borderColor = btn.dataset.border;
-                    btn.style.color = btn.dataset.text;
+                    btn.style.backgroundColor = btn.dataset.featuredTab === slug ? btn.dataset.activeBg : btn.dataset.inactiveBg;
+                    btn.style.borderColor = featuredBorderColor;
+                    btn.style.color = featuredTextColor;
                 });
             };
 

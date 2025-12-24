@@ -110,8 +110,12 @@ class CoverCarouselController extends Controller
         }
 
         $placeholderPath = 'cover_carousel/default-placeholder.svg';
-        if (! Storage::disk('public')->exists($placeholderPath)) {
-            Storage::disk('public')->put($placeholderPath, $this->defaultPlaceholderSvg());
+        try {
+            if (! Storage::disk('public')->exists($placeholderPath)) {
+                Storage::disk('public')->put($placeholderPath, $this->defaultPlaceholderSvg());
+            }
+        } catch (\Throwable $e) {
+            // ignore write errors, still return the relative path
         }
 
         return $placeholderPath;

@@ -164,7 +164,7 @@
                         data-name="{{ $dish->name }}"
                         data-description="{{ $dish->description }}"
                         data-price="${{ number_format($dish->price, 2) }}"
-                        data-image="{{ asset('storage/' . $dish->image) }}"
+                        data-image="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
                         data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}">
 
                         <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
@@ -334,7 +334,8 @@
         const name = el.dataset.name;
         const description = el.dataset.description;
         const price = el.dataset.price;
-        const image = el.dataset.image;
+        const fallbackImage = "{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}";
+        const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const wines = el.dataset.wines;
 
         document.getElementById('modalTitle').textContent = name;
