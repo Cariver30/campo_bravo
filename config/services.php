@@ -36,8 +36,8 @@ return [
         'events_list_id' => env('SENDGRID_EVENTS_LIST_ID'),
         'event_title_field' => env('SENDGRID_EVENT_TITLE_FIELD'),
         'event_date_field' => env('SENDGRID_EVENT_DATE_FIELD'),
-        'from_email' => env('SENDGRID_FROM_EMAIL'),
-        'from_name' => env('SENDGRID_FROM_NAME', config('app.name')),
+        'from_email' => env('SENDGRID_FROM_EMAIL', env('SENDGRID_FROM_ADDRESS', env('MAIL_FROM_ADDRESS'))),
+        'from_name' => env('SENDGRID_FROM_NAME', env('MAIL_FROM_NAME', config('app.name'))),
     ],
 
 ];

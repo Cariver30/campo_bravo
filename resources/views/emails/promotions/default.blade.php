@@ -1,5 +1,5 @@
 @php
-    $hero = $promotion->hero_image ? asset('storage/'.$promotion->hero_image) : null;
+    $hero = $promotion->hero_image ? Storage::disk('public')->url($promotion->hero_image) : null;
 @endphp
 
 <!DOCTYPE html>

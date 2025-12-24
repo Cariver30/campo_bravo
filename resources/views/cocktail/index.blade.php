@@ -46,7 +46,8 @@
             content: '';
             position: fixed;
             inset: 0;
-            z-index: 0;
+            z-index: -1;
+            pointer-events: none;
             @if($settings && $settings->background_image_cocktails)
                 background: url('{{ asset('storage/' . $settings->background_image_cocktails) }}') no-repeat center center;
                 background-size: cover;
