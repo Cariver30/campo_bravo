@@ -93,9 +93,9 @@ class WineController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'              => 'required',
-            'description'       => 'nullable',
+        $validated = $request->validate([
+            'name'              => 'required|string|max:255',
+            'description'       => 'required|string',
             'price'             => 'required|numeric',
             'category_id'       => 'required|exists:wine_categories,id',
             'type_id'           => 'nullable|exists:wine_types,id',
@@ -108,16 +108,12 @@ class WineController extends Controller
             'dishes.*'          => 'exists:dishes,id', // ✅ Validación de platos
             'image'             => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
+        ], [
+            'description.required' => 'Falta la descripción del producto.',
         ]);
     
-        $wine = new Wine($request->only([
-            'name',
-            'description',
-            'price',
-            'category_id',
-            'type_id',
-            'region_id',
-        ]));
+        $wine = new Wine($validated);
+        $wine->visible = $request->boolean('visible', true);
     
         if ($request->hasFile('image')) {
             $wine->image = $request->file('image')->store('wine_images', 'public');
@@ -132,11 +128,7 @@ class WineController extends Controller
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ sincroniza los platos
 
     
-        return redirect()->route('admin.new-panel', [
-            'section' => 'wines-section',
-            'open' => 'wine-create',
-            'expand' => 'wine-categories',
-        ])->with('success', 'Bebida de café creada con éxito');
+        return redirect()->route('wines.edit', $wine)->with('success', 'Bebida creada con éxito.');
     }
     
 
@@ -162,9 +154,9 @@ class WineController extends Controller
 
     public function update(Request $request, Wine $wine)
     {
-        $request->validate([
-            'name'              => 'required',
-            'description'       => 'nullable',
+        $validated = $request->validate([
+            'name'              => 'required|string|max:255',
+            'description'       => 'required|string',
             'price'             => 'required|numeric',
             'category_id'       => 'required|exists:wine_categories,id',
             'type_id'           => 'nullable|exists:wine_types,id',
@@ -177,22 +169,20 @@ class WineController extends Controller
             'dishes.*'          => 'exists:dishes,id', // ✅ validación
             'image'             => 'nullable|image',    // ✅ faltaba la coma
             'featured_on_cover' => ['nullable', 'boolean'],
+        ], [
+            'description.required' => 'Falta la descripción del producto.',
         ]);
     
-        $data = $request->only([
-            'name',
-            'description',
-            'price',
-            'category_id',
-            'type_id',
-            'region_id',
-        ]);
+        $data = $validated;
     
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('wine_images', 'public');
         }
     
-        $wine->update($data + ['featured_on_cover' => $request->boolean('featured_on_cover')]);
+        $wine->update($data + [
+            'visible' => $request->boolean('visible', true),
+            'featured_on_cover' => $request->boolean('featured_on_cover'),
+        ]);
 
         // ✅ Sincronizamos relaciones pivot
         $wine->grapes()->sync($request->input('grapes', []));
@@ -200,11 +190,7 @@ class WineController extends Controller
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ ahora guarda los platos recomendados
 
     
-        return redirect()->route('admin.new-panel', [
-            'section' => 'wines-section',
-            'open' => 'wine-create',
-            'expand' => 'wine-categories',
-        ])->with('success', 'Bebida de café actualizada con éxito');
+        return redirect()->route('wines.edit', $wine)->with('success', 'Bebida actualizada con éxito.');
     }
     
     public function destroy(Wine $wine)

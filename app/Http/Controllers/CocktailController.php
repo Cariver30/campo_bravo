@@ -37,18 +37,21 @@ class CocktailController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
             'dishes' => ['nullable', 'array'],
             'dishes.*' => ['integer', 'exists:dishes,id'],
+        ], [
+            'description.required' => 'Falta la descripción del cóctel.',
         ]);
 
-        $cocktail = new Cocktail($request->except('dishes'));
+        $cocktail = new Cocktail($validated);
+        $cocktail->visible = $request->boolean('visible', true);
 
         if ($request->hasFile('image')) {
             $cocktail->image = $request->file('image')->store('cocktail_images', 'public');
@@ -58,11 +61,7 @@ class CocktailController extends Controller
         $cocktail->save();
         $cocktail->dishes()->sync($request->input('dishes', []));
 
-        return redirect()->route('admin.new-panel', [
-            'section' => 'cocktails',
-            'open' => 'cocktail-create',
-            'expand' => 'cocktail-categories',
-        ])->with('success', 'Artículo de Cocktail creado con éxito');
+        return redirect()->route('cocktails.edit', $cocktail)->with('success', 'Cóctel creado con éxito.');
     }
 
     public function edit(Cocktail $cocktail)
@@ -75,21 +74,21 @@ class CocktailController extends Controller
 
     public function update(Request $request, Cocktail $cocktail)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
             'dishes' => ['nullable','array'],
             'dishes.*' => ['integer','exists:dishes,id'],
+        ], [
+            'description.required' => 'Falta la descripción del cóctel.',
         ]);
 
-        $data = $request->except('dishes');
-
-        // Asegúrate de convertir el valor del checkbox visible a un valor booleano
-        $data['visible'] = $request->has('visible') ? true : false;
+        $data = $validated;
+        $data['visible'] = $request->boolean('visible', true);
         $data['featured_on_cover'] = $request->boolean('featured_on_cover');
 
         if ($request->hasFile('image')) {
@@ -99,11 +98,7 @@ class CocktailController extends Controller
         $cocktail->update($data);
         $cocktail->dishes()->sync($request->input('dishes', []));
 
-        return redirect()->route('admin.new-panel', [
-            'section' => 'cocktails-section',
-            'open' => 'cocktail-create',
-            'expand' => 'cocktail-categories',
-        ])->with('success', 'Artículo de Cocktail actualizado con éxito');
+        return redirect()->route('cocktails.edit', $cocktail)->with('success', 'Cóctel actualizado con éxito.');
     }
 
     public function destroy(Cocktail $cocktail)

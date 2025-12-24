@@ -24,17 +24,19 @@ class DishController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'featured_on_cover' => ['nullable', 'boolean'],
+        ], [
+            'description.required' => 'Falta la descripción del plato.',
         ]);
 
-        $data = $request->all();
-        $data['visible'] = $request->has('visible') ? true : false;
+        $data = $validated;
+        $data['visible'] = $request->boolean('visible', true);
         $data['featured_on_cover'] = $request->boolean('featured_on_cover');
 
         if ($request->hasFile('image')) {
@@ -59,17 +61,19 @@ class DishController extends Controller
 
     public function update(Request $request, Dish $dish)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|max:255',
-            'description' => 'nullable',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required|integer|exists:categories,id',
             'image' => 'nullable|image|max:5000',
             'featured_on_cover' => ['nullable', 'boolean'],
+        ], [
+            'description.required' => 'Falta la descripción del plato.',
         ]);
 
-        $data = $request->all();
-        $data['visible'] = $request->has('visible') ? true : false;
+        $data = $validated;
+        $data['visible'] = $request->boolean('visible', true);
         $data['featured_on_cover'] = $request->boolean('featured_on_cover');
 
         if ($request->hasFile('image')) {
@@ -78,11 +82,7 @@ class DishController extends Controller
 
         $dish->update($data);
 
-        return redirect()->route('admin.new-panel', [
-            'section' => 'menu-section',
-            'open' => 'menu-create',
-            'expand' => 'dish-categories',
-        ])->with('success', 'Plato actualizado exitosamente.');
+        return redirect()->route('dishes.edit', $dish)->with('success', 'Plato actualizado exitosamente.');
     }
 
     public function destroy(Dish $dish)
