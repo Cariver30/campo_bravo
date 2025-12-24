@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('settings', function (Blueprint $table) {
             if (!Schema::hasColumn('settings', 'cover_cta_vip_bg_color')) {
-                $table->string('cover_cta_vip_bg_color')->nullable();
+                $table->text('cover_cta_vip_bg_color')->nullable();
             }
             if (!Schema::hasColumn('settings', 'cover_cta_vip_text_color')) {
-                $table->string('cover_cta_vip_text_color')->nullable();
+                $table->text('cover_cta_vip_text_color')->nullable();
             }
         });
     }
