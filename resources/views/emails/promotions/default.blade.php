@@ -1,5 +1,7 @@
 @php
-    $hero = $promotion->hero_image ? Storage::disk('public')->url($promotion->hero_image) : null;
+    $hero = $promotion->hero_image
+        ? \Illuminate\Support\Facades\Storage::disk('public')->url($promotion->hero_image)
+        : null;
 @endphp
 
 <!DOCTYPE html>

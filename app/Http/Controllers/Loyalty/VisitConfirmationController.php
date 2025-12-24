@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Loyalty;
 
 use App\Http\Controllers\Controller;
+use App\Mail\LoyaltyRewardUnlockedMail;
 use App\Models\LoyaltyCustomer;
+use App\Models\LoyaltyReward;
 use App\Models\LoyaltyVisit;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class VisitConfirmationController extends Controller
 {
@@ -44,7 +48,7 @@ class VisitConfirmationController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($visit, $data) {
+        $customer = DB::transaction(function () use ($visit, $data) {
             $customer = LoyaltyCustomer::firstOrCreate(
                 ['email' => strtolower($data['email'])],
                 [
@@ -66,7 +70,12 @@ class VisitConfirmationController extends Controller
                 'confirmed_at' => now(),
                 'customer_snapshot' => $customer->only(['name', 'email', 'phone', 'points']),
             ]);
+            return $customer->fresh();
         });
+
+        if ($customer) {
+            $this->notifyUnlockedRewards($customer);
+        }
 
         return redirect()->route('loyalty.confirm.thanks');
     }
@@ -74,5 +83,40 @@ class VisitConfirmationController extends Controller
     public function thanks()
     {
         return view('loyalty.thanks');
+    }
+
+    protected function notifyUnlockedRewards(LoyaltyCustomer $customer): void
+    {
+        $settings = Setting::first();
+        $rewards = LoyaltyReward::where('active', true)
+            ->orderBy('points_required')
+            ->get();
+
+        foreach ($rewards as $reward) {
+            if ($customer->points < $reward->points_required) {
+                continue;
+            }
+
+            $alreadyPending = $customer->redemptions()
+                ->where('loyalty_reward_id', $reward->id)
+                ->whereIn('status', ['pending', 'approved'])
+                ->exists();
+
+            if ($alreadyPending) {
+                continue;
+            }
+
+            $customer->redemptions()->create([
+                'loyalty_reward_id' => $reward->id,
+                'points_used' => $reward->points_required,
+                'status' => 'pending',
+            ]);
+
+            try {
+                Mail::to($customer->email)->send(new LoyaltyRewardUnlockedMail($customer, $reward, $settings));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
     }
 }

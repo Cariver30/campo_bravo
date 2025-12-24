@@ -235,25 +235,11 @@
     @endforelse
 </div>
 
-<!-- BOTONES FLOTANTES -->
-<div class="fixed bottom-5 left-0 right-0 z-50 flex justify-center content-layer">
-    <div class="flex items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl"
-         style="background-color: {{ $settings->floating_bar_bg_wines ?? 'rgba(0,0,0,0.55)' }};">
-        @php $drinkActionColor = $settings->button_color_wines ?? '#000'; @endphp
-        <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-           style="background-color: {{ $drinkActionColor }};">
-            <span>Inicio</span>
-        </a>
-        <a href="{{ url('/menu') }}" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-           style="background-color: {{ $drinkActionColor }};">
-            <span>{{ $settings->button_label_menu ?? 'Menú' }}</span>
-        </a>
-        <a href="{{ url('/coffee') }}" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-           style="background-color: {{ $drinkActionColor }};">
-            <span>{{ $settings->button_label_wines ?? 'Bebidas' }}</span>
-        </a>
-    </div>
-</div>
+@include('components.floating-nav', [
+    'settings' => $settings,
+    'background' => $settings->floating_bar_bg_wines ?? 'rgba(0,0,0,0.55)',
+    'buttonColor' => $settings->button_color_wines ?? '#000'
+])
 
 <!-- MODAL DETALLE BEBIDA -->
 <div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"

@@ -13,7 +13,9 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->isAdmin()) {
+        $user = $request->user();
+
+        if (! $user || ! $user->hasRole(['admin', 'manager'])) {
             abort(403);
         }
 

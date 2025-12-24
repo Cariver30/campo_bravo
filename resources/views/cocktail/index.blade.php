@@ -1,63 +1,89 @@
+@php
+    $categories = $cocktailCategories ?? collect();
+    $textColor = $settings->text_color_cocktails ?? '#ffffff';
+    $buttonColor = $settings->button_color_cocktails ?? '#FFB347';
+    $cardBg = $settings->card_bg_color_cocktails ?? '#191919';
+    $cardOpacity = $settings->card_opacity_cocktails ?? 0.9;
+    $categoryBg = $settings->category_name_bg_color_cocktails ?? 'rgba(254, 90, 90, 0.8)';
+    $categoryText = $settings->category_name_text_color_cocktails ?? '#f9f9f9';
+    $categoryFontSize = $settings->category_name_font_size_cocktails ?? 30;
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cócteles</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ $settings->tab_label_cocktails ?? 'Cócteles' }}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    @php
-        if (!function_exists('cocktail_mix_color')) {
-            function cocktail_mix_color(?string $hexColor, float $opacity = 1): string {
-                $hex = $hexColor ?: '#191919';
-                $hex = str_replace('#', '', $hex);
-                if (strlen($hex) === 3) {
-                    $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
-                }
-                $int = hexdec($hex);
-                $r = ($int >> 16) & 255;
-                $g = ($int >> 8) & 255;
-                $b = $int & 255;
-                $opacity = max(0, min(1, $opacity));
-                return "rgba({$r}, {$g}, {$b}, {$opacity})";
-            }
+    <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --cocktail-text-color: {{ $textColor }};
+            --cocktail-accent-color: {{ $buttonColor }};
+        }
+        html, body {
+            min-height: 100vh;
         }
 
-        $cocktailCardColor = cocktail_mix_color($settings->card_bg_color_cocktails ?? '#191919', $settings->card_opacity_cocktails ?? 0.95);
-        $accentColor = $settings->button_color_cocktails ?? '#ff5c5c';
-        $textColor = $settings->text_color_cocktails ?? '#ffffff';
-        $accentSoftBackground = cocktail_mix_color($accentColor, 0.2);
-        $overlayColor = $settings->overlay_color_cocktails ?? 'rgba(0,0,0,0.45)';
-    @endphp
-    <style>
         body {
-            font-family: {{ $settings->font_family_cocktails ?? '\'Inter\', sans-serif' }};
-            min-height: 100vh;
-            margin: 0;
+            font-family: {{ $settings->font_family_cocktails ?? 'ui-sans-serif' }};
+            color: var(--cocktail-text-color);
             @if($settings && $settings->background_image_cocktails)
                 background: none;
             @else
-                background: radial-gradient(circle at top, #1f1b2e, #0b0a13);
+                background: radial-gradient(circle at top, #120f1d, #1f1b2e);
             @endif
             background-size: cover;
+            background-attachment: fixed;
+            position: relative;
         }
+
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             z-index: -1;
-            pointer-events: none;
             @if($settings && $settings->background_image_cocktails)
                 background: url('{{ asset('storage/' . $settings->background_image_cocktails) }}') no-repeat center center;
                 background-size: cover;
             @else
-                background: {{ $settings->overlay_color_cocktails ?? 'rgba(0,0,0,0.45)' }};
+                background: rgba(0, 0, 0, 0.45);
             @endif
         }
+
         .content-layer {
             position: relative;
             z-index: 1;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .category-nav-link {
+            transition: color 0.3s ease, transform 0.3s ease;
+            transform-origin: left center;
+        }
+
+        .category-nav-link.active {
+            color: var(--cocktail-accent-color);
+            transform: scale(1.05);
+            font-weight: 600;
+        }
+
+        .drink-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            color: var(--cocktail-text-color);
+        }
+
+        .drink-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .hero-media {
@@ -67,295 +93,246 @@
             object-fit: cover;
             border-radius: 1.5rem;
         }
+
+        @media (max-width: 768px) {
+            body {
+                background-position: center top;
+                background-attachment: fixed;
+            }
+        }
     </style>
 </head>
-<body class="text-white content-layer">
-    <header class="max-w-6xl mx-auto px-4 pt-10 flex flex-col items-center gap-6">
-        <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="Logo" class="w-40 md:w-56 object-contain">
-            <button type="button"
-                id="openDrawer"
-                class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg text-white focus:ring-4 focus:ring-amber-300 lg:hidden"
-                style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};"
-                aria-controls="cocktailDrawer">
-            🍸
-        </button>
-    </header>
+<body class="bg-black/70 text-white">
 
-    @if($settings->cocktail_hero_image)
-        <div class="max-w-5xl mx-auto px-4 mt-6">
-            <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="hero-media shadow-2xl border border-white/20">
-        </div>
-    @endif
+<div class="text-center py-6 relative content-layer">
+    <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="mx-auto h-28" alt="Logo">
 
-    <!-- Menú lateral desktop -->
+    <button id="toggleMenu"
+            class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg text-white lg:hidden"
+            style="background-color: var(--cocktail-accent-color);">
+        🍸
+    </button>
+
     <div class="hidden lg:block">
-        <aside class="fixed top-0 left-0 z-30 w-64 h-screen p-6 overflow-y-auto bg-white text-slate-900 shadow-2xl space-y-3">
-            @foreach ($cocktailCategories as $category)
-                <a href="#category{{ $category->id }}"
-                   class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 hover:bg-slate-100 transition text-sm font-semibold category-link"
-                   data-category-link="#category{{ $category->id }}">
-                    <i class="fa-solid fa-martini-glass-citrus" style="color: {{ $accentColor }};"></i>
+        <div class="fixed top-0 left-0 h-full w-64 bg-white text-black p-6 space-y-2 shadow-lg overflow-y-auto">
+            @foreach ($categories as $category)
+                <a href="#category{{ $category->id }}" class="block text-lg font-semibold hover:text-blue-500 category-nav-link" data-category-target="category{{ $category->id }}">
                     {{ $category->name }}
                 </a>
             @endforeach
-        </aside>
+        </div>
     </div>
+</div>
 
-    <!-- Drawer móvil -->
-    <aside id="cocktailDrawer"
-           class="lg:hidden fixed inset-0 z-50 p-6 overflow-y-auto transition-transform -translate-y-full bg-white text-slate-800 shadow-2xl"
-           tabindex="-1">
-        <div class="flex items-center justify-end mb-6">
-            <button type="button"
-                    data-close-drawer
-                    aria-controls="cocktailDrawer"
-                    class="text-slate-500 hover:text-slate-900 text-2xl">
-                &times;
+@if($settings->cocktail_hero_image)
+    <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
+        <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="hero-media shadow-2xl border border-white/10">
+    </div>
+@endif
+
+<div id="categoryMenu"
+     class="lg:hidden fixed inset-0 bg-white text-slate-900 px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
+    <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold tracking-[0.25em] uppercase text-slate-500">Categorías</h2>
+        <button id="closeMenu" class="text-2xl text-slate-500 hover:text-slate-900">&times;</button>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        @foreach ($categories as $category)
+            <button class="rounded-2xl border border-slate-200 py-4 px-3 text-sm font-semibold text-left shadow bg-white hover:bg-slate-50 category-nav-link"
+                    data-category-target="category{{ $category->id }}">
+                {{ $category->name }}
             </button>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-            @foreach ($cocktailCategories as $category)
-                <button class="rounded-2xl border px-4 py-3 text-sm font-semibold text-left bg-white hover:bg-slate-50"
-                        style="color: {{ $settings->text_color_cocktails ?? '#111' }}; border-color: rgba(0,0,0,0.1);"
-                        data-category-link="#category{{ $category->id }}">
-                    {{ $category->name }}
-                </button>
-            @endforeach
-        </div>
-    </aside>
+        @endforeach
+    </div>
+</div>
+<div id="menuOverlay" class="fixed inset-0 bg-black/60 z-50 hidden lg:hidden"></div>
 
-    <div id="cocktailOverlay" class="fixed inset-0 z-40 hidden lg:hidden" style="background-color: {{ $overlayColor }};"></div>
-
-    <!-- Chips móviles -->
+@if($categories->count())
     <div class="lg:hidden content-layer sticky top-20 z-30 px-4">
         <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory">
-            @foreach ($cocktailCategories as $category)
-                <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold backdrop-blur-md hover:scale-105 transition"
-                        style="color: {{ $textColor }}; border-color: {{ $accentColor }}; background-color: {{ $accentSoftBackground }};"
-                        data-category-link="#category{{ $category->id }}">
+            @foreach ($categories as $category)
+                <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full border border-white/20 bg-black/40 text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
+                        data-category-target="category{{ $category->id }}">
                     {{ $category->name }}
                 </button>
             @endforeach
         </div>
     </div>
+@endif
 
-    <main class="max-w-6xl mx-auto px-4 pb-28 space-y-12 mt-10 lg:ml-72">
-        @foreach ($cocktailCategories as $category)
-            <section id="category{{ $category->id }}" class="space-y-6 category-section">
-                <div class="flex flex-col items-center">
-                    <p class="text-xs uppercase tracking-[0.35em] text-white/60">Selección</p>
-                    <h2 class="mt-2 text-3xl font-bold text-center px-6 py-2 rounded-full shadow"
-                        style="color: {{ $settings->category_name_text_color_cocktails ?? '#f9f9f9' }}; background-color: {{ $settings->category_name_bg_color_cocktails ?? 'rgba(255,255,255,0.1)' }}; border: 1px solid {{ $settings->category_name_bg_color_cocktails ?? 'rgba(255,255,255,0.3)' }};">
-                        {{ $category->name }}
-                    </h2>
-                </div>
-                <div class="grid gap-6 md:grid-cols-2">
-                    @foreach ($category->items->where('visible', true) as $item)
-                        <article id="cocktail{{ $item->id }}" class="rounded-3xl border p-4 flex gap-4 items-center shadow-xl hover:shadow-2xl transition hover:-translate-y-1 cursor-pointer"
-                                 data-cocktail-card
-                                 data-name="{{ $item->name }}"
-                                 data-description="{{ strip_tags($item->description) }}"
-                                 data-price="{{ number_format($item->price, 2) }}"
-                                 data-image="{{ asset('storage/' . $item->image) }}"
-                                 style="background-color: {{ $cocktailCardColor }}; color: {{ $textColor }}; border-color: rgba(255,255,255,0.15);">
-                            <div class="relative shrink-0">
-                                <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" alt="{{ $item->name }}"
-                                     class="w-24 h-24 rounded-full object-cover bg-white/5"
-                                     style="border: 4px solid rgba(255,255,255,0.15); padding: 4px;">
-                                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-xs rounded-full text-slate-900 font-semibold border border-white/40"
-                                      style="background-color: {{ $accentColor }};">
-                                    ${{ number_format($item->price, 0) }}
-                                </span>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="text-xl font-semibold" style="color: {{ $textColor }};">{{ $item->name }}</h3>
-                                <p class="text-sm leading-relaxed line-clamp-3"
-                                   style="color: {{ $textColor }}; opacity: 0.8;">
-                                    {{ $item->description }}
-                                </p>
-                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
-                                      style="background-color: {{ $accentSoftBackground }}; border-color: {{ $accentColor }}; color: {{ $textColor }};">
-                                    <i class="fa-solid fa-droplet"></i> {{ $item->volume ?? 'Clásico' }}
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/15"
-                                      style="background-color: rgba(255,255,255,0.12); color: {{ $textColor }};">
-                                    <i class="fa-solid fa-star" style="color: {{ $accentColor }};"></i> Mix ideal
-                                </span>
-                            </div>
-                            @if($item->dishes->count())
-                                <div class="mt-4 border border-white/10 rounded-2xl p-3">
-                                    <p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-2">Platos sugeridos</p>
-                                    <div class="flex flex-wrap gap-2 text-xs text-white/85">
-                                        @foreach($item->dishes as $dish)
-                                            <span class="px-3 py-1 rounded-full bg-white/10 border border-white/20">{{ $dish->name }}</span>
-                                        @endforeach
-                                    </div>
+<div class="max-w-5xl mx-auto px-4 pb-32 content-layer">
+    @forelse ($categories as $category)
+        <section id="category{{ $category->id }}" class="mb-10 category-section" data-category-id="category{{ $category->id }}">
+            <h2 class="text-3xl font-bold text-center mb-6"
+                style="background-color: {{ $categoryBg }};
+                       color: {{ $categoryText }};
+                       font-size: {{ $categoryFontSize }}px;
+                       border-radius: 10px; padding: 10px;">
+                {{ $category->name }}
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach ($category->items->where('visible', true) as $drink)
+                    <div id="drink{{ $drink->id }}" onclick="openDrinkModal(this)"
+                         class="drink-card rounded-lg p-4 shadow-lg relative flex items-center cursor-pointer hover:scale-105 transition"
+                         style="background-color: {{ $cardBg }}; opacity: {{ $cardOpacity }};"
+                         data-name="{{ $drink->name }}"
+                         data-description="{{ strip_tags($drink->description) }}"
+                         data-price="${{ number_format($drink->price, 2) }}"
+                         data-image="{{ $drink->image ? asset('storage/' . $drink->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}">
+
+                        <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
+
+                        <img src="{{ $drink->image ? asset('storage/' . $drink->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
+                             alt="{{ $drink->name }}"
+                             class="h-24 w-24 rounded-full object-cover mr-4 border border-white/10">
+
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold">{{ $drink->name }}</h3>
+                            <p class="text-sm mb-2">${{ number_format($drink->price, 2) }}</p>
+
+                            @if (!empty($drink->volume) || !empty($drink->garnish))
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    @if(!empty($drink->volume))
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/10 bg-white/5">
+                                            <i class="fas fa-glass-whiskey text-[var(--cocktail-accent-color)]"></i> {{ $drink->volume }}
+                                        </span>
+                                    @endif
+                                    @if(!empty($drink->garnish))
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/10 bg-white/5">
+                                            <i class="fas fa-leaf text-[var(--cocktail-accent-color)]"></i> {{ $drink->garnish }}
+                                        </span>
+                                    @endif
                                 </div>
                             @endif
                         </div>
-                    </article>
-                @endforeach
-                </div>
-            </section>
-        @endforeach
-    </main>
-
-    <!-- Floating buttons -->
-    <div class="fixed bottom-6 left-0 right-0 flex justify-center z-40">
-        <div class="flex items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl"
-             style="background-color: rgba(0,0,0,0.55);">
-            <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-               style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};">
-                <i class="fas fa-home text-lg"></i><span>Inicio</span>
-            </a>
-            <a href="/menu" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-               style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};">
-                <i class="fas fa-utensils text-lg"></i><span>Menú</span>
-            </a>
-            <a href="/coffee" class="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105"
-               style="background-color: {{ $settings->button_color_cocktails ?? '#ff5c5c' }};">
-                <i class="fas fa-mug-saucer text-lg"></i><span>Café</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Modal detalle cóctel -->
-    <div id="cocktailDetailsModal" tabindex="-1" class="hidden fixed inset-0 z-50 overflow-y-auto overflow-x-hidden justify-center items-center">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-3xl shadow dark:bg-gray-700 text-slate-900">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm w-8 h-8" onclick="closeCocktailModal()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <div class="grid md:grid-cols-2 gap-4 p-6">
-                    <img id="modalImage" src="" alt="Cóctel" class="w-full h-56 object-cover rounded-2xl">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.3em] text-amber-500 mb-2">Cóctel</p>
-                        <h3 id="modalTitle" class="text-2xl font-semibold text-slate-900"></h3>
-                        <p id="modalPrice" class="text-lg font-bold text-slate-800 mt-2"></p>
-                        <p id="modalDescription" class="text-sm text-slate-600 mt-4 leading-relaxed"></p>
                     </div>
-                </div>
+                @endforeach
             </div>
+        </section>
+    @empty
+        <div class="text-center py-20 text-white/80">
+            No hay cócteles configurados. Usa el panel para añadir elementos a esta vista.
+        </div>
+    @endforelse
+</div>
+
+@include('components.floating-nav', [
+    'settings' => $settings,
+    'background' => $settings->floating_bar_bg_cocktails ?? $settings->floating_bar_bg_menu ?? 'rgba(0,0,0,0.55)',
+    'buttonColor' => $buttonColor
+])
+
+<div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/70">
+    <div class="relative w-full max-w-xl">
+        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative">
+            <button onclick="closeDrinkModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
+                ✕
+            </button>
+
+            <img id="drinkModalImage" class="w-full h-60 object-cover rounded-lg mb-4" alt="Imagen del cóctel">
+
+            <h3 id="drinkModalTitle" class="text-2xl font-bold mb-2"></h3>
+            <p id="drinkModalDescription" class="mb-2"></p>
+            <p id="drinkModalPrice" class="font-semibold text-lg mb-4"></p>
         </div>
     </div>
+</div>
 
-    <!-- Modal promocional -->
-    <div id="cocktailPopupModal" tabindex="-1" class="hidden fixed inset-0 z-50 overflow-y-auto overflow-x-hidden justify-center items-center">
-        <div class="relative p-4 w-full max-w-3xl max-h-full">
-            <div class="relative bg-white rounded-3xl shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-900" onclick="closePopupModal()">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-                <div class="p-4">
-                    <img id="popupImage" src="" alt="Promoción" class="w-full h-auto rounded-2xl">
-                </div>
-            </div>
-        </div>
-    </div>
+<script src="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.js"></script>
+<script>
+    const menuModal = document.getElementById('categoryMenu');
+    const overlay = document.getElementById('menuOverlay');
+    const toggleMenuBtn = document.getElementById('toggleMenu');
+    const closeMenuBtn = document.getElementById('closeMenu');
+    const navLinks = document.querySelectorAll('.category-nav-link');
 
-    <script src="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.js"></script>
-    <script>
-        let cocktailModalInstance;
-        let promoModalInstance;
-        let drawerOpen = false;
+    const openMenu = () => {
+        menuModal?.classList.remove('-translate-y-full');
+        overlay?.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    };
 
-        const openCocktailModal = (card) => {
-            const modalEl = document.getElementById('cocktailDetailsModal');
-            if (!cocktailModalInstance) {
-                cocktailModalInstance = new Modal(modalEl);
+    const closeMenu = () => {
+        menuModal?.classList.add('-translate-y-full');
+        overlay?.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    };
+
+    toggleMenuBtn?.addEventListener('click', () => {
+        if (menuModal?.classList.contains('-translate-y-full')) {
+            openMenu();
+        } else {
+            closeMenu();
+        }
+    });
+
+    closeMenuBtn?.addEventListener('click', closeMenu);
+    overlay?.addEventListener('click', closeMenu);
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetAttr = this.dataset.categoryTarget || this.getAttribute('href');
+            const sectionId = targetAttr?.startsWith('#') ? targetAttr : `#${targetAttr}`;
+            const target = document.querySelector(sectionId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                closeMenu();
             }
-            document.getElementById('modalTitle').textContent = card.dataset.name;
-            document.getElementById('modalDescription').textContent = card.dataset.description || 'Prueba nuestra mezcla especial.';
-            document.getElementById('modalPrice').textContent = '$' + card.dataset.price;
-            document.getElementById('modalImage').src = card.dataset.image;
-            cocktailModalInstance.show();
-        };
-
-        const closeCocktailModal = () => {
-            if (cocktailModalInstance) {
-                cocktailModalInstance.hide();
-            }
-        };
-
-        const showPopupModal = (imageSrc) => {
-            const modalEl = document.getElementById('cocktailPopupModal');
-            if (!promoModalInstance) {
-                promoModalInstance = new Modal(modalEl, { closable: true });
-            }
-            document.getElementById('popupImage').src = imageSrc;
-            promoModalInstance.show();
-        };
-
-        const closePopupModal = () => {
-            if (promoModalInstance) {
-                promoModalInstance.hide();
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const drawerEl = document.getElementById('cocktailDrawer');
-            const overlayEl = document.getElementById('cocktailOverlay');
-            const openBtn = document.getElementById('openDrawer');
-            const closeBtn = document.querySelector('[data-close-drawer]');
-
-            const openDrawer = () => {
-                drawerEl?.classList.remove('-translate-y-full');
-                overlayEl?.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
-                drawerOpen = true;
-            };
-
-            const closeDrawer = () => {
-                drawerEl?.classList.add('-translate-y-full');
-                overlayEl?.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-                drawerOpen = false;
-            };
-
-            openBtn?.addEventListener('click', () => {
-                if (drawerOpen) {
-                    closeDrawer();
-                } else {
-                    openDrawer();
-                }
-            });
-            closeBtn?.addEventListener('click', closeDrawer);
-            overlayEl?.addEventListener('click', closeDrawer);
-
-            document.querySelectorAll('[data-cocktail-card]').forEach(card => {
-                card.addEventListener('click', () => openCocktailModal(card));
-            });
-
-            document.querySelectorAll('[data-category-link]').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    const targetRef = link.dataset.categoryLink || link.getAttribute('href');
-                    const section = document.querySelector(targetRef);
-                    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    closeDrawer();
-                });
-            });
-
-            const popups = @json($popups);
-            const now = new Date();
-            const today = now.getDay();
-
-            popups.forEach(popup => {
-                const start = new Date(popup.start_date);
-                const end = new Date(popup.end_date);
-                const repeatDays = popup.repeat_days ? popup.repeat_days.split(',').map(Number) : [];
-                if (
-                    popup.active &&
-                    popup.view === 'cocktails' &&
-                    now >= start && now <= end &&
-                    (repeatDays.length === 0 || repeatDays.includes(today))
-                ) {
-                    const imageUrl = '{{ asset('storage') }}/' + popup.image;
-                    showPopupModal(imageUrl);
-                }
-            });
         });
-    </script>
+    });
+
+    const sectionObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.dataset.categoryId;
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.categoryTarget === id);
+                });
+            }
+        });
+    }, { threshold: 0.3, rootMargin: '-10% 0px -55% 0px' });
+
+    document.querySelectorAll('.category-section').forEach(section => {
+        sectionObserver.observe(section);
+    });
+
+    const cardObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                cardObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.drink-card').forEach(card => cardObserver.observe(card));
+
+    function openDrinkModal(el) {
+        const name = el.dataset.name;
+        const description = el.dataset.description;
+        const price = el.dataset.price;
+        const fallbackImage = "{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}";
+        const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
+
+        document.getElementById('drinkModalTitle').textContent = name;
+        document.getElementById('drinkModalDescription').textContent = description;
+        document.getElementById('drinkModalPrice').textContent = price;
+        document.getElementById('drinkModalImage').src = image;
+
+        if (!window.drinkModalInstance) {
+            window.drinkModalInstance = new Modal(document.getElementById('drinkDetailsModal'));
+        }
+        window.drinkModalInstance.show();
+    }
+
+    function closeDrinkModal() {
+        if (window.drinkModalInstance) {
+            window.drinkModalInstance.hide();
+        }
+    }
+</script>
 </body>
 </html>
