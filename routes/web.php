@@ -130,6 +130,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/update-background', [AdminController::class, 'updateBackground'])->name('admin.updateBackground');
     Route::post('/admin/managers', [UserManagementController::class, 'storeManager'])->name('admin.managers.store');
     Route::patch('/admin/managers/{user}/toggle', [UserManagementController::class, 'toggleManager'])->name('admin.managers.toggle');
+    Route::patch('/admin/managers/{user}/resend', [UserManagementController::class, 'resendInvitation'])->name('admin.managers.resend');
     Route::delete('/admin/managers/{user}', [UserManagementController::class, 'destroyManager'])->name('admin.managers.destroy');
 });
 

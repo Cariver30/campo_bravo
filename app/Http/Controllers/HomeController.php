@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\Category;
+use App\Models\Popup;
 use App\Support\FeaturedGroupBuilder;
 use Illuminate\Http\Request;
 
@@ -15,8 +16,13 @@ class HomeController extends Controller
     {
         $settings = Setting::first();
         $featuredGroups = FeaturedGroupBuilder::build();
+        $popups = Popup::where('active', 1)
+            ->where('view', 'cover')
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->get();
 
-        return view('cover', compact('settings', 'featuredGroups'));
+        return view('cover', compact('settings', 'featuredGroups', 'popups'));
     }
 
     public function menu()

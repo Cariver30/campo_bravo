@@ -343,24 +343,18 @@
         <h5 class="mb-3">Gerentes (solo admin)</h5>
         <form method="POST" action="{{ route('admin.managers.store') }}" class="row g-3 align-items-end mb-4">
             @csrf
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label text-muted small">Nombre</label>
                 <input type="text" name="name" class="form-control" required>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label text-muted small">Correo</label>
                 <input type="email" name="email" class="form-control" required>
             </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted small">Contraseña</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted small">Confirmación</label>
-                <input type="password" name="password_confirmation" class="form-control" required>
-            </div>
-            <div class="col-12 text-end">
-                <button class="btn btn-dark">Crear gerente</button>
+            <div class="col-md-4">
+                <label class="form-label text-muted small d-block">Invitación</label>
+                <p class="text-muted small mb-2">Se enviará un correo para que cree su contraseña.</p>
+                <button class="btn btn-dark w-100">Invitar gerente</button>
             </div>
         </form>
         <div class="table-responsive">
@@ -369,6 +363,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Correo</th>
+                        <th>Invitación</th>
                         <th>Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -378,11 +373,32 @@
                         <tr>
                             <td>{{ $manager->name }}</td>
                             <td>{{ $manager->email }}</td>
+                            <td>{{ $manager->email }}</td>
+                            <td>
+                                @if($manager->invitation_accepted_at)
+                                    <span class="badge text-bg-success">Activada {{ optional($manager->invitation_accepted_at)->diffForHumans() }}</span>
+                                @elseif($manager->invitation_token)
+                                    <span class="badge text-bg-warning text-dark">
+                                        Pendiente {{ optional($manager->invitation_sent_at)->diffForHumans() ?? '' }}
+                                    </span>
+                                @else
+                                    <span class="badge text-bg-secondary">Manual</span>
+                                @endif
+                            </td>
                             <td>
                                 <span class="badge {{ $manager->active ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $manager->active ? 'Activo' : 'Bloqueado' }}</span>
                             </td>
                             <td class="text-end">
                                 <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                    @if($manager->invitation_token)
+                                        <form method="POST" action="{{ route('admin.managers.resend', $manager) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                Reenviar invitación
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form method="POST" action="{{ route('admin.managers.toggle', $manager) }}">
                                         @csrf
                                         @method('PATCH')

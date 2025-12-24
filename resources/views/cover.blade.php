@@ -185,7 +185,7 @@
                     };
                     $ctaCards = collect([
                         ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
-                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Cafe'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Bebidas'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
                         ['key' => 'cocktails', 'title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
                         ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
                         ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
@@ -373,7 +373,20 @@
             ];
         });
     @endphp
+
+    <div id="coverPopupModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
+        <div class="bg-white text-slate-900 rounded-3xl w-full max-w-2xl p-4 relative">
+            <button type="button" class="absolute top-3 right-3 text-2xl text-slate-500 hover:text-slate-900" onclick="closeCoverPopup()">&times;</button>
+            <div class="space-y-3">
+                <h3 id="coverPopupTitle" class="text-xl font-semibold text-center"></h3>
+                <img id="coverPopupImage" src="" alt="Anuncio" class="w-full rounded-2xl object-cover">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.js"></script>
     <script>
+        let coverPopupInstance;
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('notifyModal');
             const openButtons = document.querySelectorAll('[data-open-notify]');
@@ -423,6 +436,9 @@
             const titleEl = document.getElementById('featuredTitle');
             const descriptionEl = document.getElementById('featuredDescription');
             const itemsEl = document.getElementById('featuredItems');
+            const coverPopups = @json($popups ?? []);
+            const now = new Date();
+            const today = now.getDay();
 
             const renderFeatured = (slug) => {
                 const group = featuredData[slug];
@@ -466,11 +482,43 @@
                 renderFeatured(featuredButtons[0].dataset.featuredTab);
             }
 
+            coverPopups.forEach(popup => {
+                const start = popup.start_date ? new Date(popup.start_date) : null;
+                const end = popup.end_date ? new Date(popup.end_date) : null;
+                const repeatDays = popup.repeat_days ? popup.repeat_days.split(',').map(day => parseInt(day, 10)) : [];
+                const withinDates = (!start || now >= start) && (!end || now <= end);
+                const matchesDay = repeatDays.length === 0 || repeatDays.includes(today);
+
+                if (popup.active && popup.view === 'cover' && withinDates && matchesDay) {
+                    showCoverPopup(popup);
+                }
+            });
+
             // If validation errors opened the modal, highlight status
             if (!modal.classList.contains('hidden')) {
                 document.body.classList.add('overflow-hidden');
             }
         });
+
+        function showCoverPopup(popup) {
+            const modalEl = document.getElementById('coverPopupModal');
+            if (!modalEl) {
+                return;
+            }
+            if (!coverPopupInstance) {
+                coverPopupInstance = new Modal(modalEl, { closable: true });
+            }
+            const basePath = '{{ asset('storage') }}/';
+            document.getElementById('coverPopupTitle').textContent = popup.title || '';
+            document.getElementById('coverPopupImage').src = popup.image ? basePath + popup.image : '';
+            coverPopupInstance.show();
+        }
+
+        function closeCoverPopup() {
+            if (coverPopupInstance) {
+                coverPopupInstance.hide();
+            }
+        }
     </script>
 
 </body>

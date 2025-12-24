@@ -361,7 +361,8 @@ $foodPairings = FoodPairing::all();
 
     public function createPopup()
     {
-        return view('popups.create');
+        $settings = Setting::first();
+        return view('popups.create', compact('settings'));
     }
 
     // AdminController.php
@@ -395,7 +396,8 @@ $foodPairings = FoodPairing::all();
 
     public function editPopup(Popup $popup)
     {
-        return view('popups.edit', compact('popup'));
+        $settings = Setting::first();
+        return view('popups.edit', compact('popup', 'settings'));
     }
 
     public function updatePopup(Request $request, Popup $popup)

@@ -257,10 +257,21 @@
     </div>
 </div>
 
+<div id="menuPopupModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
+    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-2xl p-4 relative">
+        <button type="button" class="absolute top-3 right-3 text-2xl text-slate-500 hover:text-slate-900" onclick="closeMenuPopup()">&times;</button>
+        <div class="space-y-3">
+            <h3 id="menuPopupTitle" class="text-xl font-semibold text-center"></h3>
+            <img id="menuPopupImage" src="" alt="Anuncio" class="w-full rounded-2xl object-cover">
+        </div>
+    </div>
+</div>
+
 <!-- Flowbite JS -->
 <script src="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.js"></script>
 
 <script>
+    let menuPopupInstance;
     document.addEventListener('DOMContentLoaded', function () {
         console.log('✅ Menú cargado con Tailwind y Flowbite');
 
@@ -334,6 +345,22 @@
         }, { threshold: 0.2 });
 
         document.querySelectorAll('.dish-card').forEach(card => cardObserver.observe(card));
+
+        const menuPopups = @json($popups ?? []);
+        const now = new Date();
+        const today = now.getDay();
+
+        menuPopups.forEach(popup => {
+            const start = popup.start_date ? new Date(popup.start_date) : null;
+            const end = popup.end_date ? new Date(popup.end_date) : null;
+            const repeatDays = popup.repeat_days ? popup.repeat_days.split(',').map(day => parseInt(day, 10)) : [];
+            const withinDates = (!start || now >= start) && (!end || now <= end);
+            const matchesDay = repeatDays.length === 0 || repeatDays.includes(today);
+
+            if (popup.active && popup.view === 'menu' && withinDates && matchesDay) {
+                showMenuPopup(popup);
+            }
+        });
     });
 
     // Función para abrir modal con datos del plato
@@ -382,6 +409,24 @@
     function closeDishModal() {
         if (window.dishModalInstance) {
             window.dishModalInstance.hide();
+        }
+    }
+
+    function showMenuPopup(popup) {
+        const modalEl = document.getElementById('menuPopupModal');
+        if (!modalEl) return;
+        if (!menuPopupInstance) {
+            menuPopupInstance = new Modal(modalEl, { closable: true });
+        }
+        const basePath = '{{ asset('storage') }}/';
+        document.getElementById('menuPopupTitle').textContent = popup.title || '';
+        document.getElementById('menuPopupImage').src = popup.image ? basePath + popup.image : '';
+        menuPopupInstance.show();
+    }
+
+    function closeMenuPopup() {
+        if (menuPopupInstance) {
+            menuPopupInstance.hide();
         }
     }
 </script>
