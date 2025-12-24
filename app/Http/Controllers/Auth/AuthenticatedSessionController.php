@@ -20,7 +20,13 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        return Redirect::intended('dashboard');
+        $user = $request->user();
+
+        if ($user && $user->isServer()) {
+            return redirect()->route('loyalty.dashboard');
+        }
+
+        return redirect()->route('admin.new-panel');
     }
 
     public function destroy(Request $request)
