@@ -167,8 +167,6 @@ Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.
 // Rutas de autenticación
 require __DIR__.'/auth.php';
 
-Auth::routes();
-
 Route::get('/home', function () {
     return redirect()->route('cover');
 })->name('home');
