@@ -7,14 +7,15 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ServerTokenAuth
+class MobileTokenAuth
 {
     /**
      * Handle an incoming request.
      *
      * @param  Closure(Request): (Response)  $next
+     * @param  string  ...$roles
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $token = $request->bearerToken();
 
@@ -29,10 +30,16 @@ class ServerTokenAuth
         /** @var ?User $user */
         $user = User::where('api_token', $hashedToken)->first();
 
-        if (!$user || !$user->isServer() || !$user->isActive()) {
+        if (!$user || !$user->isActive()) {
             return response()->json([
                 'message' => 'Token inválido o sin permisos.',
             ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if (!empty($roles) && !$user->hasRole($roles)) {
+            return response()->json([
+                'message' => 'No tienes permisos para esta acción.',
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $request->setUserResolver(fn () => $user);

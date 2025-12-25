@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
-class ServerAuthController extends Controller
+class MobileAuthController extends Controller
 {
+    protected array $allowedRoles = ['server', 'manager'];
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -27,9 +29,9 @@ class ServerAuthController extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (!$user->isServer() || !$user->isActive()) {
+        if (!$user->isActive() || !$user->hasRole($this->allowedRoles)) {
             return response()->json([
-                'message' => 'No tienes acceso al panel de meseros.',
+                'message' => 'No tienes acceso a la app móvil.',
             ], Response::HTTP_FORBIDDEN);
         }
 

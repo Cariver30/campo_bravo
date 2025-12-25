@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            'server.api' => \App\Http\Middleware\ServerTokenAuth::class,
+            'mobile.api' => \App\Http\Middleware\MobileTokenAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
