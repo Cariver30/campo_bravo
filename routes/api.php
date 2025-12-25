@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\CampaignController;
+use App\Http\Controllers\Api\CocktailManagementController;
 use App\Http\Controllers\Api\ManagerDashboardController;
 use App\Http\Controllers\Api\MenuManagementController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\ServerVisitController;
+use App\Http\Controllers\Api\WineManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('mobile')->group(function () {
@@ -30,6 +32,20 @@ Route::prefix('mobile')->group(function () {
         Route::put('/menu/dishes/{dish}', [MenuManagementController::class, 'updateDish']);
         Route::delete('/menu/dishes/{dish}', [MenuManagementController::class, 'destroyDish']);
         Route::patch('/menu/dishes/{dish}/toggle', [MenuManagementController::class, 'toggleDish']);
+
+        Route::get('/cocktails/categories', [CocktailManagementController::class, 'categories']);
+        Route::post('/cocktails/items', [CocktailManagementController::class, 'store']);
+        Route::post('/cocktails/items/reorder', [CocktailManagementController::class, 'reorder']);
+        Route::put('/cocktails/items/{cocktail}', [CocktailManagementController::class, 'update']);
+        Route::delete('/cocktails/items/{cocktail}', [CocktailManagementController::class, 'destroy']);
+        Route::patch('/cocktails/items/{cocktail}/toggle', [CocktailManagementController::class, 'toggle']);
+
+        Route::get('/wines/categories', [WineManagementController::class, 'categories']);
+        Route::post('/wines/items', [WineManagementController::class, 'store']);
+        Route::post('/wines/items/reorder', [WineManagementController::class, 'reorder']);
+        Route::put('/wines/items/{wine}', [WineManagementController::class, 'update']);
+        Route::delete('/wines/items/{wine}', [WineManagementController::class, 'destroy']);
+        Route::patch('/wines/items/{wine}/toggle', [WineManagementController::class, 'toggle']);
 
         Route::get('/campaigns', [CampaignController::class, 'index']);
         Route::post('/campaigns', [CampaignController::class, 'store']);

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Dish;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class MenuManagementController extends Controller
@@ -14,7 +15,9 @@ class MenuManagementController extends Controller
     public function categories()
     {
         $categories = Category::with(['dishes' => function ($query) {
-            $query->orderBy('position')->orderBy('id');
+            $query->orderBy('position')
+                ->orderBy('id')
+                ->with('recommendedDishes:id,name');
         }])->orderBy('order')->get();
 
         return response()->json([
@@ -24,7 +27,7 @@ class MenuManagementController extends Controller
 
     public function storeDish(Request $request)
     {
-        $data = $this->validateDish($request);
+        [$data, $relations] = $this->validateDish($request);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('dish_images', 'public');
@@ -35,6 +38,7 @@ class MenuManagementController extends Controller
         $data['position'] = (Dish::where('category_id', $data['category_id'])->max('position') ?? 0) + 1;
 
         $dish = Dish::create($data);
+        $this->syncRelations($dish, $relations);
 
         return response()->json([
             'message' => 'Plato creado correctamente.',
@@ -44,7 +48,7 @@ class MenuManagementController extends Controller
 
     public function updateDish(Request $request, Dish $dish)
     {
-        $data = $this->validateDish($request, $dish->id);
+        [$data, $relations] = $this->validateDish($request, $dish->id);
 
         if ($request->hasFile('image')) {
             $newPath = $request->file('image')->store('dish_images', 'public');
@@ -58,6 +62,7 @@ class MenuManagementController extends Controller
         $data['featured_on_cover'] = $request->boolean('featured_on_cover', false);
 
         $dish->update($data);
+        $this->syncRelations($dish, $relations);
 
         return response()->json([
             'message' => 'Plato actualizado correctamente.',
@@ -118,13 +123,34 @@ class MenuManagementController extends Controller
             'featured_on_cover' => ['nullable', 'boolean'],
             'visible' => ['nullable', 'boolean'],
             'image' => [$request->hasFile('image') ? 'required' : 'nullable', 'image', 'max:5120'],
+            'recommended_dishes' => ['nullable', 'array'],
+            'recommended_dishes.*' => [
+                'integer',
+                'exists:dishes,id',
+                $dishId ? Rule::notIn([$dishId]) : null,
+            ],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
 
         unset($validated['image']);
 
-        return $validated;
+        $relations = [
+            'recommended_dishes' => collect($request->input('recommended_dishes', []))
+                ->filter(fn ($id) => (int) $id !== (int) $dishId)
+                ->unique()
+                ->values()
+                ->all(),
+        ];
+
+        return [$validated, $relations];
+    }
+
+    protected function syncRelations(Dish $dish, array $relations): void
+    {
+        if (array_key_exists('recommended_dishes', $relations)) {
+            $dish->recommendedDishes()->sync($relations['recommended_dishes']);
+        }
     }
 
     protected function serializeCategory(Category $category): array
@@ -139,6 +165,16 @@ class MenuManagementController extends Controller
 
     protected function serializeDish(Dish $dish): array
     {
+        $recommended = $dish->relationLoaded('recommendedDishes')
+            ? $dish->recommendedDishes->map(fn (Dish $recommendedDish) => [
+                'id' => $recommendedDish->id,
+                'name' => $recommendedDish->name,
+            ])->values()
+            : $dish->recommendedDishes()->get(['id', 'name'])->map(fn (Dish $recommendedDish) => [
+                'id' => $recommendedDish->id,
+                'name' => $recommendedDish->name,
+            ])->values();
+
         return [
             'id' => $dish->id,
             'name' => $dish->name,
@@ -150,6 +186,7 @@ class MenuManagementController extends Controller
             'visible' => (bool) $dish->visible,
             'featured_on_cover' => (bool) $dish->featured_on_cover,
             'position' => $dish->position,
+            'recommended_dishes' => $recommended,
         ];
     }
 }

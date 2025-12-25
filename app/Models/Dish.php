@@ -30,18 +30,39 @@ class Dish extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
     public function foodPairings()
-{
-    return $this->belongsToMany(FoodPairing::class);
-}
-public function wines()
-{
-    return $this->belongsToMany(Wine::class);
-}
+    {
+        return $this->belongsToMany(FoodPairing::class);
+    }
 
-public function cocktails()
-{
-    return $this->belongsToMany(Cocktail::class, 'cocktail_dish');
-}
+    public function wines()
+    {
+        return $this->belongsToMany(Wine::class);
+    }
 
+    public function cocktails()
+    {
+        return $this->belongsToMany(Cocktail::class, 'cocktail_dish');
+    }
+
+    public function recommendedDishes()
+    {
+        return $this->belongsToMany(
+            Dish::class,
+            'dish_recommendations',
+            'dish_id',
+            'recommended_dish_id'
+        );
+    }
+
+    public function recommendedBy()
+    {
+        return $this->belongsToMany(
+            Dish::class,
+            'dish_recommendations',
+            'recommended_dish_id',
+            'dish_id'
+        );
+    }
 }
