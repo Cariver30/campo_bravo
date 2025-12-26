@@ -18,8 +18,9 @@ class DishController extends Controller
     public function create()
     {
         $categories = Category::all();
+        $allDishes = Dish::orderBy('name')->get(['id', 'name']);
 
-        return view('dishes.create', compact('categories'));
+        return view('dishes.create', compact('categories', 'allDishes'));
     }
 
     public function store(Request $request)
@@ -31,6 +32,8 @@ class DishController extends Controller
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'featured_on_cover' => ['nullable', 'boolean'],
+            'recommended_dishes' => ['nullable', 'array'],
+            'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
@@ -43,7 +46,10 @@ class DishController extends Controller
             $data['image'] = $request->file('image')->store('dish_images', 'public');
         }
 
-        Dish::create($data);
+        $dish = Dish::create($data);
+        $dish->recommendedDishes()->sync(
+            $this->collectRecommendedDishIds($request, $dish)
+        );
 
         return redirect()->route('admin.new-panel', [
             'section' => 'menu-section',
@@ -55,8 +61,10 @@ class DishController extends Controller
     public function edit(Dish $dish)
     {
         $categories = Category::all();
+        $allDishes = Dish::orderBy('name')->get(['id', 'name']);
+        $dish->loadMissing('recommendedDishes:id,name');
 
-        return view('dishes.edit', compact('dish', 'categories'));
+        return view('dishes.edit', compact('dish', 'categories', 'allDishes'));
     }
 
     public function update(Request $request, Dish $dish)
@@ -68,6 +76,8 @@ class DishController extends Controller
             'category_id' => 'required|integer|exists:categories,id',
             'image' => 'nullable|image|max:5000',
             'featured_on_cover' => ['nullable', 'boolean'],
+            'recommended_dishes' => ['nullable', 'array'],
+            'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
@@ -81,6 +91,9 @@ class DishController extends Controller
         }
 
         $dish->update($data);
+        $dish->recommendedDishes()->sync(
+            $this->collectRecommendedDishIds($request, $dish)
+        );
 
         return redirect()->route('dishes.edit', $dish)->with('success', 'Plato actualizado exitosamente.');
     }
@@ -134,5 +147,15 @@ class DishController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    private function collectRecommendedDishIds(Request $request, ?Dish $dish = null): array
+    {
+        return collect($request->input('recommended_dishes', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0 && (! $dish || $dish->id !== $id))
+            ->unique()
+            ->values()
+            ->all();
     }
 }

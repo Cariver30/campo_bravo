@@ -172,7 +172,8 @@
                         data-description="{{ $dish->description }}"
                         data-price="${{ number_format($dish->price, 2) }}"
                         data-image="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
-                        data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}">
+                        data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}"
+                        data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}">
 
                         <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
 
@@ -201,6 +202,20 @@
                                 </div>
                             @endif
 
+                            @if ($dish->recommendedDishes && $dish->recommendedDishes->count())
+                                <div class="mt-3 border-t border-white/10 pt-3">
+                                    <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Combínalo con</p>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        @foreach($dish->recommendedDishes as $recommended)
+                                            <a href="#dish{{ $recommended->id }}"
+                                               class="inline-flex items-center gap-1 px-3 py-1 rounded-full border transition hover:scale-105"
+                                               style="background-color: rgba(255,255,255,0.08); border-color: {{ $settings->button_color_menu ?? '#FFB347' }}; color: {{ $settings->text_color_menu ?? '#ffffff' }};">
+                                                <i class="fas fa-utensils"></i> {{ $recommended->name }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -235,6 +250,11 @@
             <div id="modalWines" class="mt-4 hidden">
                 <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Bebidas sugeridas ☕</h4>
                 <ul id="wineList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
+            </div>
+
+            <div id="modalPairings" class="mt-4 hidden">
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Combínalo con</h4>
+                <ul id="pairingList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
             </div>
         </div>
     </div>
@@ -354,6 +374,7 @@
         const fallbackImage = "{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}";
         const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const wines = el.dataset.wines;
+        const pairings = el.dataset.recommended;
 
         document.getElementById('modalTitle').textContent = name;
         document.getElementById('modalDescription').textContent = description;
@@ -377,6 +398,24 @@
             document.getElementById('modalWines').classList.remove('hidden');
         } else {
             document.getElementById('modalWines').classList.add('hidden');
+        }
+
+        const pairingList = document.getElementById('pairingList');
+        pairingList.innerHTML = '';
+        if (pairings && pairings.trim() !== '') {
+            pairings.split('|').forEach(token => {
+                const [dishId, dishName] = token.split('::');
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.textContent = (dishName || token).trim();
+                link.href = '#dish' + (dishId || '').trim();
+                link.className = 'text-amber-500 hover:underline';
+                li.appendChild(link);
+                pairingList.appendChild(li);
+            });
+            document.getElementById('modalPairings').classList.remove('hidden');
+        } else {
+            document.getElementById('modalPairings').classList.add('hidden');
         }
 
         // Mostrar el modal con Flowbite

@@ -15,7 +15,10 @@ class MenuController extends Controller
         $categories = Category::with([
                 'dishes' => function ($query) {
                     $query->where('visible', true)
-                        ->with('wines')
+                        ->with([
+                            'wines:id,name',
+                            'recommendedDishes:id,name',
+                        ])
                         ->orderBy('position');
                 },
             ])

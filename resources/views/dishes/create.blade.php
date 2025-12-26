@@ -65,6 +65,23 @@
                 </div>
 
                 <div>
+                    <label for="recommended_dishes" class="block text-sm font-semibold text-white/80 mb-2">Combínalo con otros platos</label>
+                    <p class="text-xs text-white/50 mb-2">Selecciona los platos que aparecerán como acompañantes recomendados en el menú público y en la app del gerente.</p>
+                    <select id="recommended_dishes" name="recommended_dishes[]" multiple
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400 max-h-56"
+                            size="6">
+                        @php
+                            $oldRecommendations = collect(old('recommended_dishes', []))->map(fn($value) => (int) $value);
+                        @endphp
+                        @foreach($allDishes as $availableDish)
+                            <option value="{{ $availableDish->id }}" {{ $oldRecommendations->contains($availableDish->id) ? 'selected' : '' }}>
+                                {{ $availableDish->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label for="image" class="block text-sm font-semibold text-white/80 mb-2">Imagen destacada</label>
                     <input type="file" id="image" name="image"
                            class="block w-full rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400" />
