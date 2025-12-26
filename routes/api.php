@@ -27,6 +27,10 @@ Route::prefix('mobile')->group(function () {
         Route::patch('/servers/{user}/toggle', [ManagerDashboardController::class, 'toggleServer']);
 
         Route::get('/menu/categories', [MenuManagementController::class, 'categories']);
+        Route::post('/menu/categories', [MenuManagementController::class, 'storeCategory']);
+        Route::put('/menu/categories/{category}', [MenuManagementController::class, 'updateCategory']);
+        Route::delete('/menu/categories/{category}', [MenuManagementController::class, 'destroyCategory']);
+        Route::post('/menu/categories/reorder', [MenuManagementController::class, 'reorderCategories']);
         Route::post('/menu/dishes', [MenuManagementController::class, 'storeDish']);
         Route::post('/menu/dishes/reorder', [MenuManagementController::class, 'reorderDishes']);
         Route::put('/menu/dishes/{dish}', [MenuManagementController::class, 'updateDish']);
@@ -34,6 +38,10 @@ Route::prefix('mobile')->group(function () {
         Route::patch('/menu/dishes/{dish}/toggle', [MenuManagementController::class, 'toggleDish']);
 
         Route::get('/cocktails/categories', [CocktailManagementController::class, 'categories']);
+        Route::post('/cocktails/categories', [CocktailManagementController::class, 'storeCategory']);
+        Route::put('/cocktails/categories/{cocktailCategory}', [CocktailManagementController::class, 'updateCategory']);
+        Route::delete('/cocktails/categories/{cocktailCategory}', [CocktailManagementController::class, 'destroyCategory']);
+        Route::post('/cocktails/categories/reorder', [CocktailManagementController::class, 'reorderCategories']);
         Route::post('/cocktails/items', [CocktailManagementController::class, 'store']);
         Route::post('/cocktails/items/reorder', [CocktailManagementController::class, 'reorder']);
         Route::put('/cocktails/items/{cocktail}', [CocktailManagementController::class, 'update']);
@@ -41,6 +49,10 @@ Route::prefix('mobile')->group(function () {
         Route::patch('/cocktails/items/{cocktail}/toggle', [CocktailManagementController::class, 'toggle']);
 
         Route::get('/wines/categories', [WineManagementController::class, 'categories']);
+        Route::post('/wines/categories', [WineManagementController::class, 'storeCategory']);
+        Route::put('/wines/categories/{wineCategory}', [WineManagementController::class, 'updateCategory']);
+        Route::delete('/wines/categories/{wineCategory}', [WineManagementController::class, 'destroyCategory']);
+        Route::post('/wines/categories/reorder', [WineManagementController::class, 'reorderCategories']);
         Route::post('/wines/items', [WineManagementController::class, 'store']);
         Route::post('/wines/items/reorder', [WineManagementController::class, 'reorder']);
         Route::put('/wines/items/{wine}', [WineManagementController::class, 'update']);

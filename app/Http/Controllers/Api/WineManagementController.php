@@ -24,6 +24,55 @@ class WineManagementController extends Controller
         ]);
     }
 
+    public function storeCategory(Request $request)
+    {
+        $data = $this->validateCategory($request);
+        $data['order'] = (WineCategory::max('order') ?? 0) + 1;
+
+        $category = WineCategory::create($data);
+
+        return response()->json([
+            'message' => 'Categoría creada correctamente.',
+            'category' => $this->serializeCategory($category),
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateCategory(Request $request, WineCategory $category)
+    {
+        $data = $this->validateCategory($request);
+        $category->update($data);
+
+        return response()->json([
+            'message' => 'Categoría actualizada correctamente.',
+            'category' => $this->serializeCategory($category->fresh('items')),
+        ]);
+    }
+
+    public function destroyCategory(WineCategory $category)
+    {
+        $category->delete();
+
+        return response()->json([
+            'message' => 'Categoría eliminada correctamente.',
+        ]);
+    }
+
+    public function reorderCategories(Request $request)
+    {
+        $data = $request->validate([
+            'order' => ['required', 'array'],
+            'order.*' => ['integer', 'exists:wine_categories,id'],
+        ]);
+
+        foreach ($data['order'] as $index => $categoryId) {
+            WineCategory::where('id', $categoryId)->update(['order' => $index + 1]);
+        }
+
+        return response()->json([
+            'message' => 'Orden de categorías actualizado.',
+        ]);
+    }
+
     public function store(Request $request)
     {
         [$data, $relations] = $this->validateWine($request);
@@ -174,12 +223,35 @@ class WineManagementController extends Controller
         $wine->dishes()->sync($relations['recommended_dishes']);
     }
 
+    protected function validateCategory(Request $request): array
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'show_on_cover' => ['nullable', 'boolean'],
+            'cover_title' => ['nullable', 'string', 'max:255'],
+            'cover_subtitle' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $data['show_on_cover'] = $request->boolean('show_on_cover', false);
+        $data['cover_title'] = filled($data['cover_title']) ? $data['cover_title'] : null;
+        $data['cover_subtitle'] = filled($data['cover_subtitle']) ? $data['cover_subtitle'] : null;
+
+        if ($data['show_on_cover'] && blank($data['cover_title'])) {
+            $data['cover_title'] = $data['name'];
+        }
+
+        return $data;
+    }
+
     protected function serializeCategory(WineCategory $category): array
     {
         return [
             'id' => $category->id,
             'name' => $category->name,
             'order' => $category->order,
+            'show_on_cover' => (bool) $category->show_on_cover,
+            'cover_title' => $category->cover_title,
+            'cover_subtitle' => $category->cover_subtitle,
             'dishes' => $category->items?->map(fn (Wine $wine) => $this->serializeWine($wine))->values() ?? [],
         ];
     }

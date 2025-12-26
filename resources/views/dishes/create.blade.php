@@ -6,6 +6,7 @@
     <title>Nuevo plato · Panel creativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.css">
 </head>
 <body class="min-h-screen bg-slate-950 text-white">
     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-0 space-y-8">
@@ -68,8 +69,9 @@
                     <label for="recommended_dishes" class="block text-sm font-semibold text-white/80 mb-2">Combínalo con otros platos</label>
                     <p class="text-xs text-white/50 mb-2">Selecciona los platos que aparecerán como acompañantes recomendados en el menú público y en la app del gerente.</p>
                     <select id="recommended_dishes" name="recommended_dishes[]" multiple
-                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400 max-h-56"
-                            size="6">
+                            data-tom-select
+                            placeholder="Busca y selecciona platos"
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 text-slate-900 text-base">
                         @php
                             $oldRecommendations = collect(old('recommended_dishes', []))->map(fn($value) => (int) $value);
                         @endphp
@@ -108,5 +110,23 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-tom-select]').forEach(select => {
+                new TomSelect(select, {
+                    plugins: ['remove_button', 'checkbox_options'],
+                    maxItems: null,
+                    placeholder: select.getAttribute('placeholder') || 'Selecciona platos',
+                    highlight: true,
+                    render: {
+                        option: function(data, escape) {
+                            return `<div class="py-1 px-2">${escape(data.text)}</div>`;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
