@@ -174,59 +174,6 @@
                 </div>
             </section>
 
-            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-                @php
-                    $ctaLabel = function ($value, $default) {
-                        if (is_null($value)) {
-                            return $default;
-                        }
-                        $trimmed = trim($value);
-                        return $trimmed === '' ? null : $trimmed;
-                    };
-                    $ctaCards = collect([
-                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
-                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Bebidas'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
-                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
-                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
-                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
-                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => 'Alertas privadas', 'copy' => 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.', 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
-                    ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground) {
-                        $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
-                        $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
-                        $card['bg_color'] = $bg ?: $coverCardBackground;
-                        $card['text_color'] = $text ?: 'var(--cover-body-color)';
-                        return $card;
-                    })->values();
-                @endphp
-                @foreach($ctaCards as $card)
-                    <article class="border border-white/10 rounded-2xl p-0 overflow-hidden flex flex-col" style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }};">
-                        @if(!empty($card['image']))
-                            <div class="h-40 overflow-hidden">
-                                <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" class="w-full h-full object-cover">
-                            </div>
-                        @endif
-                        <div class="p-5 flex flex-col gap-3">
-                            <p class="text-xs uppercase tracking-[0.35em]" style="opacity: 0.8;">{{ $card['subtitle'] }}</p>
-                            <h3 class="text-2xl font-semibold">{{ $card['title'] }}</h3>
-                            <p class="text-sm flex-1">{{ $card['copy'] }}</p>
-                            @if($card['type'] === 'vip')
-                                <button data-open-notify
-                                        class="w-full rounded-full py-3 font-semibold transition vip-button"
-                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                                    {{ $card['title'] }}
-                                </button>
-                            @else
-                                <button onclick="window.location.href='{{ $card['action'] }}'"
-                                        class="w-full rounded-full py-3 font-semibold transition"
-                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                                    Abrir sección
-                                </button>
-                            @endif
-                        </div>
-                    </article>
-                @endforeach
-            </section>
-
             @php
                 $initialGroup = $featuredGroups->first();
                 $featuredCardBgHex = $settings->featured_card_bg_color ?? '#0f172a';
@@ -294,6 +241,59 @@
                     </div>
                 @endif
 
+            </section>
+
+            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
+                @php
+                    $ctaLabel = function ($value, $default) {
+                        if (is_null($value)) {
+                            return $default;
+                        }
+                        $trimmed = trim($value);
+                        return $trimmed === '' ? null : $trimmed;
+                    };
+                    $ctaCards = collect([
+                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Bebidas'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
+                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
+                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
+                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => 'Alertas privadas', 'copy' => 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.', 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
+                    ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground) {
+                        $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
+                        $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
+                        $card['bg_color'] = $bg ?: $coverCardBackground;
+                        $card['text_color'] = $text ?: 'var(--cover-body-color)';
+                        return $card;
+                    })->values();
+                @endphp
+                @foreach($ctaCards as $card)
+                    <article class="border border-white/10 rounded-2xl p-0 overflow-hidden flex flex-col" style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }};">
+                        @if(!empty($card['image']))
+                            <div class="h-40 overflow-hidden">
+                                <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" class="w-full h-full object-cover">
+                            </div>
+                        @endif
+                        <div class="p-5 flex flex-col gap-3">
+                            <p class="text-xs uppercase tracking-[0.35em]" style="opacity: 0.8;">{{ $card['subtitle'] }}</p>
+                            <h3 class="text-2xl font-semibold">{{ $card['title'] }}</h3>
+                            <p class="text-sm flex-1">{{ $card['copy'] }}</p>
+                            @if($card['type'] === 'vip')
+                                <button data-open-notify
+                                        class="w-full rounded-full py-3 font-semibold transition vip-button"
+                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                    {{ $card['title'] }}
+                                </button>
+                            @else
+                                <button onclick="window.location.href='{{ $card['action'] }}'"
+                                        class="w-full rounded-full py-3 font-semibold transition"
+                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                    Abrir sección
+                                </button>
+                            @endif
+                        </div>
+                    </article>
+                @endforeach
             </section>
         </div>
     </main>
