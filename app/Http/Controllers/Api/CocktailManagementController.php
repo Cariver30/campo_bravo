@@ -17,7 +17,10 @@ class CocktailManagementController extends Controller
         $categories = CocktailCategory::with(['items' => function ($query) {
             $query->orderBy('position')
                 ->orderBy('id')
-                ->with('dishes:id,name');
+                ->with([
+                    'dishes:id,name',
+                    'extras:id,name,price,view_scope',
+                ]);
         }])->orderBy('order')->get();
 
         return response()->json([
@@ -174,6 +177,8 @@ class CocktailManagementController extends Controller
             'image' => [$request->hasFile('image') ? 'required' : 'nullable', 'image', 'max:5120'],
             'recommended_dishes' => ['nullable', 'array'],
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:extras,id'],
         ];
 
         $validated = $request->validate($rules, [
@@ -187,6 +192,10 @@ class CocktailManagementController extends Controller
                 ->unique()
                 ->values()
                 ->all(),
+            'extras' => collect($request->input('extra_ids', []))
+                ->unique()
+                ->values()
+                ->all(),
         ];
 
         return [$validated, $relations];
@@ -196,6 +205,10 @@ class CocktailManagementController extends Controller
     {
         if (array_key_exists('recommended_dishes', $relations)) {
             $cocktail->dishes()->sync($relations['recommended_dishes']);
+        }
+
+        if (array_key_exists('extras', $relations)) {
+            $cocktail->extras()->sync($relations['extras']);
         }
     }
 
@@ -244,6 +257,10 @@ class CocktailManagementController extends Controller
                 'name' => $dish->name,
             ])->values();
 
+        $extras = $cocktail->relationLoaded('extras')
+            ? $cocktail->extras
+            : $cocktail->extras()->get(['extras.id', 'name', 'price', 'view_scope']);
+
         return [
             'id' => $cocktail->id,
             'name' => $cocktail->name,
@@ -257,6 +274,12 @@ class CocktailManagementController extends Controller
             'position' => $cocktail->position,
             'recommended_dishes' => $recommended,
             'dishes' => $recommended,
+            'extras' => $extras->map(fn ($extra) => [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'price' => (float) $extra->price,
+                'view_scope' => $extra->view_scope,
+            ])->values(),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Dish;
+use App\Models\Extra;
 use Illuminate\Http\Request;
 
 class DishController extends Controller
@@ -19,8 +20,9 @@ class DishController extends Controller
     {
         $categories = Category::all();
         $allDishes = Dish::orderBy('name')->get(['id', 'name']);
+        $availableExtras = Extra::orderBy('name')->forView('menu')->get();
 
-        return view('dishes.create', compact('categories', 'allDishes'));
+        return view('dishes.create', compact('categories', 'allDishes', 'availableExtras'));
     }
 
     public function store(Request $request)
@@ -34,6 +36,8 @@ class DishController extends Controller
             'featured_on_cover' => ['nullable', 'boolean'],
             'recommended_dishes' => ['nullable', 'array'],
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:extras,id'],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
@@ -50,6 +54,7 @@ class DishController extends Controller
         $dish->recommendedDishes()->sync(
             $this->collectRecommendedDishIds($request, $dish)
         );
+        $dish->extras()->sync($this->collectExtraIds($request));
 
         return redirect()->route('admin.new-panel', [
             'section' => 'menu-section',
@@ -62,9 +67,10 @@ class DishController extends Controller
     {
         $categories = Category::all();
         $allDishes = Dish::orderBy('name')->get(['id', 'name']);
-        $dish->loadMissing('recommendedDishes:id,name');
+        $availableExtras = Extra::orderBy('name')->forView('menu')->get();
+        $dish->loadMissing('recommendedDishes:id,name', 'extras:id,name');
 
-        return view('dishes.edit', compact('dish', 'categories', 'allDishes'));
+        return view('dishes.edit', compact('dish', 'categories', 'allDishes', 'availableExtras'));
     }
 
     public function update(Request $request, Dish $dish)
@@ -78,6 +84,8 @@ class DishController extends Controller
             'featured_on_cover' => ['nullable', 'boolean'],
             'recommended_dishes' => ['nullable', 'array'],
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:extras,id'],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
@@ -94,6 +102,7 @@ class DishController extends Controller
         $dish->recommendedDishes()->sync(
             $this->collectRecommendedDishIds($request, $dish)
         );
+        $dish->extras()->sync($this->collectExtraIds($request));
 
         return redirect()->route('dishes.edit', $dish)->with('success', 'Plato actualizado exitosamente.');
     }
@@ -154,6 +163,16 @@ class DishController extends Controller
         return collect($request->input('recommended_dishes', []))
             ->map(fn ($id) => (int) $id)
             ->filter(fn ($id) => $id > 0 && (! $dish || $dish->id !== $id))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function collectExtraIds(Request $request): array
+    {
+        return collect($request->input('extra_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
             ->unique()
             ->values()
             ->all();

@@ -173,6 +173,14 @@
                         $drinkImage = $drink->image ? asset('storage/' . $drink->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png'));
                         $drinkNotes = $drink->grapes?->pluck('name')->implode(', ');
                         $drinkPairs = $drink->dishes?->map(fn($dish) => $dish->id.'::'.$dish->name)->implode('|');
+                        $drinkExtras = $drink->extras->where('active', true);
+                        $drinkExtrasPayload = $drinkExtras->map(function ($extra) {
+                            return [
+                                'name' => $extra->name,
+                                'price' => number_format($extra->price, 2, '.', ''),
+                                'description' => $extra->description,
+                            ];
+                        });
                     @endphp
                     <div id="drink{{ $drink->id }}" onclick="openDrinkModal(this)"
                          class="drink-card rounded-2xl p-4 shadow-lg relative flex flex-col gap-3 cursor-pointer hover:scale-105 transition border border-white/10"
@@ -184,7 +192,8 @@
                          data-region="{{ $drink->region->name ?? '' }}"
                          data-method="{{ $drink->type->name ?? '' }}"
                          data-notes="{{ $drinkNotes }}"
-                         data-pairings="{{ $drinkPairs }}">
+                         data-pairings="{{ $drinkPairs }}"
+                         data-extras='@json($drinkExtrasPayload)'>
 
                         <span class="absolute top-2 right-2 text-xs bg-black/60 text-white px-2 py-1 rounded-full">Ver más</span>
 
@@ -203,6 +212,7 @@
                         </div>
 
                         <p class="text-sm opacity-90">{{ $drink->description }}</p>
+
 
                         @if($drink->grapes && $drink->grapes->count())
                             <div class="flex flex-wrap gap-2 text-xs">
@@ -244,8 +254,8 @@
 <!-- MODAL DETALLE BEBIDA -->
 <div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/70">
-    <div class="relative w-full max-w-xl">
-        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative">
+    <div class="relative w-full max-w-xl max-h-[90vh]">
+        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative overflow-y-auto max-h-[90vh]">
             <button onclick="closeDrinkModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
                 ✕
             </button>
@@ -256,6 +266,11 @@
             <p id="drinkModalSpecs" class="text-sm text-gray-600 mb-1"></p>
             <p id="drinkModalDescription" class="mb-2"></p>
             <p id="drinkModalPrice" class="font-semibold text-lg mb-4"></p>
+
+            <div id="drinkModalExtras" class="hidden mb-4">
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $drinkAccentColor }};">Extras sugeridos</h4>
+                <ul id="drinkModalExtrasList" class="space-y-2 text-sm text-slate-700"></ul>
+            </div>
 
             <div id="drinkModalNotes" class="mb-4 hidden">
                 <h4 class="text-lg font-semibold mb-2" style="color: {{ $drinkAccentColor }};">Notas de cata</h4>
@@ -377,6 +392,7 @@
         const method = el.dataset.method;
         const notes = el.dataset.notes;
         const pairings = el.dataset.pairings;
+        const extras = el.dataset.extras ? JSON.parse(el.dataset.extras) : [];
 
         document.getElementById('drinkModalTitle').textContent = name;
         document.getElementById('drinkModalDescription').textContent = description;
@@ -415,6 +431,36 @@
             }
         } else {
             pairingSection.classList.add('hidden');
+        }
+
+        const extrasSection = document.getElementById('drinkModalExtras');
+        const extrasList = document.getElementById('drinkModalExtrasList');
+        extrasList.innerHTML = '';
+        if (extras.length) {
+            extras.forEach(extra => {
+                const wrapper = document.createElement('li');
+                wrapper.className = 'flex flex-col gap-1 border border-slate-200 rounded-xl px-3 py-2 bg-white/70';
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between text-sm font-semibold text-slate-800';
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = extra.name || 'Extra';
+                const priceSpan = document.createElement('span');
+                const priceValue = parseFloat(extra.price ?? 0);
+                priceSpan.textContent = priceValue ? `$${priceValue.toFixed(2)}` : '';
+                row.appendChild(nameSpan);
+                row.appendChild(priceSpan);
+                wrapper.appendChild(row);
+                if (extra.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-xs text-slate-600';
+                    desc.textContent = extra.description;
+                    wrapper.appendChild(desc);
+                }
+                extrasList.appendChild(wrapper);
+            });
+            extrasSection.classList.remove('hidden');
+        } else {
+            extrasSection.classList.add('hidden');
         }
 
         const modalEl = document.getElementById('drinkDetailsModal');

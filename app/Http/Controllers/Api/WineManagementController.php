@@ -16,7 +16,7 @@ class WineManagementController extends Controller
         $categories = WineCategory::with(['items' => function ($query) {
             $query->orderBy('position')
                 ->orderBy('id')
-                ->with(['type', 'region', 'grapes', 'foodPairings', 'dishes']);
+                ->with(['type', 'region', 'grapes', 'foodPairings', 'dishes', 'extras']);
         }])->orderBy('order')->get();
 
         return response()->json([
@@ -190,6 +190,8 @@ class WineManagementController extends Controller
             'food_pairings.*' => ['integer', 'exists:food_pairings,id'],
             'recommended_dishes' => ['nullable', 'array'],
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:extras,id'],
             'image' => [$request->hasFile('image') ? 'required' : 'nullable', 'image', 'max:5120'],
         ], [
             'description.required' => 'Falta la descripción de la bebida.',
@@ -204,6 +206,7 @@ class WineManagementController extends Controller
             'grapes' => $validated['grapes'] ?? [],
             'food_pairings' => $validated['food_pairings'] ?? [],
             'recommended_dishes' => collect($recommended)->unique()->values()->all(),
+            'extras' => collect($request->input('extra_ids', []))->unique()->values()->all(),
         ];
 
         unset(
@@ -212,6 +215,7 @@ class WineManagementController extends Controller
             $validated['food_pairings'],
             $validated['recommended_dishes']
         );
+        unset($validated['extra_ids']);
 
         return [$validated, $relations];
     }
@@ -221,6 +225,7 @@ class WineManagementController extends Controller
         $wine->grapes()->sync($relations['grapes']);
         $wine->foodPairings()->sync($relations['food_pairings']);
         $wine->dishes()->sync($relations['recommended_dishes']);
+        $wine->extras()->sync($relations['extras']);
     }
 
     protected function validateCategory(Request $request): array
@@ -268,6 +273,10 @@ class WineManagementController extends Controller
                 'name' => $dish->name,
             ])->values();
 
+        $extras = $wine->relationLoaded('extras')
+            ? $wine->extras
+            : $wine->extras()->get(['extras.id', 'name', 'price', 'view_scope']);
+
         return [
             'id' => $wine->id,
             'name' => $wine->name,
@@ -293,6 +302,12 @@ class WineManagementController extends Controller
             ])->values() : [],
             'recommended_dishes' => $recommended,
             'dishes' => $recommended,
+            'extras' => $extras->map(fn ($extra) => [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'price' => (float) $extra->price,
+                'view_scope' => $extra->view_scope,
+            ])->values(),
         ];
     }
 }

@@ -88,6 +88,22 @@
                 </div>
 
                 <div>
+                    <label for="extra_ids" class="block text-sm font-semibold text-white/80 mb-2">Extras sugeridos</label>
+                    <p class="text-xs text-white/50 mb-2">Add-ons que podrá añadir el cliente al ver el plato.</p>
+                    @php
+                        $selectedExtras = collect(old('extra_ids', $dish->extras->pluck('id')->all()))
+                            ->map(fn($value) => (int) $value);
+                    @endphp
+                    <select id="extra_ids" name="extra_ids[]" multiple data-tom-select placeholder="Selecciona extras" class="block w-full rounded-2xl border border-white/10 bg-white/5 text-slate-900 text-base">
+                        @foreach($availableExtras as $extra)
+                            <option value="{{ $extra->id }}" {{ $selectedExtras->contains($extra->id) ? 'selected' : '' }}>
+                                {{ $extra->name }} · ${{ number_format($extra->price, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label for="image" class="block text-sm font-semibold text-white/80 mb-2">Imagen (opcional)</label>
                     <div class="flex flex-col gap-3">
                         <input type="file" id="image" name="image"

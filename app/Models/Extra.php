@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Extra extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'price',
+        'description',
+        'view_scope',
+        'active',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'active' => 'boolean',
+    ];
+
+    public const VIEW_SCOPES = [
+        'global',
+        'menu',
+        'coffee',
+        'cocktails',
+    ];
+
+    public function scopeForView($query, string $view): void
+    {
+        $query->where(function ($q) use ($view) {
+            $q->where('view_scope', $view)
+                ->orWhere('view_scope', 'global');
+        });
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(ExtraAssignment::class);
+    }
+}

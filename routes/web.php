@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExtraController;
 use App\Http\Controllers\DishController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\AdminController;
@@ -104,6 +105,7 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('regions', App\Http\Controllers\RegionController::class);
     Route::resource('food-pairings', FoodPairingController::class);
     Route::resource('grapes', App\Http\Controllers\GrapeController::class);
+    Route::resource('extras', ExtraController::class)->except(['show', 'create']);
 
     Route::get('/admin/popups', [AdminController::class, 'indexPopups'])->name('admin.popups.index');
     Route::get('/admin/popups/create', [AdminController::class, 'createPopup'])->name('admin.popups.create');

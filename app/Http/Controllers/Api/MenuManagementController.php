@@ -17,7 +17,10 @@ class MenuManagementController extends Controller
         $categories = Category::with(['dishes' => function ($query) {
             $query->orderBy('position')
                 ->orderBy('id')
-                ->with('recommendedDishes:id,name');
+                ->with([
+                    'recommendedDishes:id,name',
+                    'extras:id,name,price,view_scope',
+                ]);
         }])->orderBy('order')->get();
 
         return response()->json([
@@ -178,6 +181,8 @@ class MenuManagementController extends Controller
                 'exists:dishes,id',
                 $dishId ? Rule::notIn([$dishId]) : null,
             ],
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:extras,id'],
         ], [
             'description.required' => 'Falta la descripción del plato.',
         ]);
@@ -190,6 +195,10 @@ class MenuManagementController extends Controller
                 ->unique()
                 ->values()
                 ->all(),
+            'extras' => collect($request->input('extra_ids', []))
+                ->unique()
+                ->values()
+                ->all(),
         ];
 
         return [$validated, $relations];
@@ -199,6 +208,10 @@ class MenuManagementController extends Controller
     {
         if (array_key_exists('recommended_dishes', $relations)) {
             $dish->recommendedDishes()->sync($relations['recommended_dishes']);
+        }
+
+        if (array_key_exists('extras', $relations)) {
+            $dish->extras()->sync($relations['extras']);
         }
     }
 
@@ -247,6 +260,10 @@ class MenuManagementController extends Controller
                 'name' => $recommendedDish->name,
             ])->values();
 
+        $extras = $dish->relationLoaded('extras')
+            ? $dish->extras
+            : $dish->extras()->get(['extras.id', 'name', 'price', 'view_scope']);
+
         return [
             'id' => $dish->id,
             'name' => $dish->name,
@@ -259,6 +276,12 @@ class MenuManagementController extends Controller
             'featured_on_cover' => (bool) $dish->featured_on_cover,
             'position' => $dish->position,
             'recommended_dishes' => $recommended,
+            'extras' => $extras->map(fn ($extra) => [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'price' => (float) $extra->price,
+                'view_scope' => $extra->view_scope,
+            ])->values(),
         ];
     }
 }

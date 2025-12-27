@@ -18,6 +18,9 @@ class MenuController extends Controller
                         ->with([
                             'wines:id,name',
                             'recommendedDishes:id,name',
+                            'extras' => function ($extraQuery) {
+                                $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                            },
                         ])
                         ->orderBy('position');
                 },

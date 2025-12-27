@@ -65,4 +65,9 @@ class Dish extends Model
             'dish_id'
         );
     }
+
+    public function extras()
+    {
+        return $this->morphToMany(Extra::class, 'assignable', 'extra_assignments')->withTimestamps();
+    }
 }

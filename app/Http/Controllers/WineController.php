@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dish;
+use App\Models\Extra;
 use App\Models\FoodPairing;
 use App\Models\Grape;
 use App\Models\Popup;
@@ -34,7 +35,15 @@ class WineController extends Controller
                 $q->where('price', '<=', $request->max_price)
             )
             ->where('visible', true)
-            ->with(['type', 'region', 'grapes', 'dishes']) // ✅ Asegúrate de incluir 'dishes'
+            ->with([
+                'type',
+                'region',
+                'grapes',
+                'dishes',
+                'extras' => function ($extraQuery) {
+                    $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                },
+            ]) // ✅ Asegúrate de incluir 'dishes'
             ->get();
 
         return view('coffee.index', [
@@ -57,7 +66,15 @@ class WineController extends Controller
         'settings'       => $settings,
         'wineCategories' => WineCategory::with(['items' => function ($q) {
             $q->where('visible', true)
-              ->with(['type', 'region', 'grapes', 'dishes']); // ✅ También aquí
+              ->with([
+                'type',
+                'region',
+                'grapes',
+                'dishes',
+                'extras' => function ($extraQuery) {
+                    $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                },
+              ]); // ✅ También aquí
         }])->get(),
         'filters'        => false,
         'regions'        => Region::all(),
@@ -80,6 +97,7 @@ class WineController extends Controller
         $grapes = Grape::all();
         $foodPairings = FoodPairing::all();
         $dishes = Dish::all(); // ✅
+        $availableExtras = Extra::orderBy('name')->forView('coffee')->get();
 
         return view('wine.create', compact(
             'categories',
@@ -87,7 +105,8 @@ class WineController extends Controller
             'regions',
             'grapes',
             'foodPairings',
-            'dishes'
+            'dishes',
+            'availableExtras'
         ));
     }
 
@@ -106,6 +125,8 @@ class WineController extends Controller
             'food_pairings.*'   => 'exists:food_pairings,id',
             'dishes'            => 'nullable|array',
             'dishes.*'          => 'exists:dishes,id', // ✅ Validación de platos
+            'extra_ids'         => ['nullable','array'],
+            'extra_ids.*'       => ['integer','exists:extras,id'],
             'image'             => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
         ], [
@@ -126,6 +147,7 @@ class WineController extends Controller
         $wine->grapes()->sync($request->input('grapes', []));
         $wine->foodPairings()->sync($request->input('food_pairings', []));
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ sincroniza los platos
+        $wine->extras()->sync($request->input('extra_ids', []));
 
     
         return redirect()->route('wines.edit', $wine)->with('success', 'Bebida creada con éxito.');
@@ -140,6 +162,7 @@ class WineController extends Controller
         $grapes = Grape::all();
         $foodPairings = FoodPairing::all();
         $dishes = Dish::all();
+        $availableExtras = Extra::orderBy('name')->forView('coffee')->get();
 
         return view('wine.edit', compact(
             'wine',
@@ -148,7 +171,8 @@ class WineController extends Controller
             'regions',
             'grapes',
             'foodPairings',
-            'dishes'
+            'dishes',
+            'availableExtras'
         ));
     }
 
@@ -167,6 +191,8 @@ class WineController extends Controller
             'food_pairings.*'   => 'exists:food_pairings,id',
             'dishes'            => 'nullable|array',   // ✅ validación
             'dishes.*'          => 'exists:dishes,id', // ✅ validación
+            'extra_ids'         => ['nullable','array'],
+            'extra_ids.*'       => ['integer','exists:extras,id'],
             'image'             => 'nullable|image',    // ✅ faltaba la coma
             'featured_on_cover' => ['nullable', 'boolean'],
         ], [
@@ -188,6 +214,7 @@ class WineController extends Controller
         $wine->grapes()->sync($request->input('grapes', []));
         $wine->foodPairings()->sync($request->input('food_pairings', []));
         $wine->dishes()->sync($request->input('dishes', [])); // ✅ ahora guarda los platos recomendados
+        $wine->extras()->sync($request->input('extra_ids', []));
 
     
         return redirect()->route('wines.edit', $wine)->with('success', 'Bebida actualizada con éxito.');

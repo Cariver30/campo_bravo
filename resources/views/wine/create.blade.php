@@ -116,6 +116,19 @@
                 </div>
 
                 <div>
+                    <label for="extra_ids" class="block text-sm font-semibold text-white/80 mb-2">Extras sugeridos</label>
+                    <select id="extra_ids" name="extra_ids[]" multiple
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400 min-h-[120px]">
+                        @foreach($availableExtras as $extra)
+                            <option value="{{ $extra->id }}" {{ collect(old('extra_ids', []))->contains($extra->id) ? 'selected' : '' }}>
+                                {{ $extra->name }} · ${{ number_format($extra->price, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-white/50 mt-2">Crea extras en la pestaña dedicada y agrégalos aquí.</p>
+                </div>
+
+                <div>
                     <label for="image" class="block text-sm font-semibold text-white/80 mb-2">Imagen</label>
                     <input type="file" id="image" name="image"
                            class="block w-full rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400" />

@@ -35,4 +35,9 @@ class Cocktail extends Model
     {
         return $this->belongsToMany(Dish::class, 'cocktail_dish');
     }
+
+    public function extras()
+    {
+        return $this->morphToMany(Extra::class, 'assignable', 'extra_assignments')->withTimestamps();
+    }
 }

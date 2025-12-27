@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\CocktailManagementController;
+use App\Http\Controllers\Api\ExtraManagementController;
 use App\Http\Controllers\Api\ManagerDashboardController;
 use App\Http\Controllers\Api\MenuManagementController;
 use App\Http\Controllers\Api\MobileAuthController;
@@ -64,6 +65,11 @@ Route::prefix('mobile')->group(function () {
         Route::put('/campaigns/{popup}', [CampaignController::class, 'update']);
         Route::delete('/campaigns/{popup}', [CampaignController::class, 'destroy']);
         Route::patch('/campaigns/{popup}/toggle', [CampaignController::class, 'toggle']);
+
+        Route::get('/extras', [ExtraManagementController::class, 'index']);
+        Route::post('/extras', [ExtraManagementController::class, 'store']);
+        Route::put('/extras/{extra}', [ExtraManagementController::class, 'update']);
+        Route::delete('/extras/{extra}', [ExtraManagementController::class, 'destroy']);
     });
 });
 

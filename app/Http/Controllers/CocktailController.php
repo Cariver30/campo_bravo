@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cocktail;
 use App\Models\CocktailCategory;
+use App\Models\Extra;
 use App\Models\Setting;
 use App\Models\Dish;
 use App\Models\Popup;
@@ -14,7 +15,16 @@ class CocktailController extends Controller
     public function index()
 {
     $settings = Setting::first();
-    $cocktailCategories = CocktailCategory::with(['items.dishes'])->get();
+    $cocktailCategories = CocktailCategory::with(['items' => function ($query) {
+        $query->where('visible', true)
+            ->with([
+                'dishes:id,name',
+                'extras' => function ($extraQuery) {
+                    $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                },
+            ])
+            ->orderBy('position');
+    }])->get();
     $popups = Popup::where('active', 1)
                     ->where('view', 'cocktails')
                     ->whereDate('start_date', '<=', now())
@@ -31,8 +41,9 @@ class CocktailController extends Controller
     {
         $categories = CocktailCategory::all();
         $dishes = Dish::orderBy('name')->get();
+        $availableExtras = Extra::orderBy('name')->forView('cocktails')->get();
 
-        return view('cocktail.create', compact('categories','dishes'));
+        return view('cocktail.create', compact('categories','dishes','availableExtras'));
     }
 
     public function store(Request $request)
@@ -46,6 +57,8 @@ class CocktailController extends Controller
             'featured_on_cover' => ['nullable', 'boolean'],
             'dishes' => ['nullable', 'array'],
             'dishes.*' => ['integer', 'exists:dishes,id'],
+            'extra_ids' => ['nullable','array'],
+            'extra_ids.*' => ['integer','exists:extras,id'],
         ], [
             'description.required' => 'Falta la descripción del cóctel.',
         ]);
@@ -60,6 +73,7 @@ class CocktailController extends Controller
         $cocktail->featured_on_cover = $request->boolean('featured_on_cover');
         $cocktail->save();
         $cocktail->dishes()->sync($request->input('dishes', []));
+        $cocktail->extras()->sync($request->input('extra_ids', []));
 
         return redirect()->route('cocktails.edit', $cocktail)->with('success', 'Cóctel creado con éxito.');
     }
@@ -68,8 +82,9 @@ class CocktailController extends Controller
     {
         $categories = CocktailCategory::all();
         $dishes = Dish::orderBy('name')->get();
+        $availableExtras = Extra::orderBy('name')->forView('cocktails')->get();
 
-        return view('cocktail.edit', compact('cocktail', 'categories','dishes'));
+        return view('cocktail.edit', compact('cocktail', 'categories','dishes','availableExtras'));
     }
 
     public function update(Request $request, Cocktail $cocktail)
@@ -83,6 +98,8 @@ class CocktailController extends Controller
             'featured_on_cover' => ['nullable', 'boolean'],
             'dishes' => ['nullable','array'],
             'dishes.*' => ['integer','exists:dishes,id'],
+            'extra_ids' => ['nullable','array'],
+            'extra_ids.*' => ['integer','exists:extras,id'],
         ], [
             'description.required' => 'Falta la descripción del cóctel.',
         ]);
@@ -97,6 +114,7 @@ class CocktailController extends Controller
 
         $cocktail->update($data);
         $cocktail->dishes()->sync($request->input('dishes', []));
+        $cocktail->extras()->sync($request->input('extra_ids', []));
 
         return redirect()->route('cocktails.edit', $cocktail)->with('success', 'Cóctel actualizado con éxito.');
     }

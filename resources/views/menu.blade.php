@@ -164,6 +164,16 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach ($category->dishes->where('visible', true) as $dish)
+                    @php
+                        $dishExtras = $dish->extras->where('active', true);
+                        $dishExtrasPayload = $dishExtras->map(function ($extra) {
+                            return [
+                                'name' => $extra->name,
+                                'price' => number_format($extra->price, 2, '.', ''),
+                                'description' => $extra->description,
+                            ];
+                        });
+                    @endphp
                     <div id="dish{{ $dish->id }}" onclick="openDishModal(this)"
                         class="dish-card rounded-lg p-4 shadow-lg relative flex items-center cursor-pointer hover:scale-105 transition"
                         style="background-color: {{ $settings->card_bg_color_menu ?? '#191919' }};
@@ -173,7 +183,8 @@
                         data-price="${{ number_format($dish->price, 2) }}"
                         data-image="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
                         data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}"
-                        data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}">
+                        data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}"
+                        data-extras='@json($dishExtrasPayload)'>
 
                         <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
 
@@ -185,6 +196,7 @@
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $dish->name }}</h3>
                             <p class="text-sm mb-2">${{ number_format($dish->price, 2) }}</p>
+
 
                             @if ($dish->wines && $dish->wines->count())
                                 <div class="mt-3">
@@ -204,16 +216,10 @@
 
                             @if ($dish->recommendedDishes && $dish->recommendedDishes->count())
                                 <div class="mt-3 border-t border-white/10 pt-3">
-                                    <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Combínalo con</p>
-                                    <div class="flex flex-wrap gap-2 text-xs">
-                                        @foreach($dish->recommendedDishes as $recommended)
-                                            <a href="#dish{{ $recommended->id }}"
-                                               class="inline-flex items-center gap-1 px-3 py-1 rounded-full border transition hover:scale-105"
-                                               style="background-color: rgba(255,255,255,0.08); border-color: {{ $settings->button_color_menu ?? '#FFB347' }}; color: {{ $settings->text_color_menu ?? '#ffffff' }};">
-                                                <i class="fas fa-utensils"></i> {{ $recommended->name }}
-                                            </a>
-                                        @endforeach
-                                    </div>
+                                    <p class="text-xs uppercase tracking-[0.2em] mb-1" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Combínalo con</p>
+                                    <p class="text-xs" style="color: {{ $settings->text_color_menu ?? '#cbd5f5' }};">
+                                        Variedad de platos recomendados · abre la tarjeta para verlos todos.
+                                    </p>
                                 </div>
                             @endif
                         </div>
@@ -234,8 +240,8 @@
 <!-- MODAL DE DETALLE DEL PLATO -->
 <div id="dishDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/70">
-    <div class="relative w-full max-w-xl">
-        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative">
+    <div class="relative w-full max-w-xl max-h-[90vh]">
+        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative overflow-y-auto max-h-[90vh]">
 
             <button onclick="closeDishModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
                 ✕
@@ -255,6 +261,11 @@
             <div id="modalPairings" class="mt-4 hidden">
                 <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Combínalo con</h4>
                 <ul id="pairingList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
+            </div>
+
+            <div id="modalExtras" class="mt-4 hidden">
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Extras sugeridos</h4>
+                <ul id="extrasList" class="space-y-2 text-sm" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
             </div>
         </div>
     </div>
@@ -375,6 +386,7 @@
         const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const wines = el.dataset.wines;
         const pairings = el.dataset.recommended;
+        const extras = el.dataset.extras ? JSON.parse(el.dataset.extras) : [];
 
         document.getElementById('modalTitle').textContent = name;
         document.getElementById('modalDescription').textContent = description;
@@ -416,6 +428,36 @@
             document.getElementById('modalPairings').classList.remove('hidden');
         } else {
             document.getElementById('modalPairings').classList.add('hidden');
+        }
+
+        const extrasSection = document.getElementById('modalExtras');
+        const extrasList = document.getElementById('extrasList');
+        extrasList.innerHTML = '';
+        if (extras && extras.length) {
+            extras.forEach(extra => {
+                const li = document.createElement('li');
+                li.className = 'flex flex-col gap-1 border border-slate-200/60 rounded-xl px-3 py-2 bg-white/40';
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between text-sm font-semibold';
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = extra.name || 'Extra';
+                const priceSpan = document.createElement('span');
+                const priceValue = parseFloat(extra.price ?? 0);
+                priceSpan.textContent = priceValue ? `$${priceValue.toFixed(2)}` : '';
+                row.appendChild(nameSpan);
+                row.appendChild(priceSpan);
+                li.appendChild(row);
+                if (extra.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-xs text-slate-600';
+                    desc.textContent = extra.description;
+                    li.appendChild(desc);
+                }
+                extrasList.appendChild(li);
+            });
+            extrasSection.classList.remove('hidden');
+        } else {
+            extrasSection.classList.add('hidden');
         }
 
         // Mostrar el modal con Flowbite

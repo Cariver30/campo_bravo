@@ -116,6 +116,19 @@
                 </div>
 
                 <div>
+                    <label for="extra_ids" class="block text-sm font-semibold text-white/80 mb-2">Extras sugeridos</label>
+                    <select id="extra_ids" name="extra_ids[]" multiple
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400 min-h-[120px]">
+                        @foreach($availableExtras as $extra)
+                            <option value="{{ $extra->id }}" {{ in_array($extra->id, old('extra_ids', $wine->extras->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                {{ $extra->name }} · ${{ number_format($extra->price, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-white/50 mt-2">Ejemplo: leche vegetal, toppings premium, shots.</p>
+                </div>
+
+                <div>
                     <label for="image" class="block text-sm font-semibold text-white/80 mb-2">Imagen (opcional)</label>
                     <div class="flex flex-col gap-3">
                         <input type="file" id="image" name="image"

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Dish;
+use App\Models\Extra;
 use App\Models\Cocktail;
 use App\Models\CocktailCategory;
 use App\Models\Wine;
@@ -77,6 +78,7 @@ class AdminController extends Controller
 $regions = Region::all();
 $grapes = Grape::all();
 $foodPairings = FoodPairing::all();
+        $extras = Extra::orderBy('name')->get();
         $featuredGroups = FeaturedGroupBuilder::build(true);
         $loyaltyRewards = LoyaltyReward::orderBy('points_required')->get();
         $servers = User::where('role', 'server')->orderBy('name')->get();
@@ -100,6 +102,7 @@ $foodPairings = FoodPairing::all();
             'grapes',
             'foodPairings',
             'featuredGroups',
+            'extras',
             'loyaltyRewards',
             'servers',
             'loyaltyCustomers',

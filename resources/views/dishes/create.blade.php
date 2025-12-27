@@ -84,6 +84,24 @@
                 </div>
 
                 <div>
+                    <label for="extra_ids" class="block text-sm font-semibold text-white/80 mb-2">Extras sugeridos</label>
+                    <p class="text-xs text-white/50 mb-2">Selecciona add-ons como aguacate, extra shot o toppings. Puedes crearlos desde la pestaña “Extras”.</p>
+                    <select id="extra_ids" name="extra_ids[]" multiple
+                            data-tom-select
+                            placeholder="Selecciona extras"
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 text-slate-900 text-base">
+                        @php
+                            $oldExtras = collect(old('extra_ids', []))->map(fn($value) => (int) $value);
+                        @endphp
+                        @foreach($availableExtras as $extra)
+                            <option value="{{ $extra->id }}" {{ $oldExtras->contains($extra->id) ? 'selected' : '' }}>
+                                {{ $extra->name }} · ${{ number_format($extra->price, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label for="image" class="block text-sm font-semibold text-white/80 mb-2">Imagen destacada</label>
                     <input type="file" id="image" name="image"
                            class="block w-full rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400" />

@@ -65,6 +65,7 @@
                 <button class="tab-button" data-section="cocktails">{{ $tabLabels['cocktails'] }}</button>
             @endif
             <button class="tab-button" data-section="featured">Lo más vendido</button>
+            <button class="tab-button" data-section="extras">Extras</button>
             @if($settings->show_tab_wines)
                 <button class="tab-button" data-section="wines">{{ $tabLabels['wines'] }}</button>
             @endif
@@ -160,6 +161,16 @@
 
             <div id="featured" class="section-panel">
                 @include('admin.partials.featured-tabs')
+            </div>
+
+            <div id="extras" class="section-panel">
+                <div class="inner-panel space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="inner-title">Extras y add-ons</h3>
+                        <p class="inner-text mb-0">Agrega toppings, shots o complementos reutilizables.</p>
+                    </div>
+                    @include('admin.partials.manage-extras', ['extras' => $extras, 'redirectTo' => route('admin.new-panel', ['section' => 'extras'])])
+                </div>
             </div>
 
             <div id="wines" class="section-panel">

@@ -61,8 +61,13 @@ class Wine extends Model
         return $this->belongsToMany(FoodPairing::class);
     }
     public function dishes()
-{
-    return $this->belongsToMany(Dish::class);
-}
+    {
+        return $this->belongsToMany(Dish::class);
+    }
+
+    public function extras()
+    {
+        return $this->morphToMany(Extra::class, 'assignable', 'extra_assignments')->withTimestamps();
+    }
 
 }
