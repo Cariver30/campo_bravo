@@ -18,6 +18,12 @@
     $logoFallback = $settings && $settings->logo
         ? asset('storage/' . $settings->logo)
         : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+    $resolveMedia = function (?string $path) use ($logoFallback) {
+        if ($path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            return asset('storage/' . $path);
+        }
+        return $logoFallback;
+    };
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -231,13 +237,13 @@
                          data-name="{{ $drink->name }}"
                          data-description="{{ strip_tags($drink->description) }}"
                          data-price="${{ number_format($drink->price, 2) }}"
-                         data-image="{{ $drink->image ? asset('storage/' . $drink->image) : $logoFallback }}"
+                         data-image="{{ $resolveMedia($drink->image) }}"
                          data-extras='@json($drinkExtrasPayload)'>
 
                         <span class="absolute top-2 right-2 text-xs px-2 py-1 rounded"
                               style="background-color: rgba(118, 45, 121, 0.45); color: {{ $palette['cream'] }};">Ver más</span>
 
-                        <img src="{{ $drink->image ? asset('storage/' . $drink->image) : $logoFallback }}"
+                        <img src="{{ $resolveMedia($drink->image) }}"
                              alt="{{ $drink->name }}"
                              class="h-24 w-24 rounded-full object-cover mr-4 border"
                              style="border-color: rgba(118, 45, 121, 0.25);">

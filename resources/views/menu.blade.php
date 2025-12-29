@@ -18,6 +18,12 @@
     $logoFallback = $settings && $settings->logo
         ? asset('storage/' . $settings->logo)
         : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+    $resolveMedia = function (?string $path) use ($logoFallback) {
+        if ($path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            return asset('storage/' . $path);
+        }
+        return $logoFallback;
+    };
     if (\Illuminate\Support\Facades\Route::has('cava.index')) {
         $cavaRouteUrl = route('cava.index');
     } elseif (\Illuminate\Support\Facades\Route::has('coffee.index')) {
@@ -243,7 +249,7 @@
                         data-name="{{ $dish->name }}"
                         data-description="{{ $dish->description }}"
                         data-price="${{ number_format($dish->price, 2) }}"
-                        data-image="{{ $dish->image ? asset('storage/' . $dish->image) : $logoFallback }}"
+                        data-image="{{ $resolveMedia($dish->image) }}"
                         data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}"
                         data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}"
                         data-extras='@json($dishExtrasPayload)'>
@@ -253,7 +259,7 @@
                                      color: {{ $settings->text_color_menu ?? $palette['cream'] }};">Ver más</span>
 
 
-                        <img src="{{ $dish->image ? asset('storage/' . $dish->image) : $logoFallback }}"
+                        <img src="{{ $resolveMedia($dish->image) }}"
                              alt="{{ $dish->name }}"
                              class="h-24 w-24 rounded-full object-cover mr-4 border"
                              style="border-color: rgba(118, 45, 121, 0.2);">

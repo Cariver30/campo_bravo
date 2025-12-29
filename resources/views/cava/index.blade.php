@@ -17,6 +17,12 @@
     $logoFallback = $settings && $settings->logo
         ? asset('storage/' . $settings->logo)
         : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+    $resolveMedia = function (?string $path) use ($logoFallback) {
+        if ($path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            return asset('storage/' . $path);
+        }
+        return $logoFallback;
+    };
     if (\Illuminate\Support\Facades\Route::has('cava.index')) {
         $cavaRouteUrl = route('cava.index');
     } elseif (\Illuminate\Support\Facades\Route::has('coffee.index')) {
@@ -364,7 +370,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach(($category->items ?? collect()) as $drink)
                         @php
-                            $drinkImage = $drink->image ? asset('storage/' . $drink->image) : $logoFallback;
+                            $drinkImage = $resolveMedia($drink->image);
                             $drinkNotes = $drink->grapes?->pluck('name')->implode(', ');
                             $drinkPairs = $drink->dishes?->map(fn($dish) => $dish->id.'::'.$dish->name)->implode('|');
                             $drinkExtras = $drink->extras->where('active', true);
@@ -450,7 +456,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @foreach($filteredWines as $drink)
                 @php
-                    $drinkImage = $drink->image ? asset('storage/' . $drink->image) : $logoFallback;
+                    $drinkImage = $resolveMedia($drink->image);
                     $drinkNotes = $drink->grapes?->pluck('name')->implode(', ');
                     $drinkPairs = $drink->dishes?->map(fn($dish) => $dish->id.'::'.$dish->name)->implode('|');
                     $drinkExtras = $drink->extras->where('active', true);
