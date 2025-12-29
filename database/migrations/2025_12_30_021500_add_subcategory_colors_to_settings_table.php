@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->string('subcategory_bg_color_menu')->nullable()->after('category_name_font_size_menu');
-            $table->string('subcategory_text_color_menu')->nullable()->after('subcategory_bg_color_menu');
+            $table->string('subcategory_bg_color_menu', 32)->nullable()->after('category_name_font_size_menu');
+            $table->string('subcategory_text_color_menu', 32)->nullable()->after('subcategory_bg_color_menu');
         });
     }
 
