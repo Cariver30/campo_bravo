@@ -24,12 +24,14 @@ class WineSeeder extends Seeder
 
         // Ajustar instrucciones al dialecto MySQL.
         $sql = str_replace(
-            ['PRAGMA foreign_keys=OFF;', '"'],
-            ['SET FOREIGN_KEY_CHECKS=0;', '`'],
+            ['PRAGMA foreign_keys=OFF;', 'PRAGMA foreign_keys=ON;', '"'],
+            ['', '', '`'],
             $sql
         );
 
-        $sql .= PHP_EOL . 'SET FOREIGN_KEY_CHECKS=1;';
+        $sql = 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL
+            . $sql . PHP_EOL
+            . 'SET FOREIGN_KEY_CHECKS=1;';
 
         DB::unprepared($sql);
     }
