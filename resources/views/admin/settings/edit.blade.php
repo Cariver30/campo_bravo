@@ -153,6 +153,14 @@
             <label for="category_name_font_size_menu" class="form-label">Category Font Size (Menu)</label>
             <input type="number" class="form-control" id="category_name_font_size_menu" name="category_name_font_size_menu" value="{{ $settings->category_name_font_size_menu ?? 16 }}">
         </div>
+        <div class="mb-3">
+            <label for="subcategory_bg_color_menu" class="form-label">Subcategory Background Color (Menu)</label>
+            <input type="color" class="form-control" id="subcategory_bg_color_menu" name="subcategory_bg_color_menu" value="{{ $settings->subcategory_bg_color_menu ?? '#ffffff' }}">
+        </div>
+        <div class="mb-3">
+            <label for="subcategory_text_color_menu" class="form-label">Subcategory Text Color (Menu)</label>
+            <input type="color" class="form-control" id="subcategory_text_color_menu" name="subcategory_text_color_menu" value="{{ $settings->subcategory_text_color_menu ?? '#000000' }}">
+        </div>
 
         <!-- Repeat for Cocktails and Wines -->
         <div class="mb-3">

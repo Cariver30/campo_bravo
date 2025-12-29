@@ -152,6 +152,8 @@ $foodPairings = FoodPairing::all();
             'category_name_bg_color_menu' => 'nullable|string',
             'category_name_text_color_menu' => 'nullable|string',
             'category_name_font_size_menu' => 'nullable|integer',
+            'subcategory_bg_color_menu' => 'nullable|string',
+            'subcategory_text_color_menu' => 'nullable|string',
             'category_name_bg_color_cocktails' => 'nullable|string',
             'category_name_text_color_cocktails' => 'nullable|string',
             'category_name_font_size_cocktails' => 'nullable|integer',
@@ -305,6 +307,8 @@ $foodPairings = FoodPairing::all();
         $settings->category_name_bg_color_menu = $request->input('category_name_bg_color_menu', $settings->category_name_bg_color_menu);
         $settings->category_name_text_color_menu = $request->input('category_name_text_color_menu', $settings->category_name_text_color_menu);
         $settings->category_name_font_size_menu = $request->input('category_name_font_size_menu', $settings->category_name_font_size_menu);
+        $settings->subcategory_bg_color_menu = $request->input('subcategory_bg_color_menu', $settings->subcategory_bg_color_menu);
+        $settings->subcategory_text_color_menu = $request->input('subcategory_text_color_menu', $settings->subcategory_text_color_menu);
 
         $settings->category_name_bg_color_cocktails = $request->input('category_name_bg_color_cocktails', $settings->category_name_bg_color_cocktails);
         $settings->category_name_text_color_cocktails = $request->input('category_name_text_color_cocktails', $settings->category_name_text_color_cocktails);

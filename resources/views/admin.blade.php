@@ -194,6 +194,14 @@
             <label for="category_name_font_size_menu">Tamaño de fuente de la categoría (Menú):</label>
             <input type="number" class="form-control" id="category_name_font_size_menu" name="category_name_font_size_menu" value="{{ $settings->category_name_font_size_menu ?? 16 }}">
         </div>
+        <div class="form-group">
+            <label for="subcategory_bg_color_menu">Color de fondo de la subcategoría (Menú):</label>
+            <input type="color" class="form-control" id="subcategory_bg_color_menu" name="subcategory_bg_color_menu" value="{{ $settings->subcategory_bg_color_menu ?? '#ffffff' }}">
+        </div>
+        <div class="form-group">
+            <label for="subcategory_text_color_menu">Color de texto de la subcategoría (Menú):</label>
+            <input type="color" class="form-control" id="subcategory_text_color_menu" name="subcategory_text_color_menu" value="{{ $settings->subcategory_text_color_menu ?? '#000000' }}">
+        </div>
 
         <div class="form-group">
             <label for="category_name_bg_color_cocktails">Color de fondo de la categoría (Cocktails):</label>

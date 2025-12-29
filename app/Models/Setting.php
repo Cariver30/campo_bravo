@@ -75,6 +75,8 @@ class Setting extends Model
         'category_name_bg_color_menu',
         'category_name_text_color_menu',
         'category_name_font_size_menu',
+        'subcategory_bg_color_menu',
+        'subcategory_text_color_menu',
         'category_name_bg_color_cocktails',
         'category_name_text_color_cocktails',
         'category_name_font_size_cocktails',

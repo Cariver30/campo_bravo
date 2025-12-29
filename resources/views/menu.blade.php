@@ -13,6 +13,8 @@
     $menuCategoryBg = $settings->category_name_bg_color_menu ?? 'rgba(255, 242, 179, 0.9)';
     $menuCategoryText = $settings->category_name_text_color_menu ?? $palette['violet'];
     $menuCategoryFontSize = $settings->category_name_font_size_menu ?? 30;
+    $menuSubcategoryBg = $settings->subcategory_bg_color_menu ?? 'rgba(57, 125, 181, 0.12)';
+    $menuSubcategoryText = $settings->subcategory_text_color_menu ?? ($settings->text_color_menu ?? $palette['violet']);
     $menuBackgroundDisabled = (bool) ($settings->disable_background_menu ?? false);
     $logoPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#762d79"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#fff2b3" font-family="Arial, sans-serif" font-size="36">LOGO</text></svg>';
     $logoFallback = $settings && $settings->logo
@@ -143,6 +145,40 @@
             transform: translateY(0);
         }
 
+        .subcategory-banner {
+            background: {{ $menuSubcategoryBg }};
+            color: {{ $menuSubcategoryText }};
+            border-radius: 1.5rem;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(6px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subcategory-banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.35), transparent 60%);
+            opacity: .9;
+            pointer-events: none;
+        }
+
+        .subcategory-banner h3 {
+            font-size: 1.65rem;
+            letter-spacing: 0.05em;
+            color: inherit;
+        }
+
+        .subcategory-label {
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.45em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
         .hero-media {
             width: 100%;
             max-height: 420px;
@@ -239,10 +275,12 @@
                 @endphp
                 @if ($subcategoryDishes->count())
                     <div class="mb-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-2xl font-semibold" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">
-                                {{ $subcategory->name }}
-                            </h3>
+                        <div class="subcategory-banner mb-6 flex items-center justify-between">
+                            <div>
+                                <p class="subcategory-label mb-1">Selección especial</p>
+                                <h3 class="font-semibold">{{ $subcategory->name }}</h3>
+                            </div>
+                            <span class="text-sm font-semibold opacity-85">{{ $subcategoryDishes->count() }} platos</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach ($subcategoryDishes as $dish)
@@ -255,7 +293,7 @@
 
             @if ($categoryUngrouped->count())
                 @if ($category->subcategories->count())
-                    <p class="text-sm uppercase tracking-[0.3em] mb-3" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">
+                    <p class="text-sm uppercase tracking-[0.3em] mb-3" style="color: {{ $menuSubcategoryText }};">
                         Más dentro de {{ $category->name }}
                     </p>
                 @endif

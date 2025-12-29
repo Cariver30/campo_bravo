@@ -58,6 +58,8 @@ class SettingController extends Controller
             'category_name_bg_color_menu' => 'nullable|string',
             'category_name_text_color_menu' => 'nullable|string',
             'category_name_font_size_menu' => 'nullable|integer',
+            'subcategory_bg_color_menu' => 'nullable|string',
+            'subcategory_text_color_menu' => 'nullable|string',
             'category_name_bg_color_cocktails' => 'nullable|string',
             'category_name_text_color_cocktails' => 'nullable|string',
             'category_name_font_size_cocktails' => 'nullable|integer',

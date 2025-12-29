@@ -74,6 +74,20 @@
                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-24 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
     </div>
 
+    {{-- Color de fondo para subcategoría --}}
+    <div>
+        <label for="subcategory_bg_color_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color de Fondo de Subcategoría</label>
+        <input type="color" name="subcategory_bg_color_menu" id="subcategory_bg_color_menu" value="{{ $settings->subcategory_bg_color_menu ?? '#ffffff' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+
+    {{-- Color de texto para subcategoría --}}
+    <div>
+        <label for="subcategory_text_color_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color de Texto de Subcategoría</label>
+        <input type="color" name="subcategory_text_color_menu" id="subcategory_text_color_menu" value="{{ $settings->subcategory_text_color_menu ?? '#000000' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+
     {{-- Color de fondo de tarjeta --}}
     <div>
         <label for="card_bg_color_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color de Fondo de Tarjetas</label>
