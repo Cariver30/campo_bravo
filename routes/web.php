@@ -31,8 +31,9 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'cover'])->name('cover');
 Route::get('/menu', [MenuController::class, 'index'])->name('menu');
 Route::get('/cocktails', [CocktailController::class, 'index'])->name('cocktails.index');
-Route::get('/coffee', [WineController::class, 'index'])->name('coffee.index');
-Route::redirect('/wines', '/coffee');
+Route::get('/cava', [WineController::class, 'index'])->name('cava.index');
+Route::redirect('/coffee', '/cava');
+Route::redirect('/wines', '/cava');
 Route::get('/reservations', function () {
     return redirect()->away('https://asador-1293f.web.app/');
 })->name('reservations.app');

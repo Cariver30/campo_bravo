@@ -1,12 +1,19 @@
 @php
     $menuLabel = trim($settings->tab_label_menu ?? $settings->button_label_menu ?? 'Menú');
     $cocktailLabel = trim($settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles');
-    $coffeeLabel = trim($settings->tab_label_wines ?? $settings->button_label_wines ?? 'Café & Brunch');
+    $cavaLabel = trim($settings->tab_label_wines ?? $settings->button_label_wines ?? 'Cava de vinos');
+    if (\Illuminate\Support\Facades\Route::has('cava.index')) {
+        $cavaRouteUrl = route('cava.index');
+    } elseif (\Illuminate\Support\Facades\Route::has('coffee.index')) {
+        $cavaRouteUrl = route('coffee.index');
+    } else {
+        $cavaRouteUrl = url('/cava');
+    }
     $navLinks = [
         ['href' => url('/'), 'icon' => 'fas fa-home', 'label' => 'Inicio'],
         ['href' => url('/menu'), 'icon' => 'fas fa-utensils', 'label' => $menuLabel],
         ['href' => url('/cocktails'), 'icon' => 'fas fa-cocktail', 'label' => $cocktailLabel],
-        ['href' => url('/coffee'), 'icon' => 'fas fa-mug-saucer', 'label' => $coffeeLabel],
+        ['href' => $cavaRouteUrl, 'icon' => 'fas fa-wine-glass', 'label' => $cavaLabel],
     ];
 @endphp
 
