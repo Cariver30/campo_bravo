@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             AdminUserSeeder::class,
             MenuCafeSeeder::class,
+            WineSeeder::class,
         ]);
     }
 }
