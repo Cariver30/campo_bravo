@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Página de Inicio</title>
+    <meta name="description" content="Prosecco Restaurante ofrece cocina creativa dentro del campo de golf de Bayamón, combinando ingredientes frescos, cava curada y experiencias gastronómicas únicas.">
 
     <!-- Tailwind + Flowbite -->
     <script src="https://cdn.tailwindcss.com"></script>
