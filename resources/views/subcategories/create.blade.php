@@ -41,13 +41,25 @@
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Categoría madre</label>
                     <select name="category_id" required
-                            class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400">
+                           class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400">
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach
                     </select>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-white/80 mb-2">Color de fondo</label>
+                        <input type="color" name="background_color" value="{{ old('background_color', '#ffffff') }}"
+                               class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 h-12 text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-white/80 mb-2">Color de texto</label>
+                        <input type="color" name="text_color" value="{{ old('text_color', '#000000') }}"
+                               class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 h-12 text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-4">

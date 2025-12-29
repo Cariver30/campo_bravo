@@ -61,6 +61,18 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-white/80 mb-2">Color de fondo</label>
+                        <input type="color" name="background_color" value="{{ old('background_color', $subcategory->background_color ?? '#ffffff') }}"
+                               class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 h-12 text-white focus:border-emerald-400 focus:ring-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-white/80 mb-2">Color de texto</label>
+                        <input type="color" name="text_color" value="{{ old('text_color', $subcategory->text_color ?? '#000000') }}"
+                               class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 h-12 text-white focus:border-emerald-400 focus:ring-emerald-400">
+                    </div>
+                </div>
 
                 <div class="flex items-center justify-between pt-4">
                     <p class="text-xs text-white/50">Si cambias de categoría, se moverá al final automáticamente.</p>

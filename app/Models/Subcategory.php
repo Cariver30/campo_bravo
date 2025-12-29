@@ -13,6 +13,8 @@ class Subcategory extends Model
         'name',
         'category_id',
         'order',
+        'background_color',
+        'text_color',
     ];
 
     public function category()

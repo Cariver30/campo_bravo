@@ -10,10 +10,11 @@
         $cavaRouteUrl = url('/cava');
     }
     $navLinks = [
-        ['href' => url('/'), 'icon' => 'fas fa-home', 'label' => 'Inicio'],
-        ['href' => url('/menu'), 'icon' => 'fas fa-utensils', 'label' => $menuLabel],
-        ['href' => url('/cocktails'), 'icon' => 'fas fa-cocktail', 'label' => $cocktailLabel],
-        ['href' => $cavaRouteUrl, 'icon' => 'fas fa-wine-glass', 'label' => $cavaLabel],
+        ['href' => url('/'), 'icon' => 'fas fa-home', 'label' => 'Inicio', 'visible' => true],
+        ['href' => url('/menu'), 'icon' => 'fas fa-utensils', 'label' => $menuLabel, 'visible' => $settings->show_tab_menu ?? true],
+        ['href' => url('/cocktails'), 'icon' => 'fas fa-cocktail', 'label' => $cocktailLabel, 'visible' => $settings->show_tab_cocktails ?? true],
+        ['href' => $cavaRouteUrl, 'icon' => 'fas fa-wine-glass', 'label' => $cavaLabel, 'visible' => $settings->show_tab_wines ?? true],
+        ['href' => route('loyalty.invitations.show'), 'icon' => 'fas fa-gift', 'label' => trim($settings->tab_label_loyalty ?? 'Fidelidad'), 'visible' => $settings->show_tab_loyalty ?? false],
     ];
 @endphp
 
@@ -21,6 +22,7 @@
     <div class="flex w-full flex-nowrap items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl overflow-x-auto"
          style="background-color: {{ $background ?? 'rgba(0,0,0,0.55)' }};">
         @foreach($navLinks as $link)
+            @continue(!($link['visible'] ?? true))
             <a href="{{ $link['href'] }}"
                class="flex flex-shrink-0 items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105 whitespace-nowrap"
                style="background-color: {{ $buttonColor ?? '#000' }};">

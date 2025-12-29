@@ -29,6 +29,8 @@ class SubcategoryController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:categories,id'],
+            'background_color' => ['nullable', 'string', 'max:32'],
+            'text_color' => ['nullable', 'string', 'max:32'],
         ]);
 
         $data['order'] = (Subcategory::where('category_id', $data['category_id'])->max('order') ?? 0) + 1;
@@ -50,6 +52,8 @@ class SubcategoryController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:categories,id'],
+            'background_color' => ['nullable', 'string', 'max:32'],
+            'text_color' => ['nullable', 'string', 'max:32'],
         ]);
 
         $categoryChanged = $subcategory->category_id !== (int) $data['category_id'];

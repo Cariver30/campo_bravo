@@ -146,8 +146,8 @@
         }
 
         .subcategory-banner {
-            background: {{ $menuSubcategoryBg }};
-            color: {{ $menuSubcategoryText }};
+            background: var(--subcat-bg, {{ $menuSubcategoryBg }});
+            color: var(--subcat-text, {{ $menuSubcategoryText }});
             border-radius: 1.5rem;
             padding: 1.25rem 1.75rem;
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
@@ -272,15 +272,18 @@
             @foreach ($category->subcategories as $subcategory)
                 @php
                     $subcategoryDishes = $subcategory->dishes->where('visible', true);
+                    $bannerBg = $subcategory->background_color ?? $menuSubcategoryBg;
+                    $bannerText = $subcategory->text_color ?? $menuSubcategoryText;
                 @endphp
                 @if ($subcategoryDishes->count())
                     <div class="mb-10">
-                        <div class="subcategory-banner mb-6 flex items-center justify-between">
+                        <div class="subcategory-banner mb-6 flex items-center justify-between"
+                             style="--subcat-bg: {{ $bannerBg }}; --subcat-text: {{ $bannerText }};">
                             <div>
-                                <p class="subcategory-label mb-1">Selección especial</p>
-                                <h3 class="font-semibold">{{ $subcategory->name }}</h3>
+                                <p class="subcategory-label mb-1" style="color: {{ $bannerText }};">Selección especial</p>
+                                <h3 class="font-semibold" style="color: {{ $bannerText }};">{{ $subcategory->name }}</h3>
                             </div>
-                            <span class="text-sm font-semibold opacity-85">{{ $subcategoryDishes->count() }} platos</span>
+                            <span class="text-sm font-semibold opacity-85" style="color: {{ $bannerText }};">{{ $subcategoryDishes->count() }} platos</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach ($subcategoryDishes as $dish)
@@ -303,7 +306,7 @@
                     @endforeach
                 </div>
             @elseif($category->subcategories->every(fn($sub) => $sub->dishes->where('visible', true)->isEmpty()))
-                <p class="text-center text-sm text-white/70">No hay platos publicados para esta sección.</p>
+                <p class="text-center text-sm" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">No hay platos publicados para esta sección.</p>
             @endif
         </section>
     @endforeach

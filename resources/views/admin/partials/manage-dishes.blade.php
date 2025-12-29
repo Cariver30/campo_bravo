@@ -126,12 +126,15 @@
                                                 <form method="POST" action="{{ route('subcategories.update', $subcategory) }}" class="d-flex gap-2 align-items-center">
                                                     @csrf
                                                     @method('PUT')
+                                                    <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
+                                                    <input type="hidden" name="category_id" value="{{ $category->id }}">
                                                     <input type="text" name="name" value="{{ $subcategory->name }}" class="form-control form-control-sm" required>
                                                     <button type="submit" class="btn btn-sm btn-outline-primary">Renombrar</button>
                                                 </form>
                                                 <form method="POST" action="{{ route('subcategories.destroy', $subcategory) }}" onsubmit="return confirm('¿Eliminar subcategoría?');">
                                                     @csrf
                                                     @method('DELETE')
+                                                    <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                                 </form>
                                             </div>
