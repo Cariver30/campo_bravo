@@ -4,7 +4,7 @@
     $scopeLabels = [
         'global' => 'Todos',
         'menu' => 'Menú',
-        'coffee' => 'Café & Brunch',
+        'coffee' => 'Cava de vinos',
         'cocktails' => 'Cócteles',
     ];
     $redirectTarget = $redirectTo ?? route('admin.new-panel', ['section' => 'extras']);

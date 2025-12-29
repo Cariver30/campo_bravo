@@ -1,7 +1,7 @@
 @php
     $tabLabelMenu = $settings->tab_label_menu ?? $settings->button_label_menu ?? 'Menú';
     $tabLabelCocktails = $settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles';
-    $tabLabelWines = $settings->tab_label_wines ?? $settings->button_label_wines ?? 'Bebidas';
+    $tabLabelWines = $settings->tab_label_wines ?? $settings->button_label_wines ?? 'Cava de vinos';
     $tabLabelEvents = $settings->tab_label_events ?? 'Eventos';
 
     $defaultView = old('view', $popup->view);

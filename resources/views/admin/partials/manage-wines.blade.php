@@ -1,7 +1,7 @@
 @php $expandWineCategories = request('expand') === 'wine-categories'; @endphp
 
 <section class="mt-5">
-    <h3>Café &amp; bebidas</h3>
+    <h3>Cava de vinos</h3>
     <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines-list')">Gestionar bebidas</button>
     <div id="wines-list" class="hidden">
         <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar bebidas..." class="form-control mb-3">
@@ -43,9 +43,9 @@
     </div>
 </section>
 
-<!-- Categorías de Café -->
+<!-- Categorías de la cava -->
 <section class="mt-5">
-    <h3>Categorías de Café</h3>
+    <h3>Categorías de la cava</h3>
     <button class="btn btn-primary mb-3" onclick="toggleVisibility('wine-categories')">Categorías</button>
     <div id="wine-categories" class="{{ $expandWineCategories ? '' : 'hidden' }}">
         <a href="{{ route('wine-categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría</a>

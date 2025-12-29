@@ -15,7 +15,7 @@
 
         <div class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur p-8 shadow-2xl">
             <div class="space-y-2 mb-8">
-                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Café & Brunch</p>
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">La Cava de vinos</p>
                 <h1 class="text-3xl font-semibold">Editar bebida</h1>
                 <p class="text-white/60 text-sm">Modifica origen, métodos y maridajes del café.</p>
             </div>

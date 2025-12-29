@@ -18,75 +18,96 @@ use Illuminate\Http\Request;
 class WineController extends Controller
 {
     public function index(Request $request)
-{
-    $settings = Setting::first();
+    {
+        $settings = Setting::first();
+        $filterCategories = WineCategory::orderBy('order')->get();
 
-    // 🔧 Detectar si hay filtros activos correctamente
-    $hasFilter = $request->hasAny(['region', 'type', 'grape', 'max_price']);
+        $filters = [
+            'category' => $request->input('category'),
+            'region' => $request->input('region'),
+            'type' => $request->input('type'),
+            'grape' => $request->input('grape'),
+            'max_price' => $request->input('max_price'),
+            'q' => $request->input('q'),
+        ];
 
-    if ($hasFilter) {
-        $wines = Wine::query()
-            ->when($request->region, fn($q) => $q->where('region_id', $request->region))
-            ->when($request->type, fn($q) => $q->where('type_id', $request->type))
-            ->when($request->grape, fn($q) =>
-                $q->whereHas('grapes', fn($g) => $g->where('grape_id', $request->grape))
-            )
-            ->when($request->max_price, fn($q) =>
-                $q->where('price', '<=', $request->max_price)
-            )
-            ->where('visible', true)
-            ->with([
-                'type',
-                'region',
-                'grapes',
-                'dishes',
-                'extras' => function ($extraQuery) {
-                    $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
-                },
-            ]) // ✅ Asegúrate de incluir 'dishes'
-            ->get();
+        $hasFilter = collect($filters)
+            ->filter(fn ($value) => !is_null($value) && $value !== '')
+            ->isNotEmpty();
 
-        return view('coffee.index', [
+        if ($hasFilter) {
+            $wines = Wine::query()
+                ->when($filters['category'], fn ($q, $category) => $q->where('category_id', $category))
+                ->when($filters['region'], fn ($q, $region) => $q->where('region_id', $region))
+                ->when($filters['type'], fn ($q, $type) => $q->where('type_id', $type))
+                ->when($filters['grape'], function ($q, $grape) {
+                    $q->whereHas('grapes', fn ($g) => $g->where('grape_id', $grape));
+                })
+                ->when($filters['max_price'], fn ($q, $price) => $q->where('price', '<=', $price))
+                ->when($filters['q'], fn ($q, $term) => $q->where('name', 'like', '%' . $term . '%'))
+                ->where('visible', true)
+                ->with([
+                    'type',
+                    'region',
+                    'grapes',
+                    'dishes',
+                    'extras' => function ($extraQuery) {
+                        $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                    },
+                ])
+                ->orderBy('category_id')
+                ->orderBy('position')
+                ->orderBy('name')
+                ->get();
+
+            return view('cava.index', [
+                'settings' => $settings,
+                'wines' => $wines,
+                'filters' => true,
+                'wineCategories' => $filterCategories,
+                'regions' => Region::all(),
+                'types' => WineType::all(),
+                'grapes' => Grape::all(),
+                'filterCategories' => $filterCategories,
+                'selectedFilters' => $filters,
+                'popups' => Popup::where('active', 1)
+                    ->whereIn('view', ['coffee', 'wines', 'cava'])
+                    ->whereDate('start_date', '<=', now())
+                    ->whereDate('end_date', '>=', now())
+                    ->get(),
+            ]);
+        }
+
+        return view('cava.index', [
             'settings' => $settings,
-            'wines'    => $wines,
-            'filters'  => true,
-            'regions'  => Region::all(),
-            'types'    => WineType::all(),
-            'grapes'   => Grape::all(),
-            'popups'   => Popup::where('active', 1)
-                                ->whereIn('view', ['coffee', 'wines'])
-                                ->whereDate('start_date', '<=', now())
-                                ->whereDate('end_date', '>=', now())
-                                ->get(),
+            'wineCategories' => WineCategory::with(['items' => function ($q) {
+                $q->where('visible', true)
+                    ->with([
+                        'type',
+                        'region',
+                        'grapes',
+                        'dishes',
+                        'extras' => function ($extraQuery) {
+                            $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                        },
+                    ])
+                    ->orderBy('position')
+                    ->orderBy('id');
+            }])->orderBy('order')->get(),
+            'filters' => false,
+            'regions' => Region::all(),
+            'types' => WineType::all(),
+            'grapes' => Grape::all(),
+            'filterCategories' => $filterCategories,
+            'selectedFilters' => $filters,
+            'wines' => collect(),
+            'popups' => Popup::where('active', 1)
+                ->whereIn('view', ['coffee', 'wines', 'cava'])
+                ->whereDate('start_date', '<=', now())
+                ->whereDate('end_date', '>=', now())
+                ->get(),
         ]);
     }
-
-    // Comportamiento sin filtros (mostrar por categoría)
-    return view('coffee.index', [
-        'settings'       => $settings,
-        'wineCategories' => WineCategory::with(['items' => function ($q) {
-            $q->where('visible', true)
-              ->with([
-                'type',
-                'region',
-                'grapes',
-                'dishes',
-                'extras' => function ($extraQuery) {
-                    $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
-                },
-              ]); // ✅ También aquí
-        }])->get(),
-        'filters'        => false,
-        'regions'        => Region::all(),
-        'types'          => WineType::all(),
-        'grapes'         => Grape::all(),
-        'popups'         => Popup::where('active', 1)
-                                ->whereIn('view', ['coffee', 'wines'])
-                                ->whereDate('start_date', '<=', now())
-                                ->whereDate('end_date', '>=', now())
-                                ->get(),
-    ]);
-}
 
 
     public function create()

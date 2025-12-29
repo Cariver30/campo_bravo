@@ -12,7 +12,8 @@ class SettingSeeder extends Seeder
         $data = [
             'button_label_menu' => 'Menú',
             'button_label_cocktails' => 'Cócteles',
-            'button_label_wines' => 'Café & Brunch',
+            'button_label_wines' => 'Cava de vinos',
+            'tab_label_wines' => 'La Cava',
             'button_label_events' => 'Eventos especiales',
             'button_label_vip' => 'Lista VIP',
             'button_label_reservations' => 'Reservas',

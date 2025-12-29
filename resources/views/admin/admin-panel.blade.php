@@ -8,7 +8,7 @@
     $tabLabels = [
         'menu' => $settings->tab_label_menu ?? $settings->button_label_menu ?? 'Menú',
         'cocktails' => $settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles',
-        'wines' => $settings->tab_label_wines ?? $settings->button_label_wines ?? 'Café & Brunch',
+        'wines' => $settings->tab_label_wines ?? $settings->button_label_wines ?? 'Cava de vinos',
         'events' => $settings->tab_label_events ?? 'Eventos',
         'loyalty' => $settings->tab_label_loyalty ?? 'Fidelidad',
     ];
@@ -41,7 +41,7 @@
         </article>
         <article class="glass-card">
             <p class="text-xs uppercase tracking-widest text-slate-400 mb-1">Bebidas</p>
-            <h3 class="text-xl font-semibold text-slate-900">Cócteles + Café</h3>
+            <h3 class="text-xl font-semibold text-slate-900">Cócteles + Cava</h3>
             <p class="text-sm text-slate-600 mt-2">Recetas calientes, frías y maridajes.</p>
         </article>
         <article class="glass-card">
@@ -178,7 +178,7 @@
                     <h3 class="inner-title">{{ $tabLabels['wines'] }}</h3>
                     <div class="subnav">
                         <button class="subnav-button active" data-target="wine-create">Crear bebida</button>
-                        <button class="subnav-button" data-target="wine-config">Configuración de Café</button>
+                        <button class="subnav-button" data-target="wine-config">Configuración de la Cava</button>
                         <button class="subnav-button" data-target="wine-advanced">Gestión avanzada</button>
                     </div>
                     <div id="wine-create" class="subnav-panel show">

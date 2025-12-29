@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->string('tab_label_cocktails')->nullable()->default('Cócteles');
             }
             if (!Schema::hasColumn('settings', 'tab_label_wines')) {
-                $table->string('tab_label_wines')->nullable()->default('Café & Brunch');
+                $table->string('tab_label_wines')->nullable()->default('Cava de vinos');
             }
             if (!Schema::hasColumn('settings', 'tab_label_events')) {
                 $table->string('tab_label_events')->nullable()->default('Eventos');

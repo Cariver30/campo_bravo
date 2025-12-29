@@ -32,7 +32,7 @@ class FeaturedGroupBuilder
             ],
             [
                 'type' => 'coffee',
-                'label' => 'Café',
+                'label' => 'Cava de vinos',
                 'query' => WineCategory::query(),
                 'relation' => 'items',
             ],
@@ -92,7 +92,7 @@ class FeaturedGroupBuilder
     {
         return match ($source) {
             'cocktails' => url('/cocktails') . '#cocktail' . $item->id,
-            'coffee' => url('/coffee') . '#coffee' . $item->id,
+            'coffee' => url('/cava') . '#wine' . $item->id,
             default => url('/menu') . '#dish' . $item->id,
         };
     }

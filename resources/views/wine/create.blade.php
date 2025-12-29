@@ -15,7 +15,7 @@
 
         <div class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur p-8 shadow-2xl">
             <div class="space-y-2 mb-8">
-                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Café & Brunch</p>
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">La Cava de vinos</p>
                 <h1 class="text-3xl font-semibold">Registrar bebida</h1>
                 <p class="text-white/60 text-sm">Define origen, estilo, toppings y platos sugeridos.</p>
             </div>
@@ -138,7 +138,7 @@
                     <input type="checkbox" id="featured_on_cover" name="featured_on_cover" value="1" {{ old('featured_on_cover') ? 'checked' : '' }}
                            class="w-5 h-5 rounded border-white/30 bg-transparent text-amber-400 focus:ring-amber-400" />
                     <label for="featured_on_cover" class="text-sm text-white/80">
-                        Destacar en la portada de Café & Brunch
+                        Destacar en la portada de La Cava
                     </label>
                 </div>
 
