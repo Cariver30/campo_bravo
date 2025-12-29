@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Dish;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,14 +16,29 @@ class MenuManagementController extends Controller
 {
     public function categories()
     {
-        $categories = Category::with(['dishes' => function ($query) {
-            $query->orderBy('position')
-                ->orderBy('id')
-                ->with([
-                    'recommendedDishes:id,name',
-                    'extras:id,name,price,view_scope',
+        $categories = Category::with([
+            'dishes' => function ($query) {
+                $query->whereNull('subcategory_id')
+                    ->orderBy('position')
+                    ->orderBy('id')
+                    ->with([
+                        'recommendedDishes:id,name',
+                        'extras:id,name,price,view_scope',
+                    ]);
+            },
+            'subcategories' => function ($query) {
+                $query->orderBy('order')->with([
+                    'dishes' => function ($dishQuery) {
+                        $dishQuery->orderBy('position')
+                            ->orderBy('id')
+                            ->with([
+                                'recommendedDishes:id,name',
+                                'extras:id,name,price,view_scope',
+                            ]);
+                    },
                 ]);
-        }])->orderBy('order')->get();
+            },
+        ])->orderBy('order')->get();
 
         return response()->json([
             'categories' => $categories->map(fn (Category $category) => $this->serializeCategory($category)),
@@ -77,6 +94,66 @@ class MenuManagementController extends Controller
         ]);
     }
 
+    public function storeSubcategory(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'category_id' => ['required', 'exists:categories,id'],
+        ]);
+
+        $data['order'] = (Subcategory::where('category_id', $data['category_id'])->max('order') ?? 0) + 1;
+
+        $subcategory = Subcategory::create($data);
+
+        return response()->json([
+            'message' => 'Subcategoría creada correctamente.',
+            'subcategory' => $this->serializeSubcategory($subcategory->load('dishes')),
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateSubcategory(Request $request, Subcategory $subcategory)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $subcategory->update($data);
+
+        return response()->json([
+            'message' => 'Subcategoría actualizada correctamente.',
+            'subcategory' => $this->serializeSubcategory($subcategory->fresh('dishes')),
+        ]);
+    }
+
+    public function destroySubcategory(Subcategory $subcategory)
+    {
+        $subcategory->dishes()->update(['subcategory_id' => null]);
+        $subcategory->delete();
+
+        return response()->json([
+            'message' => 'Subcategoría eliminada correctamente.',
+        ]);
+    }
+
+    public function reorderSubcategories(Request $request)
+    {
+        $data = $request->validate([
+            'category_id' => ['required', 'exists:categories,id'],
+            'order' => ['required', 'array'],
+            'order.*' => ['integer', 'exists:subcategories,id'],
+        ]);
+
+        foreach ($data['order'] as $index => $subcategoryId) {
+            Subcategory::where('id', $subcategoryId)
+                ->where('category_id', $data['category_id'])
+                ->update(['order' => $index + 1]);
+        }
+
+        return response()->json([
+            'message' => 'Orden de subcategorías actualizado.',
+        ]);
+    }
+
     public function storeDish(Request $request)
     {
         [$data, $relations] = $this->validateDish($request);
@@ -87,7 +164,7 @@ class MenuManagementController extends Controller
 
         $data['visible'] = $request->boolean('visible', true);
         $data['featured_on_cover'] = $request->boolean('featured_on_cover', false);
-        $data['position'] = (Dish::where('category_id', $data['category_id'])->max('position') ?? 0) + 1;
+        $data['position'] = $this->nextDishPosition((int) $data['category_id'], $data['subcategory_id'] ?? null);
 
         $dish = Dish::create($data);
         $this->syncRelations($dish, $relations);
@@ -112,6 +189,10 @@ class MenuManagementController extends Controller
 
         $data['visible'] = $request->boolean('visible', true);
         $data['featured_on_cover'] = $request->boolean('featured_on_cover', false);
+
+        if ($dish->category_id !== (int) $data['category_id'] || $dish->subcategory_id !== ($data['subcategory_id'] ?? null)) {
+            $data['position'] = $this->nextDishPosition((int) $data['category_id'], $data['subcategory_id'] ?? null);
+        }
 
         $dish->update($data);
         $this->syncRelations($dish, $relations);
@@ -150,6 +231,7 @@ class MenuManagementController extends Controller
     {
         $data = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
+            'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
             'order' => ['required', 'array'],
             'order.*' => ['integer', 'exists:dishes,id'],
         ]);
@@ -157,6 +239,11 @@ class MenuManagementController extends Controller
         foreach ($data['order'] as $index => $dishId) {
             Dish::where('id', $dishId)
                 ->where('category_id', $data['category_id'])
+                ->when(
+                    $data['subcategory_id'] ?? null,
+                    fn ($query, $subcategoryId) => $query->where('subcategory_id', $subcategoryId),
+                    fn ($query) => $query->whereNull('subcategory_id')
+                )
                 ->update(['position' => $index + 1]);
         }
 
@@ -172,6 +259,7 @@ class MenuManagementController extends Controller
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'category_id' => ['required', 'exists:categories,id'],
+            'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
             'featured_on_cover' => ['nullable', 'boolean'],
             'visible' => ['nullable', 'boolean'],
             'image' => [$request->hasFile('image') ? 'required' : 'nullable', 'image', 'max:5120'],
@@ -200,6 +288,11 @@ class MenuManagementController extends Controller
                 ->values()
                 ->all(),
         ];
+
+        $validated['subcategory_id'] = $this->assertSubcategoryHierarchy(
+            (int) $validated['category_id'],
+            $request->input('subcategory_id')
+        );
 
         return [$validated, $relations];
     }
@@ -235,6 +328,36 @@ class MenuManagementController extends Controller
         return $data;
     }
 
+    protected function assertSubcategoryHierarchy(int $categoryId, $subcategoryId): ?int
+    {
+        if (! $subcategoryId) {
+            return null;
+        }
+
+        $id = (int) $subcategoryId;
+        $exists = Subcategory::where('id', $id)
+            ->where('category_id', $categoryId)
+            ->exists();
+
+        if (! $exists) {
+            throw ValidationException::withMessages([
+                'subcategory_id' => 'La subcategoría seleccionada no pertenece a la categoría indicada.',
+            ]);
+        }
+
+        return $id;
+    }
+
+    protected function nextDishPosition(int $categoryId, ?int $subcategoryId = null): int
+    {
+        $max = Dish::where('category_id', $categoryId)
+            ->when($subcategoryId, fn ($query) => $query->where('subcategory_id', $subcategoryId))
+            ->when(is_null($subcategoryId), fn ($query) => $query->whereNull('subcategory_id'))
+            ->max('position');
+
+        return (int) $max + 1;
+    }
+
     protected function serializeCategory(Category $category): array
     {
         return [
@@ -244,7 +367,19 @@ class MenuManagementController extends Controller
             'show_on_cover' => (bool) $category->show_on_cover,
             'cover_title' => $category->cover_title,
             'cover_subtitle' => $category->cover_subtitle,
+            'subcategories' => $category->subcategories?->map(fn (Subcategory $subcategory) => $this->serializeSubcategory($subcategory))->values() ?? [],
             'dishes' => $category->dishes?->map(fn (Dish $dish) => $this->serializeDish($dish))->values() ?? [],
+        ];
+    }
+
+    protected function serializeSubcategory(Subcategory $subcategory): array
+    {
+        return [
+            'id' => $subcategory->id,
+            'name' => $subcategory->name,
+            'order' => $subcategory->order,
+            'category_id' => $subcategory->category_id,
+            'dishes' => $subcategory->dishes?->map(fn (Dish $dish) => $this->serializeDish($dish))->values() ?? [],
         ];
     }
 
@@ -271,6 +406,8 @@ class MenuManagementController extends Controller
             'price' => (float) $dish->price,
             'category_id' => $dish->category_id,
             'category_name' => $dish->category?->name,
+            'subcategory_id' => $dish->subcategory_id,
+            'subcategory_name' => $dish->subcategory?->name,
             'image' => $dish->image ? asset('storage/' . $dish->image) : null,
             'visible' => (bool) $dish->visible,
             'featured_on_cover' => (bool) $dish->featured_on_cover,

@@ -49,7 +49,12 @@ class AdminController extends Controller
 
     public function panel()
     {
-        $categories = Category::with('dishes')->orderBy('order')->get();
+        $categories = Category::with([
+            'dishes' => fn ($query) => $query->orderBy('position')->orderBy('id'),
+            'subcategories' => fn ($query) => $query->orderBy('order')->with([
+                'dishes' => fn ($dishQuery) => $dishQuery->orderBy('position')->orderBy('id'),
+            ]),
+        ])->orderBy('order')->get();
         $dishes = Dish::with('category')->get();
         $cocktails = Cocktail::with('category')->get();
         $cocktailCategories = CocktailCategory::with('items')->orderBy('order')->get();
@@ -66,7 +71,12 @@ class AdminController extends Controller
 
     public function newAdminPanel()
     {
-        $categories = Category::with('dishes')->orderBy('order')->get();
+        $categories = Category::with([
+            'dishes' => fn ($query) => $query->orderBy('position')->orderBy('id'),
+            'subcategories' => fn ($query) => $query->orderBy('order')->with([
+                'dishes' => fn ($dishQuery) => $dishQuery->orderBy('position')->orderBy('id'),
+            ]),
+        ])->orderBy('order')->get();
         $dishes = Dish::with('category')->get();
         $cocktails = Cocktail::with('category')->get();
         $cocktailCategories = CocktailCategory::with('items')->orderBy('order')->get();

@@ -14,6 +14,7 @@ use App\Http\Controllers\WineCategoryController;
 use App\Http\Controllers\WineController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\FoodPairingController;
+use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\WineTypeController;
 use App\Http\Controllers\Admin\EventManagementController;
 use App\Http\Controllers\EventPublicController;
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::post('/admin/dishes/reorder', [DishController::class, 'reorder'])->name('dishes.reorder');
     Route::post('/admin/cocktails/reorder', [CocktailController::class, 'reorder'])->name('cocktails.reorder');
     Route::post('/admin/wines/reorder', [WineController::class, 'reorder'])->name('wines.reorder');
+    Route::post('/admin/subcategories/reorder', [SubcategoryController::class, 'reorder'])->name('subcategories.reorder');
     Route::post('/admin/cocktail-categories/reorder', [CocktailCategoryController::class, 'reorder'])->name('cocktail-categories.reorder');
     Route::post('/admin/wine-categories/reorder', [WineCategoryController::class, 'reorder'])->name('wine-categories.reorder');
     Route::patch('/admin/categories/{category}/toggle-cover', [CategoryController::class, 'toggleCover'])->name('categories.toggleCover');
@@ -107,6 +109,9 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('food-pairings', FoodPairingController::class);
     Route::resource('grapes', App\Http\Controllers\GrapeController::class);
     Route::resource('extras', ExtraController::class)->except(['show', 'create']);
+    Route::post('subcategories', [SubcategoryController::class, 'store'])->name('subcategories.store');
+    Route::put('subcategories/{subcategory}', [SubcategoryController::class, 'update'])->name('subcategories.update');
+    Route::delete('subcategories/{subcategory}', [SubcategoryController::class, 'destroy'])->name('subcategories.destroy');
 
     Route::get('/admin/popups', [AdminController::class, 'indexPopups'])->name('admin.popups.index');
     Route::get('/admin/popups/create', [AdminController::class, 'createPopup'])->name('admin.popups.create');

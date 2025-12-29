@@ -26,6 +26,11 @@ class Category extends Model
         return $this->hasMany(Dish::class)->orderBy('position')->orderBy('id');
     }
 
+    public function subcategories()
+    {
+        return $this->hasMany(Subcategory::class)->orderBy('order')->orderBy('id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($category) {

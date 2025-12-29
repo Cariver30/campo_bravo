@@ -32,6 +32,10 @@ Route::prefix('mobile')->group(function () {
         Route::put('/menu/categories/{category}', [MenuManagementController::class, 'updateCategory']);
         Route::delete('/menu/categories/{category}', [MenuManagementController::class, 'destroyCategory']);
         Route::post('/menu/categories/reorder', [MenuManagementController::class, 'reorderCategories']);
+        Route::post('/menu/subcategories', [MenuManagementController::class, 'storeSubcategory']);
+        Route::put('/menu/subcategories/{subcategory}', [MenuManagementController::class, 'updateSubcategory']);
+        Route::delete('/menu/subcategories/{subcategory}', [MenuManagementController::class, 'destroySubcategory']);
+        Route::post('/menu/subcategories/reorder', [MenuManagementController::class, 'reorderSubcategories']);
         Route::post('/menu/dishes', [MenuManagementController::class, 'storeDish']);
         Route::post('/menu/dishes/reorder', [MenuManagementController::class, 'reorderDishes']);
         Route::put('/menu/dishes/{dish}', [MenuManagementController::class, 'updateDish']);

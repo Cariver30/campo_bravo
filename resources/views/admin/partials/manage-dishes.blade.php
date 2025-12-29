@@ -77,7 +77,7 @@
                                     <span class="badge bg-warning text-dark">En portada</span>
                                 @endif
                             </div>
-                            <div class="d-flex flex-wrap gap-2">
+                                            <div class="d-flex flex-wrap gap-2">
                                 <form method="POST" action="{{ route('categories.toggleCover', $category) }}">
                                     @csrf
                                     @method('PATCH')
@@ -88,9 +88,78 @@
                                 <a href="{{ route('categories.edit', $category) }}" class="btn btn-sm btn-outline-primary">Editar nombre público</a>
                             </div>
                         </div>
-                        @if($category->dishes->count() > 0)
-                            <ul class="list-group dish-sortable" data-category="{{ $category->id }}">
-                                @foreach($category->dishes as $dish)
+                        @php
+                            $ungroupedDishes = $category->dishes->filter(fn ($dish) => is_null($dish->subcategory_id));
+                        @endphp
+
+                        <div class="mt-3 p-3 border rounded-3 bg-light-subtle">
+                            <p class="text-muted small mb-2">Crea subcategorías para dividir esta pestaña en bloques más específicos.</p>
+                            <form method="POST" action="{{ route('subcategories.store') }}" class="row g-2 align-items-end">
+                                @csrf
+                                <input type="hidden" name="category_id" value="{{ $category->id }}">
+                                <div class="col-md-8">
+                                    <label class="form-label text-muted small mb-1">Nombre de la subcategoría</label>
+                                    <input type="text" name="name" class="form-control form-control-sm" placeholder="Ej. Entradas frías" required>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">Agregar subcategoría</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        @if($category->subcategories->count())
+                            <p class="text-muted small mt-3 mb-2">Arrastra las tarjetas para cambiar el orden de las subcategorías.</p>
+                            <div class="subcategory-sortable" data-category="{{ $category->id }}">
+                                @foreach($category->subcategories as $subcategory)
+                                    <div class="border rounded-3 p-3 bg-white mb-3 sortable-item" data-id="{{ $subcategory->id }}">
+                                        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="text-muted sortable-handle-subcategory">
+                                                    <i class="fas fa-grip-vertical"></i>
+                                                </span>
+                                                <strong>{{ $subcategory->name }}</strong>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <form method="POST" action="{{ route('subcategories.update', $subcategory) }}" class="d-flex gap-2 align-items-center">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="text" name="name" value="{{ $subcategory->name }}" class="form-control form-control-sm" required>
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">Renombrar</button>
+                                                </form>
+                                                <form method="POST" action="{{ route('subcategories.destroy', $subcategory) }}" onsubmit="return confirm('¿Eliminar subcategoría?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        @if($subcategory->dishes->count())
+                                            <ul class="list-group dish-sortable mt-3" data-category="{{ $category->id }}" data-subcategory="{{ $subcategory->id }}">
+                                                @foreach($subcategory->dishes as $dish)
+                                                    <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $dish->id }}">
+                                                        <span class="text-muted">&#x2630;</span>
+                                                        <span class="flex-fill">
+                                                            {{ $dish->name }} - ${{ $dish->price }}
+                                                            @if($dish->featured_on_cover)
+                                                                <span class="badge bg-warning text-dark ms-2">Destacado</span>
+                                                            @endif
+                                                        </span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <p class="text-muted small mt-2 mb-0">No hay platos asignados a esta subcategoría.</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if($ungroupedDishes->count())
+                            <h4 class="mt-4 text-muted small text-uppercase">Platos sin subcategoría</h4>
+                            <ul class="list-group dish-sortable" data-category="{{ $category->id }}" data-subcategory="">
+                                @foreach($ungroupedDishes as $dish)
                                     <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $dish->id }}">
                                         <span class="text-muted">&#x2630;</span>
                                         <span class="flex-fill">
@@ -103,27 +172,29 @@
                                 @endforeach
                             </ul>
                             <small class="text-muted">Arrastra para reordenar rápidamente.</small>
-
-                            <form method="POST" action="{{ route('categories.featuredItems', $category) }}" class="mt-3">
-                                @csrf
-                                <p class="text-muted small mb-2">Marca los platos que deben aparecer como Lo más vendido en esta pestaña:</p>
-                                <div class="row g-2">
-                                    @foreach($category->dishes as $dish)
-                                        <div class="col-sm-6 col-md-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="featured_items[]" value="{{ $dish->id }}" id="dish-featured-{{ $dish->id }}" {{ $dish->featured_on_cover ? 'checked' : '' }}>
-                                                <label class="form-check-label small" for="dish-featured-{{ $dish->id }}">
-                                                    {{ $dish->name }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <button type="submit" class="btn btn-sm btn-primary mt-3">Guardar destacados</button>
-                            </form>
-                        @else
-                            <p>No dishes found for this category.</p>
                         @endif
+
+                        @unless($category->subcategories->count() || $ungroupedDishes->count())
+                            <p>No hay platos registrados en esta categoría.</p>
+                        @endunless
+
+                        <form method="POST" action="{{ route('categories.featuredItems', $category) }}" class="mt-3">
+                            @csrf
+                            <p class="text-muted small mb-2">Marca los platos que deben aparecer como Lo más vendido en esta pestaña:</p>
+                            <div class="row g-2">
+                                @foreach($category->dishes as $dish)
+                                    <div class="col-sm-6 col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="featured_items[]" value="{{ $dish->id }}" id="dish-featured-{{ $dish->id }}" {{ $dish->featured_on_cover ? 'checked' : '' }}>
+                                            <label class="form-check-label small" for="dish-featured-{{ $dish->id }}">
+                                                {{ $dish->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary mt-3">Guardar destacados</button>
+                        </form>
                         <div class="d-flex flex-wrap gap-2 mt-3">
                             <a href="{{ route('categories.edit', $category) }}" class="btn btn-outline-primary">Editar</a>
                             <button class="btn btn-outline-danger" form="delete-category-{{ $category->id }}">Eliminar</button>
@@ -226,37 +297,81 @@
             });
         });
 
+        const saveDishOrder = (categoryId, subcategoryId, order) => {
+            fetch('{{ route('dishes.reorder') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    category_id: categoryId,
+                    subcategory_id: subcategoryId || null,
+                    order: order,
+                }),
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP '+response.status);
+                }
+                return response.json();
+            }).then(data => {
+                if (!data.success) {
+                    alert('No se pudo guardar el orden.');
+                }
+            }).catch(() => alert('Error al guardar el orden.'));
+        };
+
         document.querySelectorAll('.dish-sortable').forEach(list => {
             new Sortable(list, {
                 animation: 150,
                 ghostClass: 'bg-light',
                 onEnd: evt => {
                     const categoryId = evt.to.dataset.category;
-                    const order = Array.from(evt.to.querySelectorAll('li')).map(item => item.dataset.id);
+                    const subcategoryId = evt.to.dataset.subcategory || null;
+                    const order = Array.from(evt.to.querySelectorAll('.sortable-item')).map(item => item.dataset.id);
+                    saveDishOrder(categoryId, subcategoryId, order);
+                }
+            });
+        });
 
-                    fetch('{{ route('dishes.reorder') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({
-                            category_id: categoryId,
-                            order: order,
-                        }),
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error('HTTP '+response.status);
-                        }
-                        return response.json();
-                    }).then(data => {
-                        if (!data.success) {
-                            alert('No se pudo guardar el orden.');
-                        }
-                    }).catch(() => alert('Error al guardar el orden.'));
+        const saveSubcategoryOrder = (categoryId, order) => {
+            fetch('{{ route('subcategories.reorder') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    category_id: categoryId,
+                    order: order,
+                }),
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP '+response.status);
+                }
+                return response.json();
+            }).then(data => {
+                if (!data.success) {
+                    alert('No se pudo guardar el orden de subcategorías.');
+                }
+            }).catch(() => alert('Error al guardar el orden de subcategorías.'));
+        };
+
+        document.querySelectorAll('.subcategory-sortable').forEach(list => {
+            new Sortable(list, {
+                animation: 150,
+                handle: '.sortable-handle-subcategory',
+                ghostClass: 'bg-light',
+                onEnd: evt => {
+                    const categoryId = evt.to.dataset.category;
+                    const order = Array.from(evt.to.querySelectorAll('.sortable-item')).map(item => item.dataset.id);
+                    saveSubcategoryOrder(categoryId, order);
                 }
             });
         });

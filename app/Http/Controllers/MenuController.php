@@ -15,6 +15,7 @@ class MenuController extends Controller
         $categories = Category::with([
                 'dishes' => function ($query) {
                     $query->where('visible', true)
+                        ->whereNull('subcategory_id')
                         ->with([
                             'wines' => function ($wineQuery) {
                                 $wineQuery->select('wines.id', 'name')
@@ -25,11 +26,29 @@ class MenuController extends Controller
                                 $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
                             },
                         ])
-                        ->orderBy('position');
+                        ->orderBy('position')
+                        ->orderBy('id');
                 },
-            ])
-            ->orderBy('order')
-            ->get();
+                'subcategories' => function ($query) {
+                    $query->orderBy('order')->with([
+                        'dishes' => function ($dishQuery) {
+                            $dishQuery->where('visible', true)
+                                ->with([
+                                    'wines' => function ($wineQuery) {
+                                        $wineQuery->select('wines.id', 'name')
+                                            ->where('visible', true);
+                                    },
+                                    'recommendedDishes:id,name',
+                                    'extras' => function ($extraQuery) {
+                                        $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');
+                                    },
+                                ])
+                                ->orderBy('position')
+                                ->orderBy('id');
+                        },
+                    ]);
+                },
+            ])->orderBy('order')->get();
 
         $popups = Popup::where('active', 1)
             ->where('view', 'menu')

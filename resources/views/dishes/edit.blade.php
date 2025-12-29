@@ -60,11 +60,28 @@
                                 class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-400 focus:ring-emerald-400">
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ old('category_id', $dish->category_id) == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="subcategory_id" class="block text-sm font-semibold text-white/80 mb-2">Subcategoría (opcional)</label>
+                    <select id="subcategory_id" name="subcategory_id"
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-400 focus:ring-emerald-400">
+                        <option value="">Sin subcategoría</option>
+                        @foreach($categories as $category)
+                            @foreach($category->subcategories as $subcategory)
+                                <option value="{{ $subcategory->id }}"
+                                        data-category="{{ $category->id }}"
+                                        {{ old('subcategory_id', $dish->subcategory_id) == $subcategory->id ? 'selected' : '' }}>
+                                    {{ $category->name }} · {{ $subcategory->name }}
                                 </option>
                             @endforeach
-                        </select>
-                    </div>
+                        @endforeach
+                    </select>
+                </div>
                 </div>
 
                 <div>
@@ -156,6 +173,36 @@
                     highlight: true,
                 });
             });
+
+            const categorySelect = document.getElementById('category_id');
+            const subcategorySelect = document.getElementById('subcategory_id');
+            if (categorySelect && subcategorySelect) {
+                const syncSubcategories = () => {
+                    const currentCategory = categorySelect.value;
+                    let keepSelection = false;
+
+                    subcategorySelect.querySelectorAll('option[data-category]').forEach(option => {
+                        const shouldShow = option.dataset.category === currentCategory;
+                        option.hidden = !shouldShow;
+                        option.disabled = !shouldShow;
+
+                        if (!shouldShow && option.selected) {
+                            option.selected = false;
+                        }
+
+                        if (shouldShow && option.value === subcategorySelect.value) {
+                            keepSelection = true;
+                        }
+                    });
+
+                    if (!keepSelection && subcategorySelect.value) {
+                        subcategorySelect.value = '';
+                    }
+                };
+
+                syncSubcategories();
+                categorySelect.addEventListener('change', syncSubcategories);
+            }
         });
     </script>
 </body>

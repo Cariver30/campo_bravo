@@ -30,6 +30,25 @@
                         @endforeach
                     </ul>
                 </div>
+
+                <div>
+                    <label for="subcategory_id" class="block text-sm font-semibold text-white/80 mb-2">Subcategoría (opcional)</label>
+                    <select id="subcategory_id" name="subcategory_id"
+                            class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400"
+                            data-subcategory-select>
+                        <option value="">Sin subcategoría</option>
+                        @foreach($categories as $category)
+                            @foreach($category->subcategories as $subcategory)
+                                <option value="{{ $subcategory->id }}"
+                                        data-category="{{ $category->id }}"
+                                        {{ old('subcategory_id') == $subcategory->id ? 'selected' : '' }}>
+                                    {{ $category->name }} · {{ $subcategory->name }}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-white/50 mt-1">Organiza tus platos dentro de divisiones como "Entradas frías" o "Pizzas artesanales".</p>
+                </div>
             @endif
 
             <form method="POST" action="{{ route('dishes.store') }}" enctype="multipart/form-data" class="space-y-6">
@@ -144,6 +163,36 @@
                     }
                 });
             });
+
+            const categorySelect = document.getElementById('category_id');
+            const subcategorySelect = document.getElementById('subcategory_id');
+            if (categorySelect && subcategorySelect) {
+                const syncSubcategories = () => {
+                    const currentCategory = categorySelect.value;
+                    let keepSelection = false;
+
+                    subcategorySelect.querySelectorAll('option[data-category]').forEach(option => {
+                        const shouldShow = option.dataset.category === currentCategory;
+                        option.hidden = !shouldShow;
+                        option.disabled = !shouldShow;
+
+                        if (!shouldShow && option.selected) {
+                            option.selected = false;
+                        }
+
+                        if (shouldShow && option.value === subcategorySelect.value) {
+                            keepSelection = true;
+                        }
+                    });
+
+                    if (!keepSelection && subcategorySelect.value) {
+                        subcategorySelect.value = '';
+                    }
+                };
+
+                syncSubcategories();
+                categorySelect.addEventListener('change', syncSubcategories);
+            }
         });
     </script>
 </body>
