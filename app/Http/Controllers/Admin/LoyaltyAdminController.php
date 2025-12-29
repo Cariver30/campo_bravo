@@ -25,7 +25,10 @@ class LoyaltyAdminController extends Controller
             'tab_label_wines' => ['nullable', 'string', 'max:255'],
             'tab_label_events' => ['nullable', 'string', 'max:255'],
             'tab_label_loyalty' => ['nullable', 'string', 'max:255'],
+            'show_tab_loyalty' => ['nullable', 'boolean'],
         ]);
+
+        $data['show_tab_loyalty'] = $request->boolean('show_tab_loyalty', false);
 
         $settings = Setting::first() ?? Setting::create($data);
         $settings->fill($data)->save();

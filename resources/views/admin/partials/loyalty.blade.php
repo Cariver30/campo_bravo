@@ -16,9 +16,21 @@
                 <label class="form-label text-muted small text-uppercase">Texto legal o instrucciones</label>
                 <textarea name="loyalty_terms" class="form-control" rows="2">{{ optional($settings)->loyalty_terms }}</textarea>
             </div>
-            <div class="col-12">
+            <div class="col-md-6">
                 <label class="form-label text-muted small text-uppercase">Mensaje de correo cuando alcance una recompensa</label>
                 <textarea name="loyalty_email_copy" class="form-control" rows="3">{{ optional($settings)->loyalty_email_copy }}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small text-uppercase d-block">Visibilidad pública</label>
+                <p class="text-muted small mb-2">Activa o desactiva la pestaña de fidelidad en el menú público sin salir de esta pantalla.</p>
+                <div class="form-check form-switch">
+                    <input type="hidden" name="show_tab_loyalty" value="0">
+                    <input class="form-check-input" type="checkbox" role="switch" id="toggle-loyalty-tab" name="show_tab_loyalty" value="1"
+                           {{ optional($settings)->show_tab_loyalty ? 'checked' : '' }}>
+                    <label class="form-check-label fw-semibold" for="toggle-loyalty-tab">
+                        Mostrar bloque de fidelidad a los invitados
+                    </label>
+                </div>
             </div>
             <div class="col-12 text-end">
                 <button class="btn btn-primary">Guardar Configuración</button>
