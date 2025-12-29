@@ -16,7 +16,10 @@ class MenuController extends Controller
                 'dishes' => function ($query) {
                     $query->where('visible', true)
                         ->with([
-                            'wines:id,name',
+                            'wines' => function ($wineQuery) {
+                                $wineQuery->select('wines.id', 'name')
+                                    ->where('visible', true);
+                            },
                             'recommendedDishes:id,name',
                             'extras' => function ($extraQuery) {
                                 $extraQuery->select('extras.id', 'name', 'price', 'description', 'active');

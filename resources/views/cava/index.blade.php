@@ -198,6 +198,8 @@
     </div>
 </div>
 
+@php $selected = collect($selectedFilters); @endphp
+
 @if($filtersActive)
     @php
         $chips = [];
@@ -240,7 +242,6 @@
     </div>
 @endif
 
-@php $selected = collect($selectedFilters); @endphp
 <div class="max-w-5xl mx-auto px-4 pb-6 content-layer">
     <form method="GET" action="{{ $cavaRouteUrl }}"
           class="filter-panel rounded-3xl p-6 space-y-4">
