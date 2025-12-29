@@ -16,14 +16,14 @@
             {
                 $opacity = is_numeric($opacity) ? max(0, min(1, $opacity)) : 0.85;
                 if (!$hex) {
-                    return "rgba(0,0,0,{$opacity})";
+                    return "rgba(57,125,181,{$opacity})";
                 }
                 $hex = ltrim($hex, '#');
                 if (strlen($hex) === 3) {
                     $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
                 }
                 if (strlen($hex) !== 6) {
-                    return "rgba(0,0,0,{$opacity})";
+                    return "rgba(57,125,181,{$opacity})";
                 }
                 $r = hexdec(substr($hex, 0, 2));
                 $g = hexdec(substr($hex, 2, 2));
@@ -31,24 +31,42 @@
                 return "rgba({$r},{$g},{$b},{$opacity})";
             }
         }
-        $coverBaseColor = $settings->text_color_cover ?? '#ffffff';
+        $palette = [
+            'blue' => '#397db5',
+            'cream' => '#fff2b3',
+            'violet' => '#762d79',
+            'amber' => '#ffb723',
+        ];
+        $coverBaseColor = $settings->text_color_cover ?? $palette['cream'];
         $coverBodyColor = $settings->text_color_cover_secondary ?? $coverBaseColor;
-        $coverCardBackground = cover_card_color($settings->card_bg_color_cover ?? null, $settings->card_opacity_cover ?? 0.85);
+        $coverCardBackground = $settings->card_bg_color_cover
+            ? cover_card_color($settings->card_bg_color_cover, $settings->card_opacity_cover ?? 0.85)
+            : 'rgba(57, 125, 181, 0.25)';
+        $coverBackgroundDisabled = (bool) ($settings->disable_background_cover ?? false);
         $pointsPerVisit = $settings->loyalty_points_per_visit ?? 10;
     @endphp
     <style>
         :root {
-            --accent-color: {{ $settings->button_color_cover ?? '#FF5722' }};
+            --accent-color: {{ $settings->button_color_cover ?? $palette['amber'] }};
             --cover-heading-color: {{ $coverBaseColor }};
             --cover-body-color: {{ $coverBodyColor }};
             --cover-body-soft: {{ cover_card_color($coverBodyColor, 0.65) }};
+            --cover-blue: {{ $palette['blue'] }};
+            --cover-violet: {{ $palette['violet'] }};
+            --cover-cream: {{ $palette['cream'] }};
         }
         body {
             font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};
-            @if($settings && $settings->background_image_cover)
+            color: var(--cover-body-color);
+            @if($coverBackgroundDisabled)
+                background: transparent;
+            @elseif($settings && $settings->background_image_cover)
                 background: none;
+            @else
+                background: linear-gradient(140deg, var(--cover-blue) 0%, var(--cover-violet) 70%);
             @endif
             background-size: cover;
+            min-height: 100vh;
         }
         body::before {
             content: "";
@@ -57,9 +75,13 @@
             z-index: -1;
             width: 100vw;
             height: 100vh;
-            @if($settings && $settings->background_image_cover)
+            @if($coverBackgroundDisabled)
+                display: none;
+            @elseif($settings && $settings->background_image_cover)
                 background: url('{{ asset('storage/' . $settings->background_image_cover) }}') no-repeat center center;
                 background-size: cover;
+            @else
+                background: radial-gradient(circle at 20% 20%, rgba(255, 242, 179, 0.2), rgba(118, 45, 121, 0.3) 50%, rgba(57, 125, 181, 0.35));
             @endif
         }
         .cover-theme {
@@ -80,7 +102,7 @@
             height: 3rem;
             border-radius: 9999px;
             font-weight: 600;
-            color: #fff;
+            color: {{ $palette['violet'] }};
             background: var(--accent-color);
             transition: transform .2s ease, box-shadow .2s ease;
             animation: vip-glow 1.5s infinite;
@@ -91,26 +113,68 @@
             position: absolute;
             inset: 4px;
             border-radius: 9999px;
-            border: 2px dashed rgba(255,255,255,0.65);
+            border: 2px dashed rgba(255, 242, 179, 0.65);
             animation: vip-blink 2s linear infinite;
             pointer-events: none;
         }
         .vip-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 18px rgba(255,255,255,0.35);
+            box-shadow: 0 0 18px rgba(255, 183, 35, 0.35);
         }
         @keyframes vip-glow {
-            0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.15); }
-            50% { box-shadow: 0 0 20px rgba(255,255,255,0.45); }
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 242, 179, 0.15); }
+            50% { box-shadow: 0 0 20px rgba(255, 183, 35, 0.45); }
         }
         @keyframes vip-blink {
             0% { opacity: 0.25; }
             50% { opacity: 1; }
             100% { opacity: 0.25; }
         }
+        .card-surface {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 242, 179, 0.2);
+            border-radius: 1.5rem;
+        }
+        .info-card {
+            background-color: rgba(57, 125, 181, 0.18);
+            border: 1px solid rgba(118, 45, 121, 0.25);
+            border-radius: 1rem;
+        }
+        .social-icon {
+            background-color: var(--accent-color);
+            color: {{ $palette['violet'] }};
+            transition: transform .2s ease, background-color .2s ease, color .2s ease;
+        }
+        .social-icon:hover {
+            background-color: var(--cover-cream);
+            color: {{ $palette['violet'] }};
+            transform: scale(1.05);
+        }
+        .modal-overlay {
+            background-color: rgba(57, 125, 181, 0.55);
+        }
+        .modal-surface {
+            background-color: {{ $palette['cream'] }};
+            color: {{ $palette['violet'] }};
+        }
+        .vip-modal {
+            width: min(92vw, 420px);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .form-input {
+            border: 1px solid rgba(118, 45, 121, 0.3);
+            border-radius: 1rem;
+            padding: 0.65rem 1rem;
+            color: {{ $palette['violet'] }};
+            background-color: rgba(255, 242, 179, 0.35);
+        }
+        .form-input:focus {
+            outline: 2px solid var(--accent-color);
+        }
     </style>
 </head>
-<body class="relative min-h-screen bg-black/50 flex flex-col items-center cover-theme">
+<body class="relative min-h-screen flex flex-col items-center cover-theme">
 
     <header class="w-full py-6 flex justify-center z-30">
         <img src="{{ asset('storage/' . $settings->logo) }}" alt="Logo del Restaurante" class="w-52 max-w-xs mx-auto drop-shadow-lg">
@@ -119,13 +183,15 @@
     <!-- Contenedor central -->
     <main class="z-20 w-full px-4 pb-16">
         @if(session('notification_success'))
-            <div id="subscriptionStatus" class="max-w-md mx-auto mb-6 bg-emerald-500/20 border border-emerald-400/30 rounded-2xl px-4 py-3 text-sm text-emerald-100">
+            <div id="subscriptionStatus" class="max-w-md mx-auto mb-6 rounded-2xl px-4 py-3 text-sm"
+                 style="background-color: rgba(57, 125, 181, 0.25); border: 1px solid rgba(118, 45, 121, 0.3); color: {{ $palette['cream'] }};">
                 {{ session('notification_success') }}
             </div>
         @endif
 
         <div class="max-w-6xl mx-auto space-y-10" style="color: var(--cover-body-color);">
-            <section class="rounded-3xl p-8 backdrop-blur space-y-8 border border-white/10" style="background-color: {{ $coverCardBackground }};">
+            <section class="rounded-3xl p-8 backdrop-blur space-y-8 border"
+                     style="background-color: {{ $coverCardBackground }}; border-color: rgba(255, 242, 179, 0.2);">
                 <div class="flex flex-col lg:flex-row gap-8">
                     @php
                         $heroKicker = trim($settings->cover_hero_kicker ?? '') ?: 'Café · desayuno · brunch';
@@ -134,32 +200,34 @@
                         $locationText = trim($settings->cover_location_text ?? '') ?: 'Café Negro · Miramar';
                     @endphp
                     <div class="flex-1 space-y-4">
-                        <p class="text-amber-300 uppercase tracking-[0.45em] text-xs">{{ $heroKicker }}</p>
+                        <p class="uppercase tracking-[0.45em] text-xs" style="color: {{ $palette['amber'] }};">{{ $heroKicker }}</p>
                         <h1 class="text-4xl lg:text-5xl font-semibold leading-tight cover-text-primary" style="font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};">
                             {{ $heroTitle }}
                         </h1>
                         <p class="cover-text-muted text-lg">{{ $heroParagraph }}</p>
                     </div>
                     <div class="w-full max-w-md space-y-4">
-                        <article class="space-y-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+                        <article class="space-y-4 rounded-2xl p-5 card-surface"
+                                 style="background-color: rgba(57, 125, 181, 0.18);">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.35em] cover-text-soft mb-1">Horarios</p>
                                 <p class="cover-text-muted whitespace-pre-line text-sm">{{ $settings->business_hours ?? "Viernes y sábado 12pm – 10pm\nDomingo 12pm – 8pm" }}</p>
                             </div>
                             <div class="grid grid-cols-2 gap-3 text-sm cover-text-muted">
-                                <div class="rounded-xl border border-white/15 p-3">
+                                <div class="info-card p-3">
                                     <p class="cover-text-soft uppercase text-xs tracking-[0.3em] mb-1">Teléfono</p>
                                     <p>{{ $settings->phone_number ?? '787-000-0000' }}</p>
                                 </div>
-                                <div class="rounded-xl border border-white/15 p-3">
+                                <div class="info-card p-3">
                                     <p class="cover-text-soft uppercase text-xs tracking-[0.3em] mb-1">Ubicación</p>
                                     <p>{{ $locationText }}</p>
                                 </div>
                             </div>
                         </article>
-                        <article class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
+                        <article class="card-surface rounded-2xl p-5 flex flex-col gap-3"
+                                 style="background-color: rgba(118, 45, 121, 0.25);">
                             <div class="flex items-start gap-3">
-                                <svg viewBox="0 0 64 64" class="w-10 h-10 text-amber-200">
+                                <svg viewBox="0 0 64 64" class="w-10 h-10" style="color: {{ $palette['amber'] }};">
                                     <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="none"></circle>
                                     <path d="M18 32h28M32 18v28" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
                                 </svg>
@@ -176,14 +244,14 @@
 
             @php
                 $initialGroup = $featuredGroups->first();
-                $featuredCardBgHex = $settings->featured_card_bg_color ?? '#0f172a';
+                $featuredCardBgHex = $settings->featured_card_bg_color ?? $palette['violet'];
                 $featuredCardBg = cover_card_color($featuredCardBgHex, 0.65);
-                $featuredCardText = $settings->featured_card_text_color ?? '#ffffff';
+                $featuredCardText = $settings->featured_card_text_color ?? $palette['cream'];
                 $featuredMutedText = cover_card_color($featuredCardText, 0.75);
                 $featuredBorderColor = cover_card_color($featuredCardText, 0.2);
-                $featuredTabBgHex = $settings->featured_tab_bg_color ?? '#ffffff';
+                $featuredTabBgHex = $settings->featured_tab_bg_color ?? $palette['amber'];
                 $featuredTabBg = cover_card_color($featuredTabBgHex, 0.2);
-                $featuredTabText = $settings->featured_tab_text_color ?? '#ffffff';
+                $featuredTabText = $settings->featured_tab_text_color ?? $palette['violet'];
             @endphp
 
             <section class="rounded-3xl p-6 backdrop-blur space-y-6 border" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }}; border-color: {{ $featuredBorderColor }}; font-family: {{ $settings->font_family_cover ?? 'inherit' }};">
@@ -236,7 +304,8 @@
                         </div>
                     </div>
                 @else
-                    <div class="p-6 border border-white/10 rounded-2xl bg-black/20">
+                    <div class="p-6 border rounded-2xl"
+                         style="border-color: rgba(255, 242, 179, 0.2); background-color: rgba(57, 125, 181, 0.15);">
                         <p class="text-sm">Estamos preparando nuevas experiencias. Vuelve pronto para descubrir los rituales de café y brunch más pedidos.</p>
                     </div>
                 @endif
@@ -254,7 +323,7 @@
                     };
                     $ctaCards = collect([
                         ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
-                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Bebidas'), 'subtitle' => 'Barra de especialidad', 'copy' => 'Filtrados, bebidas frías y vuelos guiados.', 'action' => url('/coffee'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? null, 'Cava de vinos'), 'subtitle' => 'Cava de vinos', 'copy' => 'Más de 90 etiquetas, flights guiados y sommeliers on demand.', 'action' => url('/cava'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
                         ['key' => 'cocktails', 'title' => $ctaLabel($settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
                         ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
                         ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
@@ -268,7 +337,8 @@
                     })->values();
                 @endphp
                 @foreach($ctaCards as $card)
-                    <article class="border border-white/10 rounded-2xl p-0 overflow-hidden flex flex-col" style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }};">
+                    <article class="border rounded-2xl p-0 overflow-hidden flex flex-col"
+                             style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }}; border-color: rgba(255, 242, 179, 0.2);">
                         @if(!empty($card['image']))
                             <div class="h-40 overflow-hidden">
                                 <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" class="w-full h-full object-cover">
@@ -299,54 +369,52 @@
     </main>
 
     <!-- Redes sociales abajo -->
-    <footer class="fixed bottom-6 left-0 right-0 z-40">
+    <footer class="fixed.bottom-6 left-0 right-0 z-40">
         <div class="flex justify-center gap-6">
             <a href="{{ $settings->facebook_url ?? '#' }}" target="_blank" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
-               style="color: var(--cover-text-strong);">
+               class="w-12 h-12 flex items-center justify-center rounded-full social-icon">
                 <i class="fab fa-facebook-f"></i>
             </a>
             
             <a href="{{ $settings->instagram_url ?? '#' }}" target="_blank" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
-               style="color: var(--cover-text-strong);">
+               class="w-12 h-12 flex items-center justify-center rounded-full social-icon">
                 <i class="fab fa-instagram"></i>
             </a>
             <a href="tel:{{ $settings->phone_number ?? '#' }}" 
-               class="w-12 h-12 bg-[{{ $settings->button_color_cover ?? '#000' }}] flex items-center justify-center rounded-full transition hover:scale-110 hover:bg-white hover:text-black"
-               style="color: var(--cover-text-strong);">
+               class="w-12 h-12 flex items-center justify-center rounded-full social-icon">
                 <i class="fas fa-phone"></i>
             </a>
         </div>
     </footer>
 
     <!-- Modal de notificación -->
-    <div id="notifyModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4 {{ ($errors->has('name') || $errors->has('email')) ? '' : 'hidden' }} z-50">
-        <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-6 relative">
-            <button id="closeNotifyModal" class="absolute top-4 right-4 text-2xl text-slate-500 hover:text-slate-800">&times;</button>
-            <p class="text-xs uppercase tracking-[0.35em] text-amber-500 mb-2">Experiencias</p>
+    <div id="notifyModal" class="fixed inset-0 modal-overlay backdrop-blur-sm flex items-center.justify-center px-4 {{ ($errors->has('name') || $errors->has('email')) ? '' : 'hidden' }} z-50">
+        <div class="modal-surface vip-modal rounded-3xl w-full max-w-md p-6 relative">
+            <button id="closeNotifyModal" class="absolute top-4 right-4 text-2xl" style="color: {{ $palette['violet'] }};">&times;</button>
+            <p class="text-xs uppercase tracking-[0.35em] mb-2" style="color: {{ $palette['amber'] }};">Experiencias</p>
             <h2 class="text-2xl font-semibold mb-2">Recibe las alertas VIP</h2>
-            <p class="text-sm text-slate-500 mb-4">Entérate primero de nuevas experiencias, cenas especiales y eventos privados.</p>
+            <p class="text-sm mb-4" style="color: {{ $palette['blue'] }};">Entérate primero de nuevas experiencias, cenas especiales y eventos privados.</p>
             <form action="{{ route('experiences.notify.cover') }}" method="POST" class="space-y-3">
                 @csrf
                 <div>
                     <input type="text" name="name" placeholder="Tu nombre" value="{{ old('name') }}"
-                           class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                           class="w-full form-input">
                     @error('name')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        <p class="text-xs mt-1" style="color: {{ $palette['violet'] }};">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
                     <input type="email" name="email" placeholder="Correo electrónico" value="{{ old('email') }}"
-                           class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                           class="w-full form-input">
                     @error('email')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        <p class="text-xs mt-1" style="color: {{ $palette['violet'] }};">{{ $message }}</p>
                     @enderror
                 </div>
-                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-2xl font-semibold hover:bg-slate-800 transition">
+                <button type="submit" class="w-full py-3 rounded-2xl font-semibold transition"
+                        style="background-color: var(--accent-color); color: {{ $palette['violet'] }};">
                     Quiero recibir noticias
                 </button>
-                <p class="text-xs text-slate-400 text-center">Prometemos solo enviar experiencias relevantes.</p>
+                <p class="text-xs text-center" style="color: {{ $palette['blue'] }};">Prometemos solo enviar experiencias relevantes.</p>
             </form>
         </div>
     </div>
@@ -374,9 +442,9 @@
         });
     @endphp
 
-    <div id="coverPopupModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
-        <div class="bg-white text-slate-900 rounded-3xl w-full max-w-2xl p-4 relative">
-            <button type="button" class="absolute top-3 right-3 text-2xl text-slate-500 hover:text-slate-900" onclick="closeCoverPopup()">&times;</button>
+    <div id="coverPopupModal" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center px-4">
+        <div class="modal-surface rounded-3xl w-full max-w-2xl p-4 relative">
+            <button type="button" class="absolute top-3 right-3 text-2xl" style="color: {{ $palette['violet'] }};" onclick="closeCoverPopup()">&times;</button>
             <div class="space-y-3">
                 <h3 id="coverPopupTitle" class="text-xl font-semibold text-center"></h3>
                 <img id="coverPopupImage" src="" alt="Anuncio" class="w-full rounded-2xl object-cover">

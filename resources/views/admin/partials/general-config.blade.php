@@ -11,7 +11,7 @@
 
     <div class="border rounded-3 p-3 mb-4">
         <h5 class="mb-3">Imágenes para los CTA de portada</h5>
-        <p class="text-muted small mb-3">Cada botón (Menú, Café, Bebidas, Eventos, Reservas) puede mostrar una imagen. Deja el campo vacío para usar solo texto.</p>
+        <p class="text-muted small mb-3">Cada botón (Menú, Cava de vinos, Cócteles, Eventos, Reservas) puede mostrar una imagen. Deja el campo vacío para usar solo texto.</p>
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">CTA Menú</label>
@@ -21,10 +21,10 @@
                 @endif
             </div>
             <div class="col-md-4">
-                <label class="form-label">CTA Café</label>
+                <label class="form-label">CTA Cava de vinos</label>
                 <input type="file" class="form-control" name="cta_image_cafe">
                 @if($settings->cta_image_cafe)
-                    <img src="{{ asset('storage/' . $settings->cta_image_cafe) }}" class="img-fluid rounded mt-2" alt="CTA Café">
+                    <img src="{{ asset('storage/' . $settings->cta_image_cafe) }}" class="img-fluid rounded mt-2" alt="CTA Cava de vinos">
                 @endif
             </div>
             <div class="col-md-4">
@@ -56,7 +56,7 @@
         @php
             $ctaKeys = [
                 'menu' => 'Menú',
-                'cafe' => 'Café & Brunch',
+                'cafe' => 'Cava de vinos',
                 'cocktails' => 'Bebidas',
                 'events' => 'Eventos',
                 'reservations' => 'Reservas',
@@ -84,7 +84,7 @@
             @php
                 $ctaVisibility = [
                     'show_cta_menu' => 'Mostrar CTA Menú',
-                    'show_cta_cafe' => 'Mostrar CTA Café & Brunch',
+                    'show_cta_cafe' => 'Mostrar CTA Cava de vinos',
                     'show_cta_cocktails' => 'Mostrar CTA Bebidas',
                     'show_cta_events' => 'Mostrar CTA Eventos',
                     'show_cta_reservations' => 'Mostrar CTA Reservas',
@@ -139,6 +139,10 @@
     <div class="mb-3">
         <label for="background_image_cover" class="form-label">Imagen de Fondo Cover</label>
         <input type="file" class="form-control" id="background_image_cover" name="background_image_cover">
+        <div class="form-check mt-2">
+            <input type="checkbox" class="form-check-input" id="disable_background_cover" name="disable_background_cover" value="1" {{ old('disable_background_cover', $settings->disable_background_cover ?? false) ? 'checked' : '' }}>
+            <label class="form-check-label" for="disable_background_cover">Desactivar gradiente por defecto en Cover</label>
+        </div>
     </div>
     <div class="mb-3">
         <label for="card_opacity_cover" class="form-label">Opacidad de las Tarjetas de Cover</label>
@@ -221,8 +225,8 @@
                 <input type="text" class="form-control" id="tab_label_cocktails" name="tab_label_cocktails" value="{{ $settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? 'Cócteles' }}">
             </div>
             <div class="col-md-6">
-                <label for="tab_label_wines" class="form-label">Nombre para “Café &amp; Brunch”</label>
-                <input type="text" class="form-control" id="tab_label_wines" name="tab_label_wines" value="{{ $settings->tab_label_wines ?? 'Café & Brunch' }}">
+                <label for="tab_label_wines" class="form-label">Nombre para “Cava de vinos”</label>
+                <input type="text" class="form-control" id="tab_label_wines" name="tab_label_wines" value="{{ $settings->tab_label_wines ?? 'Cava de vinos' }}">
             </div>
             <div class="col-md-6">
                 <label for="tab_label_events" class="form-label">Nombre para “Eventos”</label>
@@ -252,7 +256,7 @@
                 <div class="form-check form-switch">
                     <input type="hidden" name="show_tab_wines" value="0">
                     <input class="form-check-input" type="checkbox" id="show_tab_wines" name="show_tab_wines" value="1" {{ $settings->show_tab_wines ? 'checked' : '' }}>
-                    <label class="form-check-label" for="show_tab_wines">Mostrar Café &amp; Brunch</label>
+                    <label class="form-check-label" for="show_tab_wines">Mostrar Cava de vinos</label>
                 </div>
             </div>
             <div class="col-md-4">

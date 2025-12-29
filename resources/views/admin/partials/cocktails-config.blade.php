@@ -9,6 +9,11 @@
         <div>
             <label for="background_image_cocktails" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Imagen de Fondo de {{ $cocktailLabel }}</label>
             <input type="file" name="background_image_cocktails" id="background_image_cocktails" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 placeholder-black focus:outline-none">
+            <label class="inline-flex items-center gap-2 mt-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="disable_background_cocktails" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                       {{ old('disable_background_cocktails', $settings->disable_background_cocktails ?? false) ? 'checked' : '' }}>
+                Desactivar gradiente por defecto
+            </label>
         </div>
 
         <div>

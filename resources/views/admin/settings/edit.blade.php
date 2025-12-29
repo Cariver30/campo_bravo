@@ -38,18 +38,34 @@
         <div class="mb-3">
             <label for="background_image_cover" class="form-label">Background Image for Cover</label>
             <input type="file" class="form-control" id="background_image_cover" name="background_image_cover">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_cover" name="disable_background_cover" value="1" {{ old('disable_background_cover', $settings->disable_background_cover ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_cover">Disable default background colors for Cover</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="background_image_menu" class="form-label">Background Image for Menu</label>
             <input type="file" class="form-control" id="background_image_menu" name="background_image_menu">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_menu" name="disable_background_menu" value="1" {{ old('disable_background_menu', $settings->disable_background_menu ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_menu">Disable default background colors for Menu</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="background_image_cocktails" class="form-label">Background Image for {{ $cocktailLabelAdmin }}</label>
             <input type="file" class="form-control" id="background_image_cocktails" name="background_image_cocktails">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_cocktails" name="disable_background_cocktails" value="1" {{ old('disable_background_cocktails', $settings->disable_background_cocktails ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_cocktails">Disable default background colors for {{ $cocktailLabelAdmin }}</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="background_image_wines" class="form-label">Background Image for Wines</label>
             <input type="file" class="form-control" id="background_image_wines" name="background_image_wines">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_wines" name="disable_background_wines" value="1" {{ old('disable_background_wines', $settings->disable_background_wines ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_wines">Disable default background colors for Wines</label>
+            </div>
         </div>
 
         <!-- Text Colors -->

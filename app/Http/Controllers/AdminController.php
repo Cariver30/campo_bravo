@@ -117,6 +117,10 @@ $foodPairings = FoodPairing::all();
             'background_image_menu' => 'nullable|image',
             'background_image_cocktails' => 'nullable|image',
             'background_image_wines' => 'nullable|image',
+            'disable_background_cover' => 'nullable|boolean',
+            'disable_background_menu' => 'nullable|boolean',
+            'disable_background_cocktails' => 'nullable|boolean',
+            'disable_background_wines' => 'nullable|boolean',
             'logo' => 'nullable|image',
             'text_color_cover' => 'nullable|string',
             'text_color_menu' => 'nullable|string',
@@ -238,6 +242,11 @@ $foodPairings = FoodPairing::all();
         if ($request->hasFile('cta_image_reservations')) {
             $settings->cta_image_reservations = $request->file('cta_image_reservations')->store('cta_images', 'public');
         }
+
+        $settings->disable_background_cover = $request->boolean('disable_background_cover', (bool) $settings->disable_background_cover);
+        $settings->disable_background_menu = $request->boolean('disable_background_menu', (bool) $settings->disable_background_menu);
+        $settings->disable_background_cocktails = $request->boolean('disable_background_cocktails', (bool) $settings->disable_background_cocktails);
+        $settings->disable_background_wines = $request->boolean('disable_background_wines', (bool) $settings->disable_background_wines);
 
         $settings->text_color_cover = $request->input('text_color_cover', $settings->text_color_cover);
         if (Schema::hasColumn('settings', 'text_color_cover_secondary')) {

@@ -87,18 +87,34 @@
         <div class="mb-3">
             <label for="background_image_cover" class="form-label">Imagen de Fondo Cover</label>
             <input type="file" class="form-control" id="background_image_cover" name="background_image_cover">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_cover" name="disable_background_cover" value="1" {{ old('disable_background_cover', $settings->disable_background_cover ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_cover">Desactivar fondo por defecto en Cover</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="background_image_menu" class="form-label">Imagen de Fondo Menu</label>
             <input type="file" class="form-control" id="background_image_menu" name="background_image_menu">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_menu" name="disable_background_menu" value="1" {{ old('disable_background_menu', $settings->disable_background_menu ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_menu">Desactivar fondo por defecto en Menú</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="background_image_cocktails" class="form-label">Imagen de Fondo de Cocktails</label>
             <input type="file" class="form-control" id="background_image_cocktails" name="background_image_cocktails">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_cocktails" name="disable_background_cocktails" value="1" {{ old('disable_background_cocktails', $settings->disable_background_cocktails ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_cocktails">Desactivar fondo por defecto en Cocktails</label>
+            </div>
         </div>
         <div class="mb-3">
-            <label for="background_image_wines" class="form-label">Imagen de Fondo de Café</label>
+            <label for="background_image_wines" class="form-label">Imagen de Fondo de la Cava</label>
             <input type="file" class="form-control" id="background_image_wines" name="background_image_wines">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="disable_background_wines" name="disable_background_wines" value="1" {{ old('disable_background_wines', $settings->disable_background_wines ?? false) ? 'checked' : '' }}>
+                <label class="form-check-label" for="disable_background_wines">Desactivar fondo por defecto en la Cava</label>
+            </div>
         </div>
         <div class="mb-3">
             <label for="text_color_cover" class="form-label">Color del Texto de Cover</label>
@@ -113,7 +129,7 @@
             <input type="color" class="form-control" id="text_color_cocktails" name="text_color_cocktails" value="{{ $settings->text_color_cocktails ?? '#000000' }}">
         </div>
         <div class="mb-3">
-            <label for="text_color_wines" class="form-label">Color del Texto de Café</label>
+            <label for="text_color_wines" class="form-label">Color del Texto de la Cava</label>
             <input type="color" class="form-control" id="text_color_wines" name="text_color_wines" value="{{ $settings->text_color_wines ?? '#000000' }}">
         </div>
         <div class="mb-3">
@@ -129,7 +145,7 @@
             <input type="text" class="form-control" id="font_family_cocktails" name="font_family_cocktails" value="{{ $settings->font_family_cocktails ?? 'Arial' }}">
         </div>
         <div class="mb-3">
-            <label for="font_family_wines" class="form-label">Familia de Fuente de Café</label>
+            <label for="font_family_wines" class="form-label">Familia de Fuente de la Cava</label>
             <input type="text" class="form-control" id="font_family_wines" name="font_family_wines" value="{{ $settings->font_family_wines ?? 'Arial' }}">
         </div>
         <div class="mb-3">
@@ -145,7 +161,7 @@
             <input type="number" step="0.1" class="form-control" id="card_opacity_cocktails" name="card_opacity_cocktails" value="{{ $settings->card_opacity_cocktails ?? 1 }}">
         </div>
         <div class="mb-3">
-            <label for="card_opacity_wines" class="form-label">Opacidad de las Tarjetas de Café</label>
+            <label for="card_opacity_wines" class="form-label">Opacidad de las Tarjetas de la Cava</label>
             <input type="number" step="0.1" class="form-control" id="card_opacity_wines" name="card_opacity_wines" value="{{ $settings->card_opacity_wines ?? 1 }}">
         </div>
         <div class="mb-3">
@@ -161,7 +177,7 @@
             <input type="color" class="form-control" id="button_color_cocktails" name="button_color_cocktails" value="{{ $settings->button_color_cocktails ?? '#000000' }}">
         </div>
         <div class="mb-3">
-            <label for="button_color_wines" class="form-label">Color del Botón de Café</label>
+            <label for="button_color_wines" class="form-label">Color del Botón de la Cava</label>
             <input type="color" class="form-control" id="button_color_wines" name="button_color_wines" value="{{ $settings->button_color_wines ?? '#000000' }}">
         </div>
 
@@ -214,7 +230,7 @@
     <input type="color" id="card_bg_color_cocktails" name="card_bg_color_cocktails" value="{{ $settings->card_bg_color_cocktails ?? '#ffffff' }}">
 </div>
 <div class="form-group">
-    <label for="card_bg_color_wines">Color de fondo de la tarjeta (Café):</label>
+    <label for="card_bg_color_wines">Color de fondo de la tarjeta (Cava):</label>
     <input type="color" id="card_bg_color_wines" name="card_bg_color_wines" value="{{ $settings->card_bg_color_wines ?? '#ffffff' }}">
 </div>
 
@@ -370,9 +386,9 @@
             </div>
         </section>
 
-<!-- Café -->
+<!-- Cava de vinos -->
 <section class="mt-5">
-    <h2>Bebidas de Café</h2>
+    <h2>Cava de vinos</h2>
     <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines')">Gestionar bebidas</button>
     <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar bebidas..." class="form-control mb-3">
 
@@ -406,9 +422,9 @@
     </div>
 </section>
 
-        <!-- Categorías de Café -->
+        <!-- Categorías de la cava -->
         <section class="mt-5">
-            <h2>Categorías de Café</h2>
+            <h2>Categorías de la cava</h2>
             <button class="btn btn-primary mb-3" onclick="toggleVisibility('wine-categories')">Categorías</button>
             <div id="wine-categories" class="hidden">
                 <a href="{{ route('wine-categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría</a>

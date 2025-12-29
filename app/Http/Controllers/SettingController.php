@@ -34,6 +34,10 @@ class SettingController extends Controller
             'background_image_menu' => 'nullable|image',
             'background_image_cocktails' => 'nullable|image',
             'background_image_wines' => 'nullable|image',
+            'disable_background_cover' => 'nullable|boolean',
+            'disable_background_menu' => 'nullable|boolean',
+            'disable_background_cocktails' => 'nullable|boolean',
+            'disable_background_wines' => 'nullable|boolean',
             'logo' => 'nullable|image',
             'text_color_cover' => 'nullable|string',
             'text_color_menu' => 'nullable|string',
@@ -90,6 +94,11 @@ class SettingController extends Controller
                 $validated[$field] = $request->file($field)->store($directory, 'public');
             }
         }
+
+        $validated['disable_background_cover'] = $request->boolean('disable_background_cover');
+        $validated['disable_background_menu'] = $request->boolean('disable_background_menu');
+        $validated['disable_background_cocktails'] = $request->boolean('disable_background_cocktails');
+        $validated['disable_background_wines'] = $request->boolean('disable_background_wines');
 
         $settings->update($validated);
 

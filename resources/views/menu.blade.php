@@ -1,3 +1,24 @@
+@php
+    $palette = [
+        'blue' => '#397db5',
+        'cream' => '#fff2b3',
+        'violet' => '#762d79',
+        'amber' => '#ffb723',
+    ];
+    $menuTextColor = $settings->text_color_menu ?? $palette['violet'];
+    $menuAccentColor = $settings->button_color_menu ?? $palette['blue'];
+    $menuCardBg = $settings->card_bg_color_menu ?? 'rgba(255, 183, 35, 0.20)';
+    $menuChipBg = $settings->category_name_bg_color_menu ?? 'rgba(57, 125, 181, 0.12)';
+    $menuChipText = $settings->category_name_text_color_menu ?? $palette['blue'];
+    $menuCategoryBg = $settings->category_name_bg_color_menu ?? 'rgba(255, 242, 179, 0.9)';
+    $menuCategoryText = $settings->category_name_text_color_menu ?? $palette['violet'];
+    $menuCategoryFontSize = $settings->category_name_font_size_menu ?? 30;
+    $menuBackgroundDisabled = (bool) ($settings->disable_background_menu ?? false);
+    $logoPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#762d79"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#fff2b3" font-family="Arial, sans-serif" font-size="36">LOGO</text></svg>';
+    $logoFallback = $settings && $settings->logo
+        ? asset('storage/' . $settings->logo)
+        : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,8 +33,12 @@
 
     <style>
         :root {
-            --menu-text-color: {{ $settings->text_color_menu ?? '#ffffff' }};
-            --menu-accent-color: {{ $settings->button_color_menu ?? '#FFB347' }};
+            --menu-text-color: {{ $menuTextColor }};
+            --menu-accent-color: {{ $menuAccentColor }};
+            --menu-cream: {{ $palette['cream'] }};
+            --menu-amber: {{ $palette['amber'] }};
+            --menu-blue: {{ $palette['blue'] }};
+            --menu-violet: {{ $palette['violet'] }};
         }
         html, body {
             min-height: 100vh;
@@ -21,10 +46,13 @@
 
         body {
             font-family: {{ $settings->font_family_menu ?? 'ui-sans-serif' }};
-            @if($settings && $settings->background_image_menu)
+            color: var(--menu-text-color);
+            @if($menuBackgroundDisabled)
+                background: transparent;
+            @elseif($settings && $settings->background_image_menu)
                 background: none;
             @else
-                background: radial-gradient(circle at top, #f3eada, #d9c7a1);
+                background: linear-gradient(140deg, {{ $palette['cream'] }} 0%, {{ $palette['amber'] }} 55%, {{ $palette['amber'] }} 100%);
             @endif
             background-size: cover;
             background-attachment: fixed;
@@ -35,11 +63,13 @@
             content: '';
             position: fixed;
             inset: 0;
-            @if($settings && $settings->background_image_menu)
+            @if($menuBackgroundDisabled)
+                display: none;
+            @elseif($settings && $settings->background_image_menu)
                 background: url('{{ asset('storage/' . $settings->background_image_menu) }}') no-repeat center center;
                 background-size: cover;
             @else
-                background: rgba(0, 0, 0, 0.45);
+                background: radial-gradient(circle at 20% 20%, rgba(57, 125, 181, 0.28), rgba(118, 45, 121, 0.18) 55%, rgba(57, 125, 181, 0.12));
             @endif
             z-index: -1;
         }
@@ -59,9 +89,32 @@
         }
 
         .category-nav-link.active {
-            color: {{ $settings->button_color_menu ?? '#FFB347' }};
+            color: var(--menu-accent-color);
             transform: scale(1.05);
             font-weight: 600;
+        }
+
+        .sidebar-panel {
+            background: rgba(255, 242, 179, 0.95);
+            color: {{ $settings->sidebar_text_color_menu ?? $palette['violet'] }};
+            border-right: 1px solid rgba(118, 45, 121, 0.18);
+        }
+
+        .mobile-menu-panel {
+            background: rgba(255, 242, 179, 0.95);
+            color: {{ $settings->sidebar_text_color_menu ?? $palette['violet'] }};
+        }
+
+        .category-chip {
+            background-color: {{ $menuChipBg }};
+            border: 1px solid rgba(118, 45, 121, 0.25);
+            color: {{ $menuChipText }};
+        }
+
+        .category-chip:hover,
+        .category-chip.active {
+            background-color: {{ $settings->button_color_menu ?? 'rgba(57, 125, 181, 0.25)' }};
+            color: var(--menu-accent-color);
         }
 
         .dish-card {
@@ -69,6 +122,7 @@
             transform: translateY(20px);
             transition: opacity 0.6s ease, transform 0.6s ease;
             color: var(--menu-text-color);
+            border: 1px solid rgba(118, 45, 121, 0.2);
         }
 
         .dish-card.visible {
@@ -91,22 +145,22 @@
         }
     </style>
 </head>
-<body class="text-white bg-black/70">
+<body class="min-h-screen">
 
 <!-- LOGO + BOTÓN MENU -->
 <div class="text-center py-6 relative content-layer">
-    <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="mx-auto h-28" alt="Logo del Restaurante">
+    <img src="{{ $logoFallback }}" class="mx-auto h-28" alt="Logo del Restaurante">
 
     <!-- Toggle menú -->
     <button id="toggleMenu"
-        class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg text-white lg:hidden"
-        style="background-color: {{ $settings->button_color_menu ?? '#000' }};">
+        class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg lg:hidden"
+        style="background-color: {{ $settings->button_color_menu ?? $menuAccentColor }}; color: {{ $palette['cream'] }};">
         🍽️
     </button>
 
     <!-- Menú lateral desktop -->
     <div class="hidden lg:block">
-        <div class="fixed top-0 left-0 h-full w-64 bg-white text-black p-6 space-y-2 shadow-lg overflow-y-auto">
+        <div class="fixed top-0 left-0 h-full w-64 sidebar-panel p-6 space-y-2 shadow-lg overflow-y-auto backdrop-blur-sm">
             @foreach ($categories as $category)
                 <a href="#category{{ $category->id }}" class="block text-lg font-semibold hover:text-blue-500 category-nav-link" data-category-target="category{{ $category->id }}">{{ $category->name }}</a>
             @endforeach
@@ -116,33 +170,34 @@
 
 @if($settings->menu_hero_image)
     <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
-        <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" alt="Destacado del menú" class="hero-media rounded-3xl shadow-2xl border border-white/10">
+        <img src="{{ asset('storage/' . $settings->menu_hero_image) }}" alt="Destacado del menú" class="hero-media rounded-3xl shadow-2xl border" style="border-color: rgba(57, 125, 181, 0.25);">
     </div>
 @endif
 
 <!-- Menú flotante móvil -->
 <div id="categoryMenu"
-    class="lg:hidden fixed inset-0 bg-white text-slate-900 px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
+    class="lg:hidden fixed inset-0 mobile-menu-panel px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold tracking-[0.25em] uppercase text-slate-500">Categorías</h2>
-        <button id="closeMenu" class="text-2xl text-slate-500 hover:text-slate-900">&times;</button>
+        <h2 class="text-lg font-semibold tracking-[0.25em] uppercase" style="color: {{ $palette['blue'] }};">Categorías</h2>
+        <button id="closeMenu" class="text-2xl" style="color: {{ $palette['violet'] }};">&times;</button>
     </div>
     <div class="grid grid-cols-2 gap-4">
         @foreach ($categories as $category)
-            <button class="rounded-2xl border border-slate-200 py-4 px-3 text-sm font-semibold text-left shadow bg-white hover:bg-slate-50 category-nav-link"
+            <button class="rounded-2xl border py-4 px-3 text-sm font-semibold text-left shadow category-nav-link"
+                    style="border-color: rgba(118, 45, 121, 0.18); background-color: rgba(255, 242, 179, 0.85); color: {{ $palette['violet'] }};"
                     data-category-target="category{{ $category->id }}">
                 {{ $category->name }}
             </button>
         @endforeach
     </div>
 </div>
-<div id="menuOverlay" class="fixed inset-0 bg-black/60 z-50 hidden lg:hidden"></div>
+<div id="menuOverlay" class="fixed inset-0 z-50 hidden lg:hidden" style="background-color: rgba(118, 45, 121, 0.55);"></div>
 
 <!-- Carrusel de chips -->
 <div class="lg:hidden content-layer sticky top-20 z-30 px-4">
     <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory">
         @foreach ($categories as $category)
-            <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full border border-white/20 bg-black/40 text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
+            <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
                     data-category-target="category{{ $category->id }}">
                 {{ $category->name }}
             </button>
@@ -155,9 +210,9 @@
     @foreach ($categories as $category)
         <section id="category{{ $category->id }}" class="mb-10 category-section" data-category-id="category{{ $category->id }}">
             <h2 class="text-3xl font-bold text-center mb-6"
-                style="background-color: {{ $settings->category_name_bg_color_menu ?? 'rgba(254, 90, 90, 0.8)' }};
-                       color: {{ $settings->category_name_text_color_menu ?? '#f9f9f9' }};
-                       font-size: {{ $settings->category_name_font_size_menu ?? 30 }}px;
+                style="background-color: {{ $menuCategoryBg }};
+                       color: {{ $menuCategoryText }};
+                       font-size: {{ $menuCategoryFontSize }}px;
                        border-radius: 10px; padding: 10px;">
                 {{ $category->name }}
             </h2>
@@ -176,22 +231,25 @@
                     @endphp
                     <div id="dish{{ $dish->id }}" onclick="openDishModal(this)"
                         class="dish-card rounded-lg p-4 shadow-lg relative flex items-center cursor-pointer hover:scale-105 transition"
-                        style="background-color: {{ $settings->card_bg_color_menu ?? '#191919' }};
+                        style="background-color: {{ $menuCardBg }};
                                opacity: {{ $settings->card_opacity_menu ?? 0.9 }};"
                         data-name="{{ $dish->name }}"
                         data-description="{{ $dish->description }}"
                         data-price="${{ number_format($dish->price, 2) }}"
-                        data-image="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
+                        data-image="{{ $dish->image ? asset('storage/' . $dish->image) : $logoFallback }}"
                         data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}"
                         data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}"
                         data-extras='@json($dishExtrasPayload)'>
 
-                        <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
+                        <span class="absolute top-2 right-2 text-xs px-2 py-1 rounded"
+                              style="background-color: {{ $settings->button_color_menu ?? $palette['violet'] }};
+                                     color: {{ $settings->text_color_menu ?? $palette['cream'] }};">Ver más</span>
 
 
-                        <img src="{{ $dish->image ? asset('storage/' . $dish->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
+                        <img src="{{ $dish->image ? asset('storage/' . $dish->image) : $logoFallback }}"
                              alt="{{ $dish->name }}"
-                             class="h-24 w-24 rounded-full object-cover mr-4 border border-white/10">
+                             class="h-24 w-24 rounded-full object-cover mr-4 border"
+                             style="border-color: rgba(118, 45, 121, 0.2);">
 
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $dish->name }}</h3>
@@ -200,13 +258,13 @@
 
                             @if ($dish->wines && $dish->wines->count())
                                 <div class="mt-3">
-                                    <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Maridajes sugeridos</p>
+                                    <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">Maridajes sugeridos</p>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($dish->wines as $wine)
-                                            <a href="{{ route('coffee.index') }}#coffee{{ $wine->id }}"
+                                            <a href="{{ route('cava.index') }}#wine{{ $wine->id }}"
                                                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition hover:scale-105"
-                                               style="background-color: {{ $settings->category_name_bg_color_menu ?? 'rgba(254, 90, 90, 0.2)' }}; border-color: {{ $settings->button_color_menu ?? '#FFB347' }}; color: {{ $settings->text_color_menu ?? '#ffffff' }};">
-                                                <i class="fas fa-wine-glass-alt" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};"></i>
+                                               style="background-color: {{ $settings->category_name_bg_color_menu ?? 'rgba(57, 125, 181, 0.18)' }}; border-color: {{ $settings->button_color_menu ?? $palette['blue'] }}; color: {{ $settings->text_color_menu ?? $palette['blue'] }};">
+                                                <i class="fas fa-wine-glass-alt" style="color: {{ $settings->button_color_menu ?? $palette['amber'] }};"></i>
                                                 {{ $wine->name }}
                                             </a>
                                         @endforeach
@@ -215,9 +273,9 @@
                             @endif
 
                             @if ($dish->recommendedDishes && $dish->recommendedDishes->count())
-                                <div class="mt-3 border-t border-white/10 pt-3">
-                                    <p class="text-xs uppercase tracking-[0.2em] mb-1" style="color: {{ $settings->text_color_menu ?? '#fefefe' }};">Combínalo con</p>
-                                    <p class="text-xs" style="color: {{ $settings->text_color_menu ?? '#cbd5f5' }};">
+                                <div class="mt-3 border-t pt-3" style="border-color: rgba(118, 45, 121, 0.2);">
+                                    <p class="text-xs uppercase tracking-[0.2em] mb-1" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">Combínalo con</p>
+                                    <p class="text-xs" style="color: {{ $settings->text_color_menu ?? $palette['blue'] }};">
                                         Variedad de platos recomendados · abre la tarjeta para verlos todos.
                                     </p>
                                 </div>
@@ -233,17 +291,20 @@
 <!-- BOTONES FLOTANTES -->
 @include('components.floating-nav', [
     'settings' => $settings,
-    'background' => $settings->floating_bar_bg_menu ?? 'rgba(0,0,0,0.55)',
-    'buttonColor' => $settings->button_color_menu ?? '#000'
+    'background' => $settings->floating_bar_bg_menu ?? 'rgba(118, 45, 121, 0.65)',
+    'buttonColor' => $settings->button_color_menu ?? $menuAccentColor
 ])
 
 <!-- MODAL DE DETALLE DEL PLATO -->
 <div id="dishDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/70">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    style="background-color: rgba(57, 125, 181, 0.55);">
     <div class="relative w-full max-w-xl max-h-[90vh]">
-        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative overflow-y-auto max-h-[90vh]">
+        <div class="rounded-lg shadow-lg p-6 relative overflow-y-auto max-h-[90vh]"
+             style="background-color: {{ $palette['cream'] }}; color: {{ $palette['violet'] }};">
 
-            <button onclick="closeDishModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
+            <button onclick="closeDishModal()" class="absolute top-3 right-3 text-xl font-bold"
+                    style="color: {{ $palette['violet'] }};">
                 ✕
             </button>
 
@@ -254,26 +315,29 @@
             <p id="modalPrice" class="font-semibold text-lg mb-4"></p>
 
             <div id="modalWines" class="mt-4 hidden">
-                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Bebidas sugeridas ☕</h4>
-                <ul id="wineList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? $palette['amber'] }};">Bebidas sugeridas ☕</h4>
+                <ul id="wineList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};"></ul>
             </div>
 
             <div id="modalPairings" class="mt-4 hidden">
-                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Combínalo con</h4>
-                <ul id="pairingList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? $palette['amber'] }};">Combínalo con</h4>
+                <ul id="pairingList" class="list-disc list-inside" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};"></ul>
             </div>
 
             <div id="modalExtras" class="mt-4 hidden">
-                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? '#FFB347' }};">Extras sugeridos</h4>
-                <ul id="extrasList" class="space-y-2 text-sm" style="color: {{ $settings->text_color_menu ?? '#111' }};"></ul>
+                <h4 class="text-lg font-semibold mb-2" style="color: {{ $settings->button_color_menu ?? $palette['amber'] }};">Extras sugeridos</h4>
+                <ul id="extrasList" class="space-y-2 text-sm" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};"></ul>
             </div>
         </div>
     </div>
 </div>
 
-<div id="menuPopupModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
-    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-2xl p-4 relative">
-        <button type="button" class="absolute top-3 right-3 text-2xl text-slate-500 hover:text-slate-900" onclick="closeMenuPopup()">&times;</button>
+<div id="menuPopupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+     style="background-color: rgba(57, 125, 181, 0.55);">
+    <div class="rounded-3xl w-full max-w-2xl p-4 relative"
+         style="background-color: {{ $palette['cream'] }}; color: {{ $palette['violet'] }};">
+        <button type="button" class="absolute top-3 right-3 text-2xl"
+                style="color: {{ $palette['violet'] }};" onclick="closeMenuPopup()">&times;</button>
         <div class="space-y-3">
             <h3 id="menuPopupTitle" class="text-xl font-semibold text-center"></h3>
             <img id="menuPopupImage" src="" alt="Anuncio" class="w-full rounded-2xl object-cover">
@@ -382,7 +446,7 @@
         const name = el.dataset.name;
         const description = el.dataset.description;
         const price = el.dataset.price;
-        const fallbackImage = "{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}";
+        const fallbackImage = "{{ $logoFallback }}";
         const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const wines = el.dataset.wines;
         const pairings = el.dataset.recommended;
@@ -402,8 +466,9 @@
                 const li = document.createElement('li');
                 const link = document.createElement('a');
                 link.textContent = (wineName || token).trim();
-                link.href = '{{ route('coffee.index') }}#coffee' + (wineId || '').trim();
-                link.className = 'text-amber-500 hover:underline';
+                link.href = '{{ route('cava.index') }}#wine' + (wineId || '').trim();
+                link.className = 'hover:underline';
+                link.style.color = '{{ $settings->button_color_menu ?? $palette['amber'] }}';
                 li.appendChild(link);
                 wineList.appendChild(li);
             });
@@ -421,7 +486,8 @@
                 const link = document.createElement('a');
                 link.textContent = (dishName || token).trim();
                 link.href = '#dish' + (dishId || '').trim();
-                link.className = 'text-amber-500 hover:underline';
+                link.className = 'hover:underline';
+                link.style.color = '{{ $settings->button_color_menu ?? $palette['amber'] }}';
                 li.appendChild(link);
                 pairingList.appendChild(li);
             });
@@ -436,7 +502,9 @@
         if (extras && extras.length) {
             extras.forEach(extra => {
                 const li = document.createElement('li');
-                li.className = 'flex flex-col gap-1 border border-slate-200/60 rounded-xl px-3 py-2 bg-white/40';
+                li.className = 'flex flex-col gap-1 rounded-xl px-3 py-2';
+                li.style.border = '1px solid rgba(118, 45, 121, 0.25)';
+                li.style.backgroundColor = 'rgba(255, 242, 179, 0.4)';
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between text-sm font-semibold';
                 const nameSpan = document.createElement('span');
@@ -449,7 +517,8 @@
                 li.appendChild(row);
                 if (extra.description) {
                     const desc = document.createElement('p');
-                    desc.className = 'text-xs text-slate-600';
+                    desc.className = 'text-xs';
+                    desc.style.color = '{{ $settings->text_color_menu ?? $palette['violet'] }}';
                     desc.textContent = extra.description;
                     li.appendChild(desc);
                 }

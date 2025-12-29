@@ -11,9 +11,13 @@ class Setting extends Model
 
     protected $fillable = [
         'background_image_cover',
+        'disable_background_cover',
         'background_image_menu',
+        'disable_background_menu',
         'background_image_cocktails',
+        'disable_background_cocktails',
         'background_image_wines',
+        'disable_background_wines',
         'logo',
         'text_color_cover',
         'text_color_cover_secondary',
@@ -136,5 +140,9 @@ class Setting extends Model
         'show_cta_events' => 'boolean',
         'show_cta_reservations' => 'boolean',
         'show_cta_vip' => 'boolean',
+        'disable_background_cover' => 'boolean',
+        'disable_background_menu' => 'boolean',
+        'disable_background_cocktails' => 'boolean',
+        'disable_background_wines' => 'boolean',
     ];
 }

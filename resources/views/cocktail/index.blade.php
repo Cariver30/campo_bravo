@@ -1,12 +1,23 @@
 @php
+    $palette = [
+        'blue' => '#397db5',
+        'cream' => '#fff2b3',
+        'violet' => '#762d79',
+        'amber' => '#ffb723',
+    ];
     $categories = $cocktailCategories ?? collect();
-    $textColor = $settings->text_color_cocktails ?? '#ffffff';
-    $buttonColor = $settings->button_color_cocktails ?? '#FFB347';
-    $cardBg = $settings->card_bg_color_cocktails ?? '#191919';
+    $textColor = $settings->text_color_cocktails ?? $palette['cream'];
+    $buttonColor = $settings->button_color_cocktails ?? $palette['violet'];
+    $cardBg = $settings->card_bg_color_cocktails ?? 'rgba(255, 183, 35, 0.18)';
     $cardOpacity = $settings->card_opacity_cocktails ?? 0.9;
-    $categoryBg = $settings->category_name_bg_color_cocktails ?? 'rgba(254, 90, 90, 0.8)';
-    $categoryText = $settings->category_name_text_color_cocktails ?? '#f9f9f9';
+    $categoryBg = $settings->category_name_bg_color_cocktails ?? 'rgba(118, 45, 121, 0.35)';
+    $categoryText = $settings->category_name_text_color_cocktails ?? $palette['cream'];
     $categoryFontSize = $settings->category_name_font_size_cocktails ?? 30;
+    $cocktailBackgroundDisabled = (bool) ($settings->disable_background_cocktails ?? false);
+    $logoPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#762d79"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#fff2b3" font-family="Arial, sans-serif" font-size="36">LOGO</text></svg>';
+    $logoFallback = $settings && $settings->logo
+        ? asset('storage/' . $settings->logo)
+        : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -23,6 +34,10 @@
         :root {
             --cocktail-text-color: {{ $textColor }};
             --cocktail-accent-color: {{ $buttonColor }};
+            --cocktail-blue: {{ $palette['blue'] }};
+            --cocktail-cream: {{ $palette['cream'] }};
+            --cocktail-violet: {{ $palette['violet'] }};
+            --cocktail-amber: {{ $palette['amber'] }};
         }
         html, body {
             min-height: 100vh;
@@ -31,10 +46,12 @@
         body {
             font-family: {{ $settings->font_family_cocktails ?? 'ui-sans-serif' }};
             color: var(--cocktail-text-color);
-            @if($settings && $settings->background_image_cocktails)
+            @if($cocktailBackgroundDisabled)
+                background: transparent;
+            @elseif($settings && $settings->background_image_cocktails)
                 background: none;
             @else
-                background: radial-gradient(circle at top, #120f1d, #1f1b2e);
+                background: radial-gradient(circle at top, rgba(255, 183, 35, 0.25), rgba(118, 45, 121, 0.6));
             @endif
             background-size: cover;
             background-attachment: fixed;
@@ -46,11 +63,13 @@
             position: fixed;
             inset: 0;
             z-index: -1;
-            @if($settings && $settings->background_image_cocktails)
+            @if($cocktailBackgroundDisabled)
+                display: none;
+            @elseif($settings && $settings->background_image_cocktails)
                 background: url('{{ asset('storage/' . $settings->background_image_cocktails) }}') no-repeat center center;
                 background-size: cover;
             @else
-                background: rgba(0, 0, 0, 0.45);
+                background: linear-gradient(160deg, rgba(118, 45, 121, 0.5), rgba(255, 183, 35, 0.35));
             @endif
         }
 
@@ -73,12 +92,33 @@
             transform: scale(1.05);
             font-weight: 600;
         }
+        .sidebar-panel {
+            background: rgba(118, 45, 121, 0.2);
+            color: {{ $settings->sidebar_text_color_cocktails ?? $palette['cream'] }};
+            border-right: 1px solid rgba(255, 183, 35, 0.25);
+            backdrop-filter: blur(6px);
+        }
+        .mobile-menu-panel {
+            background: rgba(118, 45, 121, 0.2);
+            color: {{ $settings->sidebar_text_color_cocktails ?? $palette['cream'] }};
+        }
+        .category-chip {
+            background-color: rgba(255, 183, 35, 0.2);
+            border: 1px solid rgba(118, 45, 121, 0.3);
+            color: var(--cocktail-text-color);
+        }
+        .category-chip:hover,
+        .category-chip.active {
+            background-color: rgba(118, 45, 121, 0.35);
+            color: var(--cocktail-cream);
+        }
 
         .drink-card {
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.6s ease, transform 0.6s ease;
             color: var(--cocktail-text-color);
+            border: 1px solid rgba(255, 183, 35, 0.25);
         }
 
         .drink-card.visible {
@@ -92,6 +132,7 @@
             aspect-ratio: 16 / 9;
             object-fit: cover;
             border-radius: 1.5rem;
+            border: 1px solid rgba(255, 183, 35, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -102,19 +143,19 @@
         }
     </style>
 </head>
-<body class="bg-black/70 text-white">
+<body>
 
 <div class="text-center py-6 relative content-layer">
-    <img src="{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}" class="mx-auto h-28" alt="Logo">
+    <img src="{{ $logoFallback }}" class="mx-auto h-28" alt="Logo">
 
     <button id="toggleMenu"
-            class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg text-white lg:hidden"
-            style="background-color: var(--cocktail-accent-color);">
+            class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg lg:hidden"
+            style="background-color: var(--cocktail-accent-color); color: {{ $palette['cream'] }};">
         🍸
     </button>
 
     <div class="hidden lg:block">
-        <div class="fixed top-0 left-0 h-full w-64 bg-white text-black p-6 space-y-2 shadow-lg overflow-y-auto">
+        <div class="fixed top-0 left-0 h-full w-64 sidebar-panel p-6 space-y-2 shadow-lg overflow-y-auto backdrop-blur-sm">
             @foreach ($categories as $category)
                 <a href="#category{{ $category->id }}" class="block text-lg font-semibold hover:text-blue-500 category-nav-link" data-category-target="category{{ $category->id }}">
                     {{ $category->name }}
@@ -126,32 +167,33 @@
 
 @if($settings->cocktail_hero_image)
     <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
-        <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="hero-media shadow-2xl border border-white/10">
+        <img src="{{ asset('storage/' . $settings->cocktail_hero_image) }}" alt="Destacado de cócteles" class="hero-media shadow-2xl border" style="border-color: rgba(255, 183, 35, 0.3);">
     </div>
 @endif
 
 <div id="categoryMenu"
-     class="lg:hidden fixed inset-0 bg-white text-slate-900 px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
+     class="lg:hidden fixed inset-0 mobile-menu-panel px-6 py-8 space-y-6 overflow-y-auto transform -translate-y-full transition-transform duration-300 z-[60]">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold tracking-[0.25em] uppercase text-slate-500">Categorías</h2>
-        <button id="closeMenu" class="text-2xl text-slate-500 hover:text-slate-900">&times;</button>
+        <h2 class="text-lg font-semibold tracking-[0.25em] uppercase" style="color: {{ $palette['amber'] }};">Categorías</h2>
+        <button id="closeMenu" class="text-2xl" style="color: {{ $palette['violet'] }};">&times;</button>
     </div>
     <div class="grid grid-cols-2 gap-4">
         @foreach ($categories as $category)
-            <button class="rounded-2xl border border-slate-200 py-4 px-3 text-sm font-semibold text-left shadow bg-white hover:bg-slate-50 category-nav-link"
+            <button class="rounded-2xl border py-4 px-3 text-sm font-semibold text-left shadow category-nav-link"
+                    style="border-color: rgba(255, 183, 35, 0.35); background-color: rgba(118, 45, 121, 0.15); color: {{ $palette['cream'] }};"
                     data-category-target="category{{ $category->id }}">
                 {{ $category->name }}
             </button>
         @endforeach
     </div>
 </div>
-<div id="menuOverlay" class="fixed inset-0 bg-black/60 z-50 hidden lg:hidden"></div>
+<div id="menuOverlay" class="fixed inset-0 z-50 hidden lg:hidden" style="background-color: rgba(118, 45, 121, 0.5);"></div>
 
 @if($categories->count())
     <div class="lg:hidden content-layer sticky top-20 z-30 px-4">
         <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory">
             @foreach ($categories as $category)
-                <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full border border-white/20 bg-black/40 text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
+                <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
                         data-category-target="category{{ $category->id }}">
                     {{ $category->name }}
                 </button>
@@ -189,14 +231,16 @@
                          data-name="{{ $drink->name }}"
                          data-description="{{ strip_tags($drink->description) }}"
                          data-price="${{ number_format($drink->price, 2) }}"
-                         data-image="{{ $drink->image ? asset('storage/' . $drink->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
+                         data-image="{{ $drink->image ? asset('storage/' . $drink->image) : $logoFallback }}"
                          data-extras='@json($drinkExtrasPayload)'>
 
-                        <span class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded">Ver más</span>
+                        <span class="absolute top-2 right-2 text-xs px-2 py-1 rounded"
+                              style="background-color: rgba(118, 45, 121, 0.45); color: {{ $palette['cream'] }};">Ver más</span>
 
-                        <img src="{{ $drink->image ? asset('storage/' . $drink->image) : asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}"
+                        <img src="{{ $drink->image ? asset('storage/' . $drink->image) : $logoFallback }}"
                              alt="{{ $drink->name }}"
-                             class="h-24 w-24 rounded-full object-cover mr-4 border border-white/10">
+                             class="h-24 w-24 rounded-full object-cover mr-4 border"
+                             style="border-color: rgba(118, 45, 121, 0.25);">
 
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $drink->name }}</h3>
@@ -206,12 +250,14 @@
                             @if (!empty($drink->volume) || !empty($drink->garnish))
                                 <div class="flex flex-wrap gap-2 text-xs">
                                     @if(!empty($drink->volume))
-                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/10 bg-white/5">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
+                                              style="border-color: rgba(255, 183, 35, 0.35); background-color: rgba(118, 45, 121, 0.18);">
                                             <i class="fas fa-glass-whiskey text-[var(--cocktail-accent-color)]"></i> {{ $drink->volume }}
                                         </span>
                                     @endif
                                     @if(!empty($drink->garnish))
-                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-white/10 bg-white/5">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full border"
+                                              style="border-color: rgba(255, 183, 35, 0.35); background-color: rgba(118, 45, 121, 0.18);">
                                             <i class="fas fa-leaf text-[var(--cocktail-accent-color)]"></i> {{ $drink->garnish }}
                                         </span>
                                     @endif
@@ -223,7 +269,7 @@
             </div>
         </section>
     @empty
-        <div class="text-center py-20 text-white/80">
+        <div class="text-center py-20" style="color: rgba(255, 242, 179, 0.85);">
             No hay cócteles configurados. Usa el panel para añadir elementos a esta vista.
         </div>
     @endforelse
@@ -231,15 +277,18 @@
 
 @include('components.floating-nav', [
     'settings' => $settings,
-    'background' => $settings->floating_bar_bg_cocktails ?? $settings->floating_bar_bg_menu ?? 'rgba(0,0,0,0.55)',
+    'background' => $settings->floating_bar_bg_cocktails ?? 'rgba(118, 45, 121, 0.55)',
     'buttonColor' => $buttonColor
 ])
 
 <div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/70">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+     style="background-color: rgba(118, 45, 121, 0.55);">
     <div class="relative w-full max-w-xl max-h-[90vh]">
-        <div class="bg-white rounded-lg shadow-lg text-gray-900 p-6 relative overflow-y-auto max-h-[90vh]">
-            <button onclick="closeDrinkModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
+        <div class="rounded-lg shadow-lg p-6 relative overflow-y-auto max-h-[90vh]"
+             style="background-color: {{ $palette['cream'] }}; color: {{ $palette['violet'] }};">
+            <button onclick="closeDrinkModal()" class="absolute top-3 right-3 text-xl font-bold"
+                    style="color: {{ $palette['violet'] }};">
                 ✕
             </button>
 
@@ -251,7 +300,7 @@
 
             <div id="drinkModalExtras" class="hidden mt-4">
                 <h4 class="text-lg font-semibold mb-2" style="color: var(--cocktail-accent-color);">Extras sugeridos</h4>
-                <ul id="drinkExtrasList" class="space-y-2 text-sm text-slate-700"></ul>
+                <ul id="drinkExtrasList" class="space-y-2 text-sm" style="color: {{ $palette['violet'] }};"></ul>
             </div>
         </div>
     </div>
@@ -331,7 +380,7 @@
         const name = el.dataset.name;
         const description = el.dataset.description;
         const price = el.dataset.price;
-        const fallbackImage = "{{ asset('storage/' . ($settings->logo ?? 'default-logo.png')) }}";
+        const fallbackImage = "{{ $logoFallback }}";
         const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const extras = el.dataset.extras ? JSON.parse(el.dataset.extras) : [];
 
@@ -346,9 +395,12 @@
         if (extras.length) {
             extras.forEach(extra => {
                 const li = document.createElement('li');
-                li.className = 'flex flex-col gap-1 border border-slate-200 rounded-xl px-3 py-2 bg-white/70';
+                li.className = 'flex flex-col gap-1 rounded-xl px-3 py-2';
+                li.style.border = '1px solid rgba(118, 45, 121, 0.25)';
+                li.style.backgroundColor = 'rgba(255, 183, 35, 0.25)';
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between text-sm font-semibold text-slate-800';
+                row.className = 'flex items-center justify-between text-sm font-semibold';
+                row.style.color = '{{ $palette['violet'] }}';
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = extra.name || 'Extra';
                 const priceSpan = document.createElement('span');
@@ -359,7 +411,8 @@
                 li.appendChild(row);
                 if (extra.description) {
                     const desc = document.createElement('p');
-                    desc.className = 'text-xs text-slate-600';
+                    desc.className = 'text-xs';
+                    desc.style.color = '{{ $palette['blue'] }}';
                     desc.textContent = extra.description;
                     li.appendChild(desc);
                 }

@@ -3,12 +3,17 @@
     <form action="{{ route('admin.updateBackground') }}" method="POST" enctype="multipart/form-data" class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         @csrf
 
-        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">☕ Configuración de Café &amp; Bebidas</h3>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">🍷 Configuración de la Cava de vinos</h3>
 
     {{-- Imagen de fondo --}}
         <div>
             <label for="background_image_wines" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Imagen de Fondo (barra de café)</label>
             <input type="file" name="background_image_wines" id="background_image_wines" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 placeholder-black focus:outline-none">
+            <label class="inline-flex items-center gap-2 mt-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="disable_background_wines" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                       {{ old('disable_background_wines', $settings->disable_background_wines ?? false) ? 'checked' : '' }}>
+                Desactivar gradiente por defecto
+            </label>
         </div>
 
     {{-- Imagen destacada --}}
