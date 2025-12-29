@@ -48,6 +48,9 @@
 <section class="mt-5">
     <h3>Categorías de Platos</h3>
     <button class="btn btn-primary mb-3" onclick="toggleVisibility('dish-categories')">Categorías</button>
+    <a href="{{ route('subcategories.index') }}" class="btn btn-outline-info mb-3 ms-2">
+        <i class="fas fa-layer-group me-1"></i> Gestionar subcategorías
+    </a>
     <div id="dish-categories" class="{{ $expandDishCategories ? '' : 'hidden' }}">
         <a href="{{ route('categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría</a>
         <div class="card my-3">
