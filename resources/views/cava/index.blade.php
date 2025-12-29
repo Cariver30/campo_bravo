@@ -17,6 +17,13 @@
     $logoFallback = $settings && $settings->logo
         ? asset('storage/' . $settings->logo)
         : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+    if (\Illuminate\Support\Facades\Route::has('cava.index')) {
+        $cavaRouteUrl = route('cava.index');
+    } elseif (\Illuminate\Support\Facades\Route::has('coffee.index')) {
+        $cavaRouteUrl = route('coffee.index');
+    } else {
+        $cavaRouteUrl = url('/cava');
+    }
     $filtersActive = $filters ?? false;
     $categoriesForFilters = $filterCategories ?? collect();
     $selectedFilters = $selectedFilters ?? [];
@@ -229,7 +236,7 @@
 
 @php $selected = collect($selectedFilters); @endphp
 <div class="max-w-5xl mx-auto px-4 pb-6 content-layer">
-    <form method="GET" action="{{ route('cava.index') }}"
+    <form method="GET" action="{{ $cavaRouteUrl }}"
           class="filter-panel rounded-3xl p-6 space-y-4">
         <div class="flex flex-wrap gap-4">
             <div class="flex-1 min-w-[180px]">
@@ -294,7 +301,7 @@
             </div>
         </div>
         <div class="flex flex-wrap gap-4 justify-end pt-2">
-            <a href="{{ route('cava.index') }}"
+            <a href="{{ $cavaRouteUrl }}"
                class="px-4 py-2 rounded-full transition"
                style="border: 1px solid rgba(255, 242, 179, 0.35); color: {{ $palette['cream'] }};">
                 Limpiar filtros

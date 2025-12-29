@@ -18,6 +18,13 @@
     $logoFallback = $settings && $settings->logo
         ? asset('storage/' . $settings->logo)
         : 'data:image/svg+xml,' . rawurlencode($logoPlaceholderSvg);
+    if (\Illuminate\Support\Facades\Route::has('cava.index')) {
+        $cavaRouteUrl = route('cava.index');
+    } elseif (\Illuminate\Support\Facades\Route::has('coffee.index')) {
+        $cavaRouteUrl = route('coffee.index');
+    } else {
+        $cavaRouteUrl = url('/cava');
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -261,7 +268,7 @@
                                     <p class="text-xs uppercase tracking-[0.2em] mb-2" style="color: {{ $settings->text_color_menu ?? $palette['violet'] }};">Maridajes sugeridos</p>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($dish->wines as $wine)
-                                            <a href="{{ route('cava.index') }}#wine{{ $wine->id }}"
+                                            <a href="{{ $cavaRouteUrl }}#wine{{ $wine->id }}"
                                                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition hover:scale-105"
                                                style="background-color: {{ $settings->category_name_bg_color_menu ?? 'rgba(57, 125, 181, 0.18)' }}; border-color: {{ $settings->button_color_menu ?? $palette['blue'] }}; color: {{ $settings->text_color_menu ?? $palette['blue'] }};">
                                                 <i class="fas fa-wine-glass-alt" style="color: {{ $settings->button_color_menu ?? $palette['amber'] }};"></i>
@@ -352,6 +359,7 @@
     let menuPopupInstance;
     document.addEventListener('DOMContentLoaded', function () {
         console.log('✅ Menú cargado con Tailwind y Flowbite');
+        window.cavaBaseRoute = @json($cavaRouteUrl);
 
         // Botón toggle menú lateral
         const toggleMenuBtn = document.getElementById('toggleMenu');
@@ -466,7 +474,8 @@
                 const li = document.createElement('li');
                 const link = document.createElement('a');
                 link.textContent = (wineName || token).trim();
-                link.href = '{{ route('cava.index') }}#wine' + (wineId || '').trim();
+                const cavaBaseRoute = window.cavaBaseRoute || '';
+                link.href = cavaBaseRoute + '#wine' + (wineId || '').trim();
                 link.className = 'hover:underline';
                 link.style.color = '{{ $settings->button_color_menu ?? $palette['amber'] }}';
                 li.appendChild(link);
