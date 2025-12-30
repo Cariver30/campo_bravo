@@ -176,6 +176,15 @@ $foodPairings = FoodPairing::all();
             'button_label_events' => 'nullable|string|max:255',
             'button_label_vip' => 'nullable|string|max:255',
             'button_label_reservations' => 'nullable|string|max:255',
+            'cover_cta_menu_button_color' => 'nullable|string|max:255',
+            'cover_cta_cafe_button_color' => 'nullable|string|max:255',
+            'cover_cta_cocktails_button_color' => 'nullable|string|max:255',
+            'cover_cta_events_button_color' => 'nullable|string|max:255',
+            'cover_cta_reservations_button_color' => 'nullable|string|max:255',
+            'cover_cta_vip_button_color' => 'nullable|string|max:255',
+            'social_icon_bg_color' => 'nullable|string|max:255',
+            'social_icon_icon_color' => 'nullable|string|max:255',
+            'featured_price_color' => 'nullable|string|max:255',
             'tab_label_menu' => 'nullable|string|max:255',
             'tab_label_cocktails' => 'nullable|string|max:255',
             'tab_label_wines' => 'nullable|string|max:255',
@@ -325,6 +334,8 @@ $foodPairings = FoodPairing::all();
         $settings->facebook_url = $request->input('facebook_url', $settings->facebook_url);
         $settings->twitter_url = $request->input('twitter_url', $settings->twitter_url);
         $settings->instagram_url = $request->input('instagram_url', $settings->instagram_url);
+        $settings->social_icon_bg_color = $request->input('social_icon_bg_color', $settings->social_icon_bg_color);
+        $settings->social_icon_icon_color = $request->input('social_icon_icon_color', $settings->social_icon_icon_color);
         $settings->phone_number = $request->input('phone_number', $settings->phone_number);
         $settings->business_hours = $request->input('business_hours', $settings->business_hours);
 
@@ -374,10 +385,14 @@ $foodPairings = FoodPairing::all();
                 $subtitleField = 'cover_cta_' . $key . '_subtitle';
                 $copyField = 'cover_cta_' . $key . '_copy';
                 $buttonField = 'cover_cta_' . $key . '_button_text';
+                $buttonColorField = 'cover_cta_' . $key . '_button_color';
 
                 $settings->{$subtitleField} = $request->input($subtitleField, $settings->{$subtitleField});
                 $settings->{$copyField} = $request->input($copyField, $settings->{$copyField});
                 $settings->{$buttonField} = $request->input($buttonField, $settings->{$buttonField});
+                if (Schema::hasColumn('settings', $buttonColorField)) {
+                    $settings->{$buttonColorField} = $request->input($buttonColorField, $settings->{$buttonColorField});
+                }
             }
         }
 
@@ -386,6 +401,9 @@ $foodPairings = FoodPairing::all();
             $settings->featured_card_text_color = $request->input('featured_card_text_color', $settings->featured_card_text_color);
             $settings->featured_tab_bg_color = $request->input('featured_tab_bg_color', $settings->featured_tab_bg_color);
             $settings->featured_tab_text_color = $request->input('featured_tab_text_color', $settings->featured_tab_text_color);
+            if (Schema::hasColumn('settings', 'featured_price_color')) {
+                $settings->featured_price_color = $request->input('featured_price_color', $settings->featured_price_color);
+            }
         }
 
         $settings->save();

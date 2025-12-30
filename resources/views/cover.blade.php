@@ -43,12 +43,14 @@
         $coverCardBackground = $settings->card_bg_color_cover
             ? cover_card_color($settings->card_bg_color_cover, $settings->card_opacity_cover ?? 0.85)
             : 'rgba(57, 125, 181, 0.25)';
-        $coverBackgroundDisabled = (bool) ($settings->disable_background_cover ?? false);
         $pointsPerVisit = $settings->loyalty_points_per_visit ?? 10;
         $showLoyaltyCard = $settings->show_cover_loyalty_card ?? true;
         $loyaltyLabel = trim($settings->cover_loyalty_label ?? '') ?: 'Fidelidad';
         $loyaltyTitle = trim($settings->cover_loyalty_title ?? '') ?: "Suma {$pointsPerVisit} pts por visita";
         $loyaltyCopy = trim($settings->cover_loyalty_description ?? '') ?: 'Escanea el QR del mesero y canjea tus visitas por experiencias personalizadas.';
+        $socialIconBg = $settings->social_icon_bg_color ?? $palette['amber'];
+        $socialIconIcon = $settings->social_icon_icon_color ?? $palette['violet'];
+        $featuredPriceColor = $settings->featured_price_color ?? ($settings->button_color_cover ?? $palette['amber']);
     @endphp
     <style>
         :root {
@@ -63,9 +65,7 @@
         body {
             font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};
             color: var(--cover-body-color);
-            @if($coverBackgroundDisabled)
-                background: transparent;
-            @elseif($settings && $settings->background_image_cover)
+            @if($settings && $settings->background_image_cover)
                 background: none;
             @else
                 background: linear-gradient(140deg, var(--cover-blue) 0%, var(--cover-violet) 70%);
@@ -80,9 +80,7 @@
             z-index: -1;
             width: 100vw;
             height: 100vh;
-            @if($coverBackgroundDisabled)
-                display: none;
-            @elseif($settings && $settings->background_image_cover)
+            @if($settings && $settings->background_image_cover)
                 background: url('{{ asset('storage/' . $settings->background_image_cover) }}') no-repeat center center;
                 background-size: cover;
             @else
@@ -107,8 +105,8 @@
             height: 3rem;
             border-radius: 9999px;
             font-weight: 600;
-            color: {{ $palette['violet'] }};
-            background: var(--accent-color);
+            color: var(--vip-button-text, {{ $palette['violet'] }});
+            background: var(--vip-button-bg, var(--accent-color));
             transition: transform .2s ease, box-shadow .2s ease;
             animation: vip-glow 1.5s infinite;
             overflow: hidden;
@@ -118,7 +116,7 @@
             position: absolute;
             inset: 4px;
             border-radius: 9999px;
-            border: 2px dashed rgba(255, 242, 179, 0.65);
+            border: 2px dashed var(--vip-button-border, rgba(255, 242, 179, 0.65));
             animation: vip-blink 2s linear infinite;
             pointer-events: none;
         }
@@ -146,13 +144,12 @@
             border-radius: 1rem;
         }
         .social-icon {
-            background-color: var(--accent-color);
-            color: {{ $palette['violet'] }};
-            transition: transform .2s ease, background-color .2s ease, color .2s ease;
+            background-color: {{ $socialIconBg }};
+            color: {{ $socialIconIcon }};
+            transition: transform .2s ease, filter .2s ease;
         }
         .social-icon:hover {
-            background-color: var(--cover-cream);
-            color: {{ $palette['violet'] }};
+            filter: brightness(1.15);
             transform: scale(1.05);
         }
         .modal-overlay {
@@ -297,7 +294,7 @@
                                     </div>
                                 </div>
                                 @if(!empty($item['price']))
-                                    <span class="font-semibold" style="color: {{ $settings->button_color_cover ?? $featuredCardText }};">${{ number_format($item['price'], 2) }}</span>
+                                    <span class="font-semibold" style="color: {{ $featuredPriceColor }};">${{ number_format($item['price'], 2) }}</span>
                                 @endif
                             </a>
                         @empty
@@ -334,11 +331,14 @@
                         ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => $ctaText('events', 'subtitle', 'Calendario'), 'copy' => $ctaText('events', 'copy', 'Pop-ups, catas privadas y residencias.'), 'button_label' => $ctaText('events', 'button_text', 'Abrir sección'), 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
                         ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => $ctaText('reservations', 'subtitle', 'Agenda'), 'copy' => $ctaText('reservations', 'copy', 'Reserva tu mesa o un flight privado.'), 'button_label' => $ctaText('reservations', 'button_text', 'Abrir sección'), 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
                         ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => $ctaText('vip', 'subtitle', 'Alertas privadas'), 'copy' => $ctaText('vip', 'copy', 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.'), 'button_label' => $ctaText('vip', 'button_text', $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP')), 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
-                    ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground) {
+                    ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground, $palette) {
                         $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
                         $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
+                        $buttonColor = $settings->{'cover_cta_'.$card['key'].'_button_color'} ?? ($settings->button_color_cover ?? $palette['amber']);
                         $card['bg_color'] = $bg ?: $coverCardBackground;
                         $card['text_color'] = $text ?: 'var(--cover-body-color)';
+                        $card['button_color'] = $buttonColor;
+                        $card['button_text_color'] = $text ?: '#0f172a';
                         return $card;
                     })->values();
                 @endphp
@@ -357,13 +357,13 @@
                             @if($card['type'] === 'vip')
                                 <button data-open-notify
                                         class="w-full rounded-full py-3 font-semibold transition vip-button"
-                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                        style="font-size: {{ $settings->button_font_size_cover ?? 18 }}px; --vip-button-bg: {{ $card['button_color'] }}; --vip-button-text: {{ $card['button_text_color'] }}; --vip-button-border: {{ $card['button_text_color'] }};">
                                     {{ $card['button_label'] ?? $card['title'] }}
                                 </button>
                             @else
                                 <button onclick="window.location.href='{{ $card['action'] }}'"
                                         class="w-full rounded-full py-3 font-semibold transition"
-                                        style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
+                                        style="background-color: {{ $card['button_color'] }}; color: {{ $card['button_text_color'] }}; font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
                                     {{ $card['button_label'] ?? 'Abrir sección' }}
                                 </button>
                             @endif
@@ -503,7 +503,7 @@
             const featuredTextColor = "{{ $featuredCardText }}";
             const featuredMutedColor = "{{ $featuredMutedText }}";
             const featuredBorderColor = "{{ $featuredBorderColor }}";
-            const featuredAccentColor = "{{ $settings->button_color_cover ?? $featuredCardText }}";
+            const featuredAccentColor = "{{ $featuredPriceColor }}";
 
             const featuredButtons = document.querySelectorAll('[data-featured-tab]');
             const tagEl = document.getElementById('featuredTag');
