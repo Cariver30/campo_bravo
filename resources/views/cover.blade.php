@@ -264,8 +264,9 @@
             <section class="rounded-3xl p-6 backdrop-blur space-y-6 border" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }}; border-color: {{ $featuredBorderColor }}; font-family: {{ $settings->font_family_cover ?? 'inherit' }};">
                 <div>
                     <p class="text-xs uppercase tracking-[0.4em]" style="color: {{ $featuredMutedText }};">Lo más vendido</p>
-                    <h3 class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
-                    <p class="text-sm" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
+                    <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
+                    <p id="featuredTag" class="text-sm" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
+                    <p id="featuredDescription" class="text-xs mt-1" style="color: {{ $featuredMutedText }};">{{ $initialGroup['source_label'] ?? '' }}</p>
                 </div>
                 @if($featuredGroups->isNotEmpty())
                     <div class="flex flex-wrap gap-3 text-sm">
@@ -281,34 +282,27 @@
                             </button>
                         @endforeach
                     </div>
-                    <div class="space-y-6">
-                        <div>
-                            <p id="featuredTag" class="text-xs uppercase tracking-[0.35em] mb-2" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? '' }}</p>
-                            <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Sin datos' }}</h3>
-                            <p id="featuredDescription" class="mt-2" style="color: {{ $featuredMutedText }};">{{ $initialGroup['source_label'] ?? '' }}</p>
-                        </div>
-                        <div id="featuredItems" class="space-y-4">
-                            @forelse($initialGroup['items'] ?? [] as $item)
-                                <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 group" style="color: {{ $featuredCardText }}; border-bottom: 1px solid {{ $featuredBorderColor }};">
-                                    <div class="flex items-start gap-3">
-                                        @if(!empty($item['image']))
-                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border" style="border-color: {{ $featuredBorderColor }};">
-                                        @else
-                                            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg" style="border:1px solid {{ $featuredBorderColor }};">☆</div>
-                                        @endif
-                                        <div>
-                                            <p class="text-lg font-semibold">{{ $item['title'] }}</p>
-                                            <p class="text-sm" style="color: {{ $featuredMutedText }};">{{ $item['subtitle'] }}</p>
-                                        </div>
-                                    </div>
-                                    @if(!empty($item['price']))
-                                        <span class="font-semibold" style="color: {{ $settings->button_color_cover ?? $featuredCardText }};">${{ number_format($item['price'], 2) }}</span>
+                    <div id="featuredItems" class="space-y-4">
+                        @forelse($initialGroup['items'] ?? [] as $item)
+                            <a href="{{ $item['link'] ?? '#' }}" class="flex items-start justify-between gap-4 pb-3 group" style="color: {{ $featuredCardText }}; border-bottom: 1px solid {{ $featuredBorderColor }};">
+                                <div class="flex items-start gap-3">
+                                    @if(!empty($item['image']))
+                                        <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-14 h-14 rounded-xl object-cover border" style="border-color: {{ $featuredBorderColor }};">
+                                    @else
+                                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg" style="border:1px solid {{ $featuredBorderColor }};">☆</div>
                                     @endif
-                                </a>
-                            @empty
-                                <p class="cover-text-soft text-sm">Marca platos o bebidas como destacados dentro de la categoría seleccionada.</p>
-                            @endforelse
-                        </div>
+                                    <div>
+                                        <p class="text-lg font-semibold">{{ $item['title'] }}</p>
+                                        <p class="text-sm" style="color: {{ $featuredMutedText }};">{{ $item['subtitle'] }}</p>
+                                    </div>
+                                </div>
+                                @if(!empty($item['price']))
+                                    <span class="font-semibold" style="color: {{ $settings->button_color_cover ?? $featuredCardText }};">${{ number_format($item['price'], 2) }}</span>
+                                @endif
+                            </a>
+                        @empty
+                            <p class="cover-text-soft text-sm">Marca platos o bebidas como destacados dentro de la categoría seleccionada.</p>
+                        @endforelse
                     </div>
                 @else
                     <div class="p-6 border rounded-2xl"
