@@ -169,7 +169,7 @@ class CocktailManagementController extends Controller
     {
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'category_id' => ['required', 'exists:cocktail_categories,id'],
             'visible' => ['nullable', 'boolean'],
@@ -181,9 +181,7 @@ class CocktailManagementController extends Controller
             'extra_ids.*' => ['integer', 'exists:extras,id'],
         ];
 
-        $validated = $request->validate($rules, [
-            'description.required' => 'Falta la descripción del cóctel.',
-        ]);
+        $validated = $request->validate($rules);
 
         unset($validated['image']);
 

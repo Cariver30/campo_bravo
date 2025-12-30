@@ -31,7 +31,7 @@ class DishController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
@@ -41,8 +41,6 @@ class DishController extends Controller
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
             'extra_ids' => ['nullable', 'array'],
             'extra_ids.*' => ['integer', 'exists:extras,id'],
-        ], [
-            'description.required' => 'Falta la descripción del plato.',
         ]);
 
         $data = $validated;
@@ -82,7 +80,7 @@ class DishController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'category_id' => 'required|integer|exists:categories,id',
             'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
@@ -92,8 +90,6 @@ class DishController extends Controller
             'recommended_dishes.*' => ['integer', 'exists:dishes,id'],
             'extra_ids' => ['nullable', 'array'],
             'extra_ids.*' => ['integer', 'exists:extras,id'],
-        ], [
-            'description.required' => 'Falta la descripción del plato.',
         ]);
 
         $data = $validated;

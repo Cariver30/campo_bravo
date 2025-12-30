@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva bebida de café</title>
+    <title>Nuevo vino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" />
 </head>
@@ -16,8 +16,8 @@
         <div class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur p-8 shadow-2xl">
             <div class="space-y-2 mb-8">
                 <p class="text-xs uppercase tracking-[0.35em] text-white/60">La Cava de vinos</p>
-                <h1 class="text-3xl font-semibold">Registrar bebida</h1>
-                <p class="text-white/60 text-sm">Define origen, estilo, toppings y platos sugeridos.</p>
+                <h1 class="text-3xl font-semibold">Registrar vino</h1>
+                <p class="text-white/60 text-sm">Define su tipo, región, variedades de uva y maridajes sugeridos.</p>
             </div>
 
             @if ($errors->any())
@@ -67,7 +67,7 @@
 
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="type_id" class="block text-sm font-semibold text-white/80 mb-2">Método</label>
+                        <label for="type_id" class="block text-sm font-semibold text-white/80 mb-2">Tipo de vino</label>
                         <select id="type_id" name="type_id"
                                 class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400">
                             @foreach($types as $type)
@@ -78,7 +78,7 @@
                         </select>
                     </div>
                     <div>
-                        <label for="region_id" class="block text-sm font-semibold text-white/80 mb-2">Origen</label>
+                        <label for="region_id" class="block text-sm font-semibold text-white/80 mb-2">Región</label>
                         <select id="region_id" name="region_id"
                                 class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400">
                             @foreach($regions as $region)
@@ -91,7 +91,7 @@
                 </div>
 
                 <div>
-                    <label for="grapes" class="block text-sm font-semibold text-white/80 mb-2">Notas / Toppings</label>
+                    <label for="grapes" class="block text-sm font-semibold text-white/80 mb-2">Variedades de uva</label>
                     <select id="grapes" name="grapes[]" multiple
                             class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-amber-400 focus:ring-amber-400 min-h-[120px]">
                         @foreach($grapes as $grape)
@@ -146,7 +146,7 @@
                     <p class="text-xs text-white/50">Guarda para sincronizar de inmediato.</p>
                     <button type="submit"
                             class="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-amber-400/40 hover:bg-amber-300 transition">
-                        Crear bebida
+                        Crear vino
                     </button>
                 </div>
             </form>

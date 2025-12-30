@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Métodos de café</title>
+    <title>Tipos de vino</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-5">
-    <h1 class="mb-4">Métodos de café</h1>
+    <h1 class="mb-4">Tipos de vino</h1>
 
     <a href="{{ route('wine-types.create') }}" class="btn btn-success mb-3">Agregar nuevo tipo</a>
 

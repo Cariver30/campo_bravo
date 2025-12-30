@@ -50,7 +50,7 @@ class CocktailController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
@@ -59,8 +59,6 @@ class CocktailController extends Controller
             'dishes.*' => ['integer', 'exists:dishes,id'],
             'extra_ids' => ['nullable','array'],
             'extra_ids.*' => ['integer','exists:extras,id'],
-        ], [
-            'description.required' => 'Falta la descripción del cóctel.',
         ]);
 
         $cocktail = new Cocktail($validated);
@@ -91,7 +89,7 @@ class CocktailController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:cocktail_categories,id',
             'image' => 'nullable|image',
@@ -100,8 +98,6 @@ class CocktailController extends Controller
             'dishes.*' => ['integer','exists:dishes,id'],
             'extra_ids' => ['nullable','array'],
             'extra_ids.*' => ['integer','exists:extras,id'],
-        ], [
-            'description.required' => 'Falta la descripción del cóctel.',
         ]);
 
         $data = $validated;

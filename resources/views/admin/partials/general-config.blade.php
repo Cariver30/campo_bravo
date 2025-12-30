@@ -102,6 +102,40 @@
         </div>
     </div>
 
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Textos personalizables de CTA</h5>
+        <p class="text-muted small mb-3">Edita subtítulo, descripción y el texto del botón para cada tarjeta.</p>
+        @php
+            $ctaCopyLabels = [
+                'menu' => 'Menú',
+                'cafe' => 'Cava de vinos',
+                'cocktails' => 'Bebidas',
+                'events' => 'Eventos especiales',
+                'reservations' => 'Reservas',
+                'vip' => 'Lista VIP',
+            ];
+        @endphp
+        @foreach($ctaCopyLabels as $key => $label)
+            <div class="border rounded-3 p-3 mb-3 bg-light-subtle">
+                <h6 class="mb-3">{{ $label }}</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="cover_cta_{{ $key }}_subtitle">Subtítulo</label>
+                        <input type="text" class="form-control" id="cover_cta_{{ $key }}_subtitle" name="cover_cta_{{ $key }}_subtitle" value="{{ $settings->{'cover_cta_'.$key.'_subtitle'} ?? '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="cover_cta_{{ $key }}_button_text">Texto del botón</label>
+                        <input type="text" class="form-control" id="cover_cta_{{ $key }}_button_text" name="cover_cta_{{ $key }}_button_text" value="{{ $settings->{'cover_cta_'.$key.'_button_text'} ?? '' }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="cover_cta_{{ $key }}_copy">Descripción</label>
+                        <textarea class="form-control" id="cover_cta_{{ $key }}_copy" name="cover_cta_{{ $key }}_copy" rows="2">{{ $settings->{'cover_cta_'.$key.'_copy'} ?? '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
     <div class="mb-3">
         <label for="facebook_url" class="form-label">Facebook URL</label>
         <input type="url" class="form-control" id="facebook_url" name="facebook_url" value="{{ $settings->facebook_url ?? '' }}">
@@ -335,6 +369,29 @@
             <div class="col-md-6">
                 <label class="form-label" for="cover_cta_vip_text_color">Color de texto</label>
                 <input type="color" class="form-control" id="cover_cta_vip_text_color" name="cover_cta_vip_text_color" value="{{ $settings->cover_cta_vip_text_color ?? '#ffffff' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="border rounded-3 p-3 mb-4">
+        <h5 class="mb-3">Tarjeta de fidelidad en portada</h5>
+        <div class="form-check form-switch mb-3">
+            <input type="hidden" name="show_cover_loyalty_card" value="0">
+            <input class="form-check-input" type="checkbox" id="show_cover_loyalty_card" name="show_cover_loyalty_card" value="1" {{ ($settings->show_cover_loyalty_card ?? true) ? 'checked' : '' }}>
+            <label class="form-check-label" for="show_cover_loyalty_card">Mostrar tarjeta de fidelidad</label>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label" for="cover_loyalty_label">Etiqueta</label>
+                <input type="text" class="form-control" id="cover_loyalty_label" name="cover_loyalty_label" value="{{ $settings->cover_loyalty_label ?? '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="cover_loyalty_title">Título</label>
+                <input type="text" class="form-control" id="cover_loyalty_title" name="cover_loyalty_title" value="{{ $settings->cover_loyalty_title ?? '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="cover_loyalty_description">Descripción</label>
+                <textarea class="form-control" id="cover_loyalty_description" name="cover_loyalty_description" rows="3">{{ $settings->cover_loyalty_description ?? '' }}</textarea>
             </div>
         </div>
     </div>

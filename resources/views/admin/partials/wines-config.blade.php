@@ -7,7 +7,7 @@
 
     {{-- Imagen de fondo --}}
         <div>
-            <label for="background_image_wines" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Imagen de Fondo (barra de café)</label>
+            <label for="background_image_wines" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Imagen de Fondo (cava de vinos)</label>
             <input type="file" name="background_image_wines" id="background_image_wines" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 placeholder-black focus:outline-none">
             <label class="inline-flex items-center gap-2 mt-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="disable_background_wines" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -22,7 +22,7 @@
             <input type="file" name="coffee_hero_image" id="coffee_hero_image" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 placeholder-black">
             @if($settings->coffee_hero_image)
                 <div class="mt-2 space-y-2">
-                    <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" class="rounded-lg shadow w-full max-h-64 object-cover" alt="Hero café">
+                    <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" class="rounded-lg shadow w-full max-h-64 object-cover" alt="Hero cava">
                     <button type="submit" name="remove_coffee_hero_image" value="1"
                             class="text-sm px-4 py-2 rounded-lg border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition">
                         Eliminar imagen

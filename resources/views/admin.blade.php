@@ -397,11 +397,11 @@
 <!-- Cava de vinos -->
 <section class="mt-5">
     <h2>Cava de vinos</h2>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines')">Gestionar bebidas</button>
-    <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar bebidas..." class="form-control mb-3">
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines')">Gestionar vinos</button>
+    <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar vinos..." class="form-control mb-3">
 
     <div id="wines" class="hidden">
-        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Registrar nueva bebida</a>
+        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Registrar nuevo vino</a>
         <div id="winesList">
             @foreach($wines as $wine)
                 <div class="card mb-3 wine-item" data-name="{{ $wine->name }}" data-category="{{ $wine->category->name }}">

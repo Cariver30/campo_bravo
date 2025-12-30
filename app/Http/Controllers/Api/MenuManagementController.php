@@ -256,7 +256,7 @@ class MenuManagementController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'category_id' => ['required', 'exists:categories,id'],
             'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
@@ -271,8 +271,6 @@ class MenuManagementController extends Controller
             ],
             'extra_ids' => ['nullable', 'array'],
             'extra_ids.*' => ['integer', 'exists:extras,id'],
-        ], [
-            'description.required' => 'Falta la descripción del plato.',
         ]);
 
         unset($validated['image']);

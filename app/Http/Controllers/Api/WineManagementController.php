@@ -177,7 +177,7 @@ class WineManagementController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'category_id' => ['required', 'exists:wine_categories,id'],
             'type_id' => ['nullable', 'exists:wine_types,id'],
@@ -193,8 +193,6 @@ class WineManagementController extends Controller
             'extra_ids' => ['nullable', 'array'],
             'extra_ids.*' => ['integer', 'exists:extras,id'],
             'image' => [$request->hasFile('image') ? 'required' : 'nullable', 'image', 'max:5120'],
-        ], [
-            'description.required' => 'Falta la descripción de la bebida.',
         ]);
 
         $recommended = $request->input(

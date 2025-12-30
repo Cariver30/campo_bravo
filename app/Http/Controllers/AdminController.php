@@ -362,6 +362,24 @@ $foodPairings = FoodPairing::all();
         if (Schema::hasColumn('settings', 'show_cta_vip')) {
             $settings->show_cta_vip = $request->boolean('show_cta_vip', (bool) $settings->show_cta_vip);
         }
+        if (Schema::hasColumn('settings', 'cover_loyalty_label')) {
+            $settings->show_cover_loyalty_card = $request->boolean('show_cover_loyalty_card', (bool) $settings->show_cover_loyalty_card);
+            $settings->cover_loyalty_label = $request->input('cover_loyalty_label', $settings->cover_loyalty_label);
+            $settings->cover_loyalty_title = $request->input('cover_loyalty_title', $settings->cover_loyalty_title);
+            $settings->cover_loyalty_description = $request->input('cover_loyalty_description', $settings->cover_loyalty_description);
+        }
+        if (Schema::hasColumn('settings', 'cover_cta_menu_subtitle')) {
+            $ctaKeys = ['menu', 'cafe', 'cocktails', 'events', 'reservations', 'vip'];
+            foreach ($ctaKeys as $key) {
+                $subtitleField = 'cover_cta_' . $key . '_subtitle';
+                $copyField = 'cover_cta_' . $key . '_copy';
+                $buttonField = 'cover_cta_' . $key . '_button_text';
+
+                $settings->{$subtitleField} = $request->input($subtitleField, $settings->{$subtitleField});
+                $settings->{$copyField} = $request->input($copyField, $settings->{$copyField});
+                $settings->{$buttonField} = $request->input($buttonField, $settings->{$buttonField});
+            }
+        }
 
         if (Schema::hasColumn('settings', 'featured_card_bg_color')) {
             $settings->featured_card_bg_color = $request->input('featured_card_bg_color', $settings->featured_card_bg_color);

@@ -45,6 +45,10 @@
             : 'rgba(57, 125, 181, 0.25)';
         $coverBackgroundDisabled = (bool) ($settings->disable_background_cover ?? false);
         $pointsPerVisit = $settings->loyalty_points_per_visit ?? 10;
+        $showLoyaltyCard = $settings->show_cover_loyalty_card ?? true;
+        $loyaltyLabel = trim($settings->cover_loyalty_label ?? '') ?: 'Fidelidad';
+        $loyaltyTitle = trim($settings->cover_loyalty_title ?? '') ?: "Suma {$pointsPerVisit} pts por visita";
+        $loyaltyCopy = trim($settings->cover_loyalty_description ?? '') ?: 'Escanea el QR del mesero y canjea tus visitas por experiencias personalizadas.';
     @endphp
     <style>
         :root {
@@ -225,20 +229,22 @@
                                 </div>
                             </div>
                         </article>
-                        <article class="card-surface rounded-2xl p-5 flex flex-col gap-3"
-                                 style="background-color: rgba(118, 45, 121, 0.25);">
-                            <div class="flex items-start gap-3">
-                                <svg viewBox="0 0 64 64" class="w-10 h-10" style="color: {{ $palette['amber'] }};">
-                                    <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="none"></circle>
-                                    <path d="M18 32h28M32 18v28" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-                                </svg>
-                                <div>
-                                    <p class="text-xs uppercase tracking-[0.35em] cover-text-soft mb-1">Fidelidad</p>
-                                    <h3 class="text-xl font-semibold cover-text-primary">Suma {{ $pointsPerVisit }} pts por visita</h3>
-                                    <p class="cover-text-muted text-sm">Escanea el QR del mesero y canjea tus visitas por flights privados, desayunos y experiencias.</p>
+                        @if($showLoyaltyCard)
+                            <article class="card-surface rounded-2xl p-5 flex flex-col gap-3"
+                                     style="background-color: rgba(118, 45, 121, 0.25);">
+                                <div class="flex items-start gap-3">
+                                    <svg viewBox="0 0 64 64" class="w-10 h-10" style="color: {{ $palette['amber'] }};">
+                                        <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="none"></circle>
+                                        <path d="M18 32h28M32 18v28" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs uppercase tracking-[0.35em] cover-text-soft mb-1">{{ $loyaltyLabel }}</p>
+                                        <h3 class="text-xl font-semibold cover-text-primary">{{ $loyaltyTitle }}</h3>
+                                        <p class="cover-text-muted text-sm">{{ $loyaltyCopy }}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
+                            </article>
+                        @endif
                     </div>
                 </div>
             </section>
@@ -322,13 +328,18 @@
                         $trimmed = trim($value);
                         return $trimmed === '' ? null : $trimmed;
                     };
+                    $ctaText = function (string $key, string $field, string $default) use ($settings) {
+                        $value = $settings->{'cover_cta_'.$key.'_'.$field} ?? null;
+                        $value = is_string($value) ? trim($value) : '';
+                        return $value === '' ? $default : $value;
+                    };
                     $ctaCards = collect([
-                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? $settings->tab_label_menu ?? null, 'Menú'), 'subtitle' => 'Carta principal', 'copy' => 'Brunch, platos signature y acompañantes.', 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
-                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? $settings->tab_label_wines ?? null, 'Cava de vinos'), 'subtitle' => 'Cava de vinos', 'copy' => 'Más de 90 etiquetas, flights guiados y sommeliers on demand.', 'action' => url('/cava'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
-                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => 'Mixología', 'copy' => 'Cócteles tropicales, mocktails y clásicos.', 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
-                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => 'Calendario', 'copy' => 'Pop-ups, catas privadas y residencias.', 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
-                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => 'Agenda', 'copy' => 'Reserva tu mesa o un flight privado.', 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
-                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => 'Alertas privadas', 'copy' => 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.', 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
+                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? $settings->tab_label_menu ?? null, 'Menú'), 'subtitle' => $ctaText('menu', 'subtitle', 'Carta principal'), 'copy' => $ctaText('menu', 'copy', 'Brunch, platos signature y acompañantes.'), 'button_label' => $ctaText('menu', 'button_text', 'Abrir sección'), 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? $settings->tab_label_wines ?? null, 'Cava de vinos'), 'subtitle' => $ctaText('cafe', 'subtitle', 'Cava de vinos'), 'copy' => $ctaText('cafe', 'copy', 'Más de 90 etiquetas, flights guiados y sommeliers on demand.'), 'button_label' => $ctaText('cafe', 'button_text', 'Abrir sección'), 'action' => url('/cava'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => $ctaText('cocktails', 'subtitle', 'Mixología'), 'copy' => $ctaText('cocktails', 'copy', 'Cócteles tropicales, mocktails y clásicos.'), 'button_label' => $ctaText('cocktails', 'button_text', 'Abrir sección'), 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
+                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => $ctaText('events', 'subtitle', 'Calendario'), 'copy' => $ctaText('events', 'copy', 'Pop-ups, catas privadas y residencias.'), 'button_label' => $ctaText('events', 'button_text', 'Abrir sección'), 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
+                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => $ctaText('reservations', 'subtitle', 'Agenda'), 'copy' => $ctaText('reservations', 'copy', 'Reserva tu mesa o un flight privado.'), 'button_label' => $ctaText('reservations', 'button_text', 'Abrir sección'), 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
+                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => $ctaText('vip', 'subtitle', 'Alertas privadas'), 'copy' => $ctaText('vip', 'copy', 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.'), 'button_label' => $ctaText('vip', 'button_text', $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP')), 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
                     ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground) {
                         $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
                         $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
@@ -353,13 +364,13 @@
                                 <button data-open-notify
                                         class="w-full rounded-full py-3 font-semibold transition vip-button"
                                         style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                                    {{ $card['title'] }}
+                                    {{ $card['button_label'] ?? $card['title'] }}
                                 </button>
                             @else
                                 <button onclick="window.location.href='{{ $card['action'] }}'"
                                         class="w-full rounded-full py-3 font-semibold transition"
                                         style="background-color: var(--accent-color); font-size: {{ $settings->button_font_size_cover ?? 18 }}px;">
-                                    Abrir sección
+                                    {{ $card['button_label'] ?? 'Abrir sección' }}
                                 </button>
                             @endif
                         </div>

@@ -210,13 +210,13 @@
             $chips[] = 'Categoría: ' . optional($categoriesForFilters->firstWhere('id', $selected->get('category')))->name;
         }
         if ($selected->get('type') && $types->count()) {
-            $chips[] = 'Método: ' . optional($types->firstWhere('id', $selected->get('type')))->name;
+            $chips[] = 'Tipo: ' . optional($types->firstWhere('id', $selected->get('type')))->name;
         }
         if ($selected->get('region') && $regions->count()) {
             $chips[] = 'Región: ' . optional($regions->firstWhere('id', $selected->get('region')))->name;
         }
         if ($selected->get('grape') && $grapes->count()) {
-            $chips[] = 'Uva: ' . optional($grapes->firstWhere('id', $selected->get('grape')))->name;
+            $chips[] = 'Variedad de uva: ' . optional($grapes->firstWhere('id', $selected->get('grape')))->name;
         }
         if ($selected->get('max_price')) {
             $chips[] = 'Hasta $' . number_format($selected->get('max_price'), 0);
@@ -238,7 +238,7 @@
 
 @if($settings->coffee_hero_image)
     <div class="max-w-4xl mx-auto px-4 pb-8 content-layer">
-        <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" alt="Destacado de bebidas" class="hero-media shadow-2xl border" style="border-color: rgba(255, 242, 179, 0.25);">
+        <img src="{{ asset('storage/' . $settings->coffee_hero_image) }}" alt="Destacado de la cava" class="hero-media shadow-2xl border" style="border-color: rgba(255, 242, 179, 0.25);">
     </div>
 @endif
 
@@ -265,7 +265,7 @@
                 </select>
             </div>
             <div class="flex-1 min-w-[180px]">
-                <label class="text-xs uppercase tracking-[0.3em] mb-1 block" style="color: rgba(255, 242, 179, 0.8);">Método</label>
+                <label class="text-xs uppercase tracking-[0.3em] mb-1 block" style="color: rgba(255, 242, 179, 0.8);">Tipo</label>
                 <select name="type"
                         class="w-full rounded-2xl px-4 py-2 filter-input">
                     <option value="">Todos</option>
@@ -289,7 +289,7 @@
                 </select>
             </div>
             <div class="flex-1 min-w-[180px]">
-                <label class="text-xs uppercase tracking-[0.3em] mb-1 block" style="color: rgba(255, 242, 179, 0.8);">Uva</label>
+                <label class="text-xs uppercase tracking-[0.3em] mb-1 block" style="color: rgba(255, 242, 179, 0.8);">Variedad de uva</label>
                 <select name="grape"
                         class="w-full rounded-2xl px-4 py-2 filter-input">
                     <option value="">Todas</option>
@@ -355,7 +355,7 @@
     </div>
 @endif
 
-<!-- LISTADO DE BEBIDAS -->
+<!-- LISTADO DE VINOS -->
 <div class="max-w-5xl mx-auto px-4 pb-32 content-layer">
     @if(!$filtersActive)
         @forelse(($wineCategories ?? collect()) as $category)
@@ -391,7 +391,7 @@
                              data-price="${{ number_format($drink->price, 2) }}"
                              data-image="{{ $drinkImage }}"
                              data-region="{{ $drink->region->name ?? '' }}"
-                             data-method="{{ $drink->type->name ?? '' }}"
+                             data-type="{{ $drink->type->name ?? '' }}"
                              data-notes="{{ $drinkNotes }}"
                              data-pairings="{{ $drinkPairs }}"
                              data-extras='@json($drinkExtrasPayload)'>
@@ -406,8 +406,8 @@
                                  style="border-color: rgba(255, 242, 179, 0.25);">
                             <div class="flex-1">
                                 <h3 class="text-xl font-bold">{{ $drink->name }}</h3>
-                                <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la barra' }}</p>
-                                <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Origen mixto' }}</p>
+                                <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la cava' }}</p>
+                                <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Región no disponible' }}</p>
                             </div>
                             <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
                                 ${{ number_format($drink->price, 2) }}
@@ -444,7 +444,7 @@
         </section>
     @empty
         <div class="text-center py-20" style="color: rgba(255, 242, 179, 0.8);">
-            No hay bebidas configuradas. Usa el panel para añadir elementos a la barra.
+            No hay vinos configurados. Usa el panel para añadir referencias a la cava.
         </div>
     @endforelse
 @else
@@ -477,7 +477,7 @@
                      data-price="${{ number_format($drink->price, 2) }}"
                      data-image="{{ $drinkImage }}"
                      data-region="{{ $drink->region->name ?? '' }}"
-                     data-method="{{ $drink->type->name ?? '' }}"
+                     data-type="{{ $drink->type->name ?? '' }}"
                      data-notes="{{ $drinkNotes }}"
                      data-pairings="{{ $drinkPairs }}"
                      data-extras='@json($drinkExtrasPayload)'>
@@ -492,8 +492,8 @@
                              style="border-color: rgba(255, 242, 179, 0.25);">
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $drink->name }}</h3>
-                            <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la barra' }}</p>
-                            <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Origen mixto' }}</p>
+                            <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la cava' }}</p>
+                            <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Región no disponible' }}</p>
                         </div>
                         <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
                             ${{ number_format($drink->price, 2) }}
@@ -536,7 +536,7 @@
     'buttonColor' => $settings->button_color_wines ?? $drinkAccentColor
 ])
 
-<!-- MODAL DETALLE BEBIDA -->
+<!-- MODAL DETALLE DE VINO -->
 <div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"
      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
      style="background-color: rgba(57, 125, 181, 0.55);">
@@ -548,7 +548,7 @@
                 ✕
             </button>
 
-            <img id="drinkModalImage" class="w-full h-60 object-cover rounded-lg mb-4" alt="Imagen de la bebida">
+            <img id="drinkModalImage" class="w-full h-60 object-cover rounded-lg mb-4" alt="Imagen del vino">
 
             <h3 id="drinkModalTitle" class="text-2xl font-bold mb-2"></h3>
             <p id="drinkModalSpecs" class="text-sm mb-1" style="color: {{ $palette['blue'] }};"></p>
@@ -681,7 +681,7 @@
         const price = el.dataset.price;
         const image = el.dataset.image && !el.dataset.image.endsWith('/storage/') ? el.dataset.image : fallbackImage;
         const region = el.dataset.region;
-        const method = el.dataset.method;
+        const type = el.dataset.type;
         const notes = el.dataset.notes;
         const pairings = el.dataset.pairings;
         const extras = el.dataset.extras ? JSON.parse(el.dataset.extras) : [];
@@ -690,7 +690,7 @@
         document.getElementById('drinkModalDescription').textContent = description;
         document.getElementById('drinkModalPrice').textContent = price;
         document.getElementById('drinkModalImage').src = image;
-        document.getElementById('drinkModalSpecs').textContent = [method, region].filter(Boolean).join(' · ');
+        document.getElementById('drinkModalSpecs').textContent = [type, region].filter(Boolean).join(' · ');
 
         const notesSection = document.getElementById('drinkModalNotes');
         if (notes) {

@@ -2,10 +2,10 @@
 
 <section class="mt-5">
     <h3>Cava de vinos</h3>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines-list')">Gestionar bebidas</button>
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wines-list')">Gestionar vinos</button>
     <div id="wines-list" class="hidden">
-        <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar bebidas..." class="form-control mb-3">
-        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Registrar nueva bebida</a>
+        <input type="text" id="searchWinesInput" onkeyup="filterWines()" placeholder="Buscar vinos..." class="form-control mb-3">
+        <a href="{{ route('wines.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Registrar nuevo vino</a>
         <div id="winesList">
             @foreach($wines as $wine)
                 <div class="card mb-3 wine-item" data-name="{{ $wine->name }}" data-category="{{ $wine->category->name }}">
@@ -51,7 +51,7 @@
         <a href="{{ route('wine-categories.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Crear nueva categoría</a>
         <div class="card my-3">
             <div class="card-body">
-                <p class="text-muted small mb-2">Arrastra para definir el orden de las categorías en la carta de café.</p>
+                <p class="text-muted small mb-2">Arrastra para definir el orden de las categorías en la carta de vinos.</p>
                 <ul class="list-group wine-category-sortable">
                     @foreach($wineCategories->sortBy('order') as $category)
                         <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $category->id }}">
@@ -105,13 +105,13 @@
 
                             <form method="POST" action="{{ route('wine-categories.featuredItems', $category) }}" class="mt-3">
                                 @csrf
-                                <p class="text-muted small mb-2">Selecciona las bebidas que aparecerán en la portada:</p>
+                                <p class="text-muted small mb-2">Selecciona los vinos que aparecerán en la portada:</p>
                                 <div class="row g-2">
                                     @foreach($category->items as $item)
                                         <div class="col-sm-6 col-md-4">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="featured_items[]" value="{{ $item->id }}" id="coffee-featured-{{ $item->id }}" {{ $item->featured_on_cover ? 'checked' : '' }}>
-                                                <label class="form-check-label small" for="coffee-featured-{{ $item->id }}">
+                                                <input class="form-check-input" type="checkbox" name="featured_items[]" value="{{ $item->id }}" id="wine-featured-{{ $item->id }}" {{ $item->featured_on_cover ? 'checked' : '' }}>
+                                                <label class="form-check-label small" for="wine-featured-{{ $item->id }}">
                                                     {{ $item->name }}
                                                 </label>
                                             </div>
@@ -208,7 +208,7 @@
                     })
                     .then(data => {
                         if (!data.success) {
-                            alert('No se pudo guardar el orden de categorías de café.');
+                            alert('No se pudo guardar el orden de las categorías de la cava.');
                         }
                     })
                     .catch(() => alert('Error de red al guardar el orden de categorías.'));
@@ -243,7 +243,7 @@
                     })
                     .then(data => {
                         if (!data.success) {
-                            alert('No se pudo guardar el orden de bebidas.');
+                            alert('No se pudo guardar el orden de los vinos.');
                         }
                     })
                     .catch(() => alert('Error de red al guardar el orden.'));

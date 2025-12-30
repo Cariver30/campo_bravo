@@ -1,9 +1,9 @@
-<!-- Métodos de café -->
+<!-- Tipos de vino -->
 <section class="mt-5">
-    <h3>Métodos de café</h3>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wine-types-list')">Gestionar métodos</button>
+    <h3>Tipos de vino</h3>
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('wine-types-list')">Gestionar tipos</button>
     <div id="wine-types-list" class="hidden">
-        <a href="{{ route('wine-types.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nuevo método</a>
+        <a href="{{ route('wine-types.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nuevo tipo</a>
         @foreach($wineTypes as $type)
             <div class="card mb-2">
                 <div class="card-body">
@@ -19,12 +19,12 @@
     </div>
 </section>
 
-<!-- Orígenes -->
+<!-- Regiones -->
 <section class="mt-5">
-    <h3>Orígenes</h3>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('regions-list')">Gestionar orígenes</button>
+    <h3>Regiones</h3>
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('regions-list')">Gestionar regiones</button>
     <div id="regions-list" class="hidden">
-        <a href="{{ route('regions.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nuevo origen</a>
+        <a href="{{ route('regions.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nueva región</a>
         @foreach($regions as $region)
             <div class="card mb-2">
                 <div class="card-body">
@@ -40,12 +40,12 @@
     </div>
 </section>
 
-<!-- Perfiles sensoriales -->
+<!-- Variedades de uva -->
 <section class="mt-5">
-    <h3>Perfiles sensoriales</h3>
-    <button class="btn btn-primary mb-3" onclick="toggleVisibility('grapes-list')">Gestionar perfiles</button>
+    <h3>Variedades de uva</h3>
+    <button class="btn btn-primary mb-3" onclick="toggleVisibility('grapes-list')">Gestionar uvas</button>
     <div id="grapes-list" class="hidden">
-        <a href="{{ route('grapes.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nuevo perfil</a>
+        <a href="{{ route('grapes.create') }}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Crear nueva uva</a>
         @foreach($grapes as $grape)
             <div class="card mb-2">
                 <div class="card-body">

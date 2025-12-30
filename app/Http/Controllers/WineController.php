@@ -135,7 +135,7 @@ class WineController extends Controller
     {
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'description'       => 'required|string',
+            'description'       => 'nullable|string',
             'price'             => 'required|numeric',
             'category_id'       => 'required|exists:wine_categories,id',
             'type_id'           => 'nullable|exists:wine_types,id',
@@ -150,8 +150,6 @@ class WineController extends Controller
             'extra_ids.*'       => ['integer','exists:extras,id'],
             'image'             => 'nullable|image',
             'featured_on_cover' => ['nullable', 'boolean'],
-        ], [
-            'description.required' => 'Falta la descripción del producto.',
         ]);
     
         $wine = new Wine($validated);
@@ -201,7 +199,7 @@ class WineController extends Controller
     {
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'description'       => 'required|string',
+            'description'       => 'nullable|string',
             'price'             => 'required|numeric',
             'category_id'       => 'required|exists:wine_categories,id',
             'type_id'           => 'nullable|exists:wine_types,id',
@@ -216,8 +214,6 @@ class WineController extends Controller
             'extra_ids.*'       => ['integer','exists:extras,id'],
             'image'             => 'nullable|image',    // ✅ faltaba la coma
             'featured_on_cover' => ['nullable', 'boolean'],
-        ], [
-            'description.required' => 'Falta la descripción del producto.',
         ]);
     
         $data = $validated;
