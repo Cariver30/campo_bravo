@@ -284,7 +284,7 @@
 @include('components.floating-nav', [
     'settings' => $settings,
     'background' => $settings->floating_bar_bg_cocktails ?? 'rgba(118, 45, 121, 0.55)',
-    'buttonColor' => $buttonColor
+    'buttonColor' => $settings->floating_bar_button_color_cocktails ?? $buttonColor
 ])
 
 <div id="drinkDetailsModal" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true"

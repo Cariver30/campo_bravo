@@ -95,6 +95,18 @@
                class="w-16 h-10 p-1 border rounded-md">
     </div>
 
+    <div>
+        <label for="floating_bar_bg_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fondo de navegación flotante</label>
+        <input type="color" name="floating_bar_bg_menu" id="floating_bar_bg_menu" value="{{ $settings->floating_bar_bg_menu ?? '#1f2937' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+
+    <div>
+        <label for="floating_bar_button_color_menu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Botones flotantes</label>
+        <input type="color" name="floating_bar_button_color_menu" id="floating_bar_button_color_menu" value="{{ $settings->floating_bar_button_color_menu ?? '#000000' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+
         <button type="submit"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800">
             Guardar Cambios

@@ -316,7 +316,7 @@
 @include('components.floating-nav', [
     'settings' => $settings,
     'background' => $settings->floating_bar_bg_menu ?? 'rgba(118, 45, 121, 0.65)',
-    'buttonColor' => $settings->button_color_menu ?? $menuAccentColor
+    'buttonColor' => $settings->floating_bar_button_color_menu ?? $settings->button_color_menu ?? $menuAccentColor
 ])
 
 <!-- MODAL DE DETALLE DEL PLATO -->

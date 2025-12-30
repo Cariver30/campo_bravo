@@ -81,6 +81,53 @@
                class="w-16 h-10 p-1 border rounded-md">
     </div>
 
+    <div class="space-y-4 border border-gray-200 dark:border-gray-700 rounded-2xl p-4">
+        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">🎯 Tarjeta de filtros</h4>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_panel_bg_color">Fondo</label>
+                <input type="color" id="wine_filter_panel_bg_color" name="wine_filter_panel_bg_color" value="{{ $settings->wine_filter_panel_bg_color ?? '#762d79' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_panel_text_color">Texto general</label>
+                <input type="color" id="wine_filter_panel_text_color" name="wine_filter_panel_text_color" value="{{ $settings->wine_filter_panel_text_color ?? '#fff2b3' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_input_bg_color">Fondo de inputs</label>
+                <input type="color" id="wine_filter_input_bg_color" name="wine_filter_input_bg_color" value="{{ $settings->wine_filter_input_bg_color ?? '#397db5' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_input_text_color">Texto de inputs</label>
+                <input type="color" id="wine_filter_input_text_color" name="wine_filter_input_text_color" value="{{ $settings->wine_filter_input_text_color ?? '#fff2b3' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_chip_bg_color">Fondo chips</label>
+                <input type="color" id="wine_filter_chip_bg_color" name="wine_filter_chip_bg_color" value="{{ $settings->wine_filter_chip_bg_color ?? '#762d79' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" for="wine_filter_chip_text_color">Texto chips</label>
+                <input type="color" id="wine_filter_chip_text_color" name="wine_filter_chip_text_color" value="{{ $settings->wine_filter_chip_text_color ?? '#fff2b3' }}"
+                       class="w-16 h-10 p-1 border rounded-md">
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <label for="floating_bar_bg_wines" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fondo de navegación flotante</label>
+        <input type="color" name="floating_bar_bg_wines" id="floating_bar_bg_wines" value="{{ $settings->floating_bar_bg_wines ?? '#1f2937' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+    <div>
+        <label for="floating_bar_button_color_wines" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Botones flotantes</label>
+        <input type="color" name="floating_bar_button_color_wines" id="floating_bar_button_color_wines" value="{{ $settings->floating_bar_button_color_wines ?? '#000000' }}"
+               class="w-16 h-10 p-1 border rounded-md">
+    </div>
+
         <button type="submit"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800">
             Guardar Cambios

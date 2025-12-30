@@ -12,6 +12,12 @@
     $categoryBgColor = $settings->category_name_bg_color_wines ?? 'rgba(57, 125, 181, 0.35)';
     $categoryTextColor = $settings->category_name_text_color_wines ?? $palette['cream'];
     $categoryFontSize = $settings->category_name_font_size_wines ?? 28;
+    $filterPanelBg = $settings->wine_filter_panel_bg_color ?? 'rgba(118, 45, 121, 0.38)';
+    $filterPanelText = $settings->wine_filter_panel_text_color ?? $drinkTextColor;
+    $filterInputBg = $settings->wine_filter_input_bg_color ?? 'rgba(57, 125, 181, 0.2)';
+    $filterInputText = $settings->wine_filter_input_text_color ?? $drinkTextColor;
+    $filterChipBg = $settings->wine_filter_chip_bg_color ?? 'rgba(118, 45, 121, 0.25)';
+    $filterChipText = $settings->wine_filter_chip_text_color ?? $drinkTextColor;
     $winesBackgroundDisabled = (bool) ($settings->disable_background_wines ?? false);
     $logoPlaceholderSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#762d79"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#fff2b3" font-family="Arial, sans-serif" font-size="36">LOGO</text></svg>';
     $logoFallback = $settings && $settings->logo
@@ -122,27 +128,29 @@
             color: var(--drink-cream);
         }
         .filter-panel {
-            background: rgba(118, 45, 121, 0.38);
+            background: {{ $filterPanelBg }};
             border: 1px solid rgba(255, 242, 179, 0.35);
             backdrop-filter: blur(6px);
+            color: {{ $filterPanelText }};
         }
         .filter-input {
-            background-color: rgba(57, 125, 181, 0.2);
+            background-color: {{ $filterInputBg }};
             border: 1px solid rgba(255, 242, 179, 0.35);
-            color: var(--drink-text-color);
+            color: {{ $filterInputText }};
             outline: none;
         }
         .filter-input::placeholder {
-            color: rgba(255, 242, 179, 0.7);
+            color: {{ $filterPanelText }};
+            opacity: 0.7;
         }
         .filter-input:focus {
             border-color: var(--drink-accent-color);
             box-shadow: 0 0 0 2px rgba(255, 183, 35, 0.25);
         }
         .filter-chip {
-            background-color: rgba(118, 45, 121, 0.25);
+            background-color: {{ $filterChipBg }};
             border: 1px solid rgba(255, 242, 179, 0.4);
-            color: var(--drink-text-color);
+            color: {{ $filterChipText }};
         }
         .drink-card {
             opacity: 0;
@@ -533,7 +541,7 @@
 @include('components.floating-nav', [
     'settings' => $settings,
     'background' => $settings->floating_bar_bg_wines ?? 'rgba(57, 125, 181, 0.55)',
-    'buttonColor' => $settings->button_color_wines ?? $drinkAccentColor
+    'buttonColor' => $settings->floating_bar_button_color_wines ?? $settings->button_color_wines ?? $drinkAccentColor
 ])
 
 <!-- MODAL DETALLE DE VINO -->
