@@ -18,17 +18,29 @@
     ];
 @endphp
 
-<div class="fixed bottom-5 left-0 right-0 z-50 content-layer px-4">
-    <div class="flex w-full flex-nowrap items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl overflow-x-auto"
-         style="background-color: {{ $background ?? 'rgba(0,0,0,0.55)' }};">
-        @foreach($navLinks as $link)
-            @continue(!($link['visible'] ?? true))
-            <a href="{{ $link['href'] }}"
-               class="flex flex-shrink-0 items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105 whitespace-nowrap"
-               style="background-color: {{ $buttonColor ?? '#000' }};">
-                <i class="{{ $link['icon'] }} text-lg"></i>
-                <span>{{ $link['label'] }}</span>
-            </a>
-        @endforeach
+<div class="fixed bottom-5 left-0 right-0 z-50 content-layer px-4 floating-nav">
+    <div class="relative">
+        <button type="button" class="scroll-arrow scroll-arrow-left lg:hidden hidden" aria-label="Desplazar a la izquierda">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12.5 5l-5 5 5 5"></path>
+            </svg>
+        </button>
+        <button type="button" class="scroll-arrow scroll-arrow-right lg:hidden hidden" aria-label="Desplazar a la derecha">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M7.5 5l5 5-5 5"></path>
+            </svg>
+        </button>
+        <div class="flex w-full flex-nowrap items-center gap-4 px-4 py-2 rounded-3xl backdrop-blur-lg border border-white/20 shadow-2xl overflow-x-auto floating-nav-inner scroll-hint"
+             style="background-color: {{ $background ?? 'rgba(0,0,0,0.55)' }};">
+            @foreach($navLinks as $link)
+                @continue(!($link['visible'] ?? true))
+                <a href="{{ $link['href'] }}"
+                   class="flex flex-shrink-0 items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition hover:scale-105 whitespace-nowrap"
+                   style="background-color: {{ $buttonColor ?? '#000' }};">
+                    <i class="{{ $link['icon'] }} text-lg"></i>
+                    <span>{{ $link['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
     </div>
 </div>

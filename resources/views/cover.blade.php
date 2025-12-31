@@ -8,6 +8,7 @@
 
     <!-- Tailwind + Flowbite -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
@@ -61,9 +62,11 @@
             --cover-blue: {{ $palette['blue'] }};
             --cover-violet: {{ $palette['violet'] }};
             --cover-cream: {{ $palette['cream'] }};
+            --cover-font-base: {{ $settings->font_family_cover ?? "'Manrope', 'Segoe UI', sans-serif" }};
+            --cover-font-display: {{ $settings->font_family_cover ?? "'Bricolage Grotesque', 'Segoe UI', sans-serif" }};
         }
         body {
-            font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};
+            font-family: var(--cover-font-base);
             color: var(--cover-body-color);
             @if($settings && $settings->background_image_cover)
                 background: none;
@@ -90,6 +93,9 @@
         .cover-theme {
             color: var(--cover-body-color);
         }
+        .cover-display {
+            font-family: var(--cover-font-display);
+        }
         .cover-text-primary {
             color: var(--cover-heading-color);
         }
@@ -98,6 +104,16 @@
         }
         .cover-text-soft {
             color: var(--cover-body-soft);
+        }
+        .cover-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            background: rgba(255, 242, 179, 0.2);
+            border: 1px solid rgba(255, 242, 179, 0.35);
+            letter-spacing: 0.3em;
         }
         .vip-button {
             position: relative;
@@ -142,6 +158,29 @@
             background-color: rgba(57, 125, 181, 0.18);
             border: 1px solid rgba(118, 45, 121, 0.25);
             border-radius: 1rem;
+        }
+        .cta-card {
+            position: relative;
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+        .cta-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+        }
+        @keyframes wine-tilt {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+        @keyframes wine-wave {
+            0%, 100% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+        }
+        .cover-rise {
+            animation: cover-rise .6s ease both;
+        }
+        @keyframes cover-rise {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .social-icon {
             background-color: {{ $socialIconBg }};
@@ -192,18 +231,18 @@
         @endif
 
         <div class="max-w-6xl mx-auto space-y-10" style="color: var(--cover-body-color);">
-            <section class="rounded-3xl p-8 backdrop-blur space-y-8 border"
+            <section class="rounded-3xl p-8 backdrop-blur space-y-8 border cover-rise"
                      style="background-color: {{ $coverCardBackground }}; border-color: rgba(255, 242, 179, 0.2);">
                 <div class="flex flex-col lg:flex-row gap-8">
                     @php
-                        $heroKicker = trim($settings->cover_hero_kicker ?? '') ?: 'Café · desayuno · brunch';
-                        $heroTitle = trim($settings->cover_hero_title ?? '') ?: 'Bienvenido a Café Negro. Aquí el visitante decide rápido a qué experiencia ir.';
-                        $heroParagraph = trim($settings->cover_hero_paragraph ?? '') ?: 'Todos los colores, tipografías y textos provienen del panel de configuraciones. Ajusta allá y verás los cambios inmediatamente.';
+                        $heroKicker = trim($settings->cover_hero_kicker ?? '') ?: 'Café · brunch · tardeo';
+                        $heroTitle = trim($settings->cover_hero_title ?? '') ?: 'Bienvenido a Café Negro, la parada sabrosa de tu día.';
+                        $heroParagraph = trim($settings->cover_hero_paragraph ?? '') ?: 'Escoge tu mood: desayuno ligero, brunch con amigos o un dulce para recargar.';
                         $locationText = trim($settings->cover_location_text ?? '') ?: 'Café Negro · Miramar';
                     @endphp
                     <div class="flex-1 space-y-4">
-                        <p class="uppercase tracking-[0.45em] text-xs" style="color: {{ $palette['amber'] }};">{{ $heroKicker }}</p>
-                        <h1 class="text-4xl lg:text-5xl font-semibold leading-tight cover-text-primary" style="font-family: {{ $settings->font_family_cover ?? 'ui-sans-serif' }};">
+                        <p class="uppercase text-xs cover-kicker" style="color: {{ $palette['amber'] }};">{{ $heroKicker }}</p>
+                        <h1 class="text-4xl lg:text-5xl font-semibold leading-tight cover-text-primary cover-display">
                             {{ $heroTitle }}
                         </h1>
                         <p class="cover-text-muted text-lg">{{ $heroParagraph }}</p>
@@ -258,10 +297,10 @@
                 $featuredTabText = $settings->featured_tab_text_color ?? $palette['violet'];
             @endphp
 
-            <section class="rounded-3xl p-6 backdrop-blur space-y-6 border" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }}; border-color: {{ $featuredBorderColor }}; font-family: {{ $settings->font_family_cover ?? 'inherit' }};">
+            <section class="rounded-3xl p-6 backdrop-blur space-y-6 border cover-rise" style="background-color: {{ $featuredCardBg }}; color: {{ $featuredCardText }}; border-color: {{ $featuredBorderColor }};">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.4em]" style="color: {{ $featuredMutedText }};">Lo más vendido</p>
-                    <h3 id="featuredTitle" class="text-3xl font-semibold">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
+                    <p class="text-xs uppercase tracking-[0.4em]" style="color: {{ $featuredMutedText }};">Top del día</p>
+                    <h3 id="featuredTitle" class="text-3xl font-semibold cover-display">{{ $initialGroup['title'] ?? 'Selección del chef' }}</h3>
                     <p id="featuredTag" class="text-sm" style="color: {{ $featuredMutedText }};">{{ $initialGroup['subtitle'] ?? 'Los favoritos de la semana.' }}</p>
                     <p id="featuredDescription" class="text-xs mt-1" style="color: {{ $featuredMutedText }};">{{ $initialGroup['source_label'] ?? '' }}</p>
                 </div>
@@ -310,7 +349,7 @@
 
             </section>
 
-            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
+            <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10 cover-rise">
                 @php
                     $ctaLabel = function ($value, $default) {
                         if (is_null($value)) {
@@ -325,12 +364,12 @@
                         return $value === '' ? $default : $value;
                     };
                     $ctaCards = collect([
-                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? $settings->tab_label_menu ?? null, 'Menú'), 'subtitle' => $ctaText('menu', 'subtitle', 'Carta principal'), 'copy' => $ctaText('menu', 'copy', 'Brunch, platos signature y acompañantes.'), 'button_label' => $ctaText('menu', 'button_text', 'Abrir sección'), 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
-                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? $settings->tab_label_wines ?? null, 'Cava de vinos'), 'subtitle' => $ctaText('cafe', 'subtitle', 'Cava de vinos'), 'copy' => $ctaText('cafe', 'copy', 'Más de 90 etiquetas, flights guiados y sommeliers on demand.'), 'button_label' => $ctaText('cafe', 'button_text', 'Abrir sección'), 'action' => url('/cava'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
-                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => $ctaText('cocktails', 'subtitle', 'Mixología'), 'copy' => $ctaText('cocktails', 'copy', 'Cócteles tropicales, mocktails y clásicos.'), 'button_label' => $ctaText('cocktails', 'button_text', 'Abrir sección'), 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
-                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => $ctaText('events', 'subtitle', 'Calendario'), 'copy' => $ctaText('events', 'copy', 'Pop-ups, catas privadas y residencias.'), 'button_label' => $ctaText('events', 'button_text', 'Abrir sección'), 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
-                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => $ctaText('reservations', 'subtitle', 'Agenda'), 'copy' => $ctaText('reservations', 'copy', 'Reserva tu mesa o un flight privado.'), 'button_label' => $ctaText('reservations', 'button_text', 'Abrir sección'), 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
-                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP'), 'subtitle' => $ctaText('vip', 'subtitle', 'Alertas privadas'), 'copy' => $ctaText('vip', 'copy', 'Recibe lanzamientos de micro lotes, cenas a puerta cerrada y flights sorpresas.'), 'button_label' => $ctaText('vip', 'button_text', $ctaLabel($settings->button_label_vip ?? null, 'Lista VIP')), 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
+                        ['key' => 'menu', 'title' => $ctaLabel($settings->button_label_menu ?? $settings->tab_label_menu ?? null, 'Menú'), 'subtitle' => $ctaText('menu', 'subtitle', 'Carta principal'), 'copy' => $ctaText('menu', 'copy', 'Brunch, platos signature y antojos de la casa.'), 'button_label' => $ctaText('menu', 'button_text', 'Abrir sección'), 'action' => url('/menu'), 'image' => $settings->cta_image_menu ? asset('storage/' . $settings->cta_image_menu) : null, 'visible' => $settings->show_cta_menu ?? true, 'type' => 'link'],
+                        ['key' => 'cafe', 'title' => $ctaLabel($settings->button_label_wines ?? $settings->tab_label_wines ?? null, 'Cava de vinos'), 'subtitle' => $ctaText('cafe', 'subtitle', 'Vinos y burbujas'), 'copy' => $ctaText('cafe', 'copy', 'Más de 90 etiquetas, flights guiados y recomendaciones rápidas.'), 'button_label' => $ctaText('cafe', 'button_text', 'Abrir sección'), 'action' => url('/cava'), 'image' => $settings->cta_image_cafe ? asset('storage/' . $settings->cta_image_cafe) : null, 'visible' => $settings->show_cta_cafe ?? true, 'type' => 'link'],
+                        ['key' => 'cocktails', 'title' => $ctaLabel($settings->tab_label_cocktails ?? $settings->button_label_cocktails ?? null, 'Cócteles'), 'subtitle' => $ctaText('cocktails', 'subtitle', 'Coctelería'), 'copy' => $ctaText('cocktails', 'copy', 'Tropicales, mocktails y clásicos con twist.'), 'button_label' => $ctaText('cocktails', 'button_text', 'Abrir sección'), 'action' => url('/cocktails'), 'image' => $settings->cta_image_cocktails ? asset('storage/' . $settings->cta_image_cocktails) : null, 'visible' => $settings->show_cta_cocktails ?? true, 'type' => 'link'],
+                        ['key' => 'events', 'title' => $ctaLabel($settings->button_label_events ?? null, 'Eventos especiales'), 'subtitle' => $ctaText('events', 'subtitle', 'Calendario'), 'copy' => $ctaText('events', 'copy', 'Pop-ups, catas y noches temáticas.'), 'button_label' => $ctaText('events', 'button_text', 'Abrir sección'), 'action' => route('experiences.index'), 'image' => $settings->cta_image_events ? asset('storage/' . $settings->cta_image_events) : null, 'visible' => $settings->show_cta_events ?? true, 'type' => 'link'],
+                        ['key' => 'reservations', 'title' => $ctaLabel($settings->button_label_reservations ?? null, 'Reservas'), 'subtitle' => $ctaText('reservations', 'subtitle', 'Agenda'), 'copy' => $ctaText('reservations', 'copy', 'Reserva tu mesa o una experiencia privada.'), 'button_label' => $ctaText('reservations', 'button_text', 'Abrir sección'), 'action' => route('reservations.app'), 'image' => $settings->cta_image_reservations ? asset('storage/' . $settings->cta_image_reservations) : null, 'visible' => $settings->show_cta_reservations ?? true, 'type' => 'link'],
+                        ['key' => 'vip', 'title' => $ctaLabel($settings->button_label_vip ?? null, 'Club VIP'), 'subtitle' => $ctaText('vip', 'subtitle', 'Alertas privadas'), 'copy' => $ctaText('vip', 'copy', 'Recibe lanzamientos, cenas pop-up y sorpresas exclusivas.'), 'button_label' => $ctaText('vip', 'button_text', $ctaLabel($settings->button_label_vip ?? null, 'Club VIP')), 'action' => '#', 'image' => null, 'visible' => $settings->show_cta_vip ?? true, 'type' => 'vip'],
                     ])->filter(fn($card) => ($card['visible'] ?? true) && filled($card['title']))->map(function ($card) use ($settings, $coverCardBackground, $palette) {
                         $bg = $settings->{'cover_cta_'.$card['key'].'_bg_color'} ?? null;
                         $text = $settings->{'cover_cta_'.$card['key'].'_text_color'} ?? null;
@@ -343,7 +382,7 @@
                     })->values();
                 @endphp
                 @foreach($ctaCards as $card)
-                    <article class="border rounded-2xl p-0 overflow-hidden flex flex-col"
+                    <article class="border rounded-2xl p-0 overflow-hidden flex flex-col cta-card"
                              style="background-color: {{ $card['bg_color'] }}; color: {{ $card['text_color'] }}; border-color: rgba(255, 242, 179, 0.2);">
                         @if(!empty($card['image']))
                             <div class="h-40 overflow-hidden">
@@ -394,7 +433,7 @@
     </footer>
 
     <!-- Modal de notificación -->
-    <div id="notifyModal" class="fixed inset-0 modal-overlay backdrop-blur-sm flex items-center.justify-center px-4 {{ ($errors->has('name') || $errors->has('email')) ? '' : 'hidden' }} z-50">
+    <div id="notifyModal" class="fixed inset-0 modal-overlay backdrop-blur-sm flex items-center justify-center px-4 {{ ($errors->has('name') || $errors->has('email')) ? '' : 'hidden' }} z-50">
         <div class="modal-surface vip-modal rounded-3xl w-full max-w-md p-6 relative">
             <button id="closeNotifyModal" class="absolute top-4 right-4 text-2xl" style="color: {{ $palette['violet'] }};">&times;</button>
             <p class="text-xs uppercase tracking-[0.35em] mb-2" style="color: {{ $palette['amber'] }};">Experiencias</p>

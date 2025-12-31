@@ -118,6 +118,38 @@
             background-color: rgba(118, 45, 121, 0.35);
             color: var(--cocktail-cream);
         }
+        .scroll-hint {
+            scrollbar-width: none;
+        }
+        .scroll-hint::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 242, 179, 0.9);
+            color: {{ $palette['violet'] }};
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.2);
+            border: 1px solid rgba(118, 45, 121, 0.2);
+            z-index: 5;
+        }
+        .scroll-arrow svg {
+            width: 18px;
+            height: 18px;
+        }
+        .scroll-arrow-left {
+            left: 6px;
+        }
+        .scroll-arrow-right {
+            right: 6px;
+        }
 
         .drink-card {
             opacity: 0;
@@ -147,17 +179,50 @@
                 background-attachment: fixed;
             }
         }
+        @media (min-width: 1024px) {
+            body.desktop-with-sidebar {
+                padding-left: 16rem;
+            }
+            body.sidebar-collapsed {
+                padding-left: 0;
+            }
+            body.desktop-with-sidebar .sidebar-panel {
+                transform: translateX(0);
+                transition: transform 0.2s ease;
+            }
+            body.sidebar-collapsed .sidebar-panel {
+                transform: translateX(-100%);
+            }
+            body.desktop-with-sidebar .floating-nav {
+                left: 16rem;
+            }
+            body.sidebar-collapsed .floating-nav {
+                left: 0;
+            }
+            body.desktop-with-sidebar .floating-nav-inner {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="desktop-with-sidebar">
+<button id="toggleMenu"
+        class="fixed left-4 top-4 z-[70] w-12 h-12 rounded-full flex items-center justify-center shadow-lg lg:hidden"
+        style="background-color: var(--cocktail-accent-color); color: {{ $palette['cream'] }}; z-index: 9999;">
+    <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16"></path>
+        <path d="M4 12h16"></path>
+        <path d="M4 17h16"></path>
+    </svg>
+</button>
 
 <div class="text-center py-6 relative content-layer">
     <img src="{{ $logoFallback }}" class="mx-auto h-28" alt="Logo">
 
-    <button id="toggleMenu"
-            class="fixed left-4 top-4 z-50 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg lg:hidden"
+    <button id="toggleDesktopMenu"
+            class="hidden lg:flex fixed left-6 top-6 z-50 h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg"
             style="background-color: var(--cocktail-accent-color); color: {{ $palette['cream'] }};">
-        🍸
+        ☰
     </button>
 
     <div class="hidden lg:block">
@@ -197,13 +262,25 @@
 
 @if($categories->count())
     <div class="lg:hidden content-layer sticky top-20 z-30 px-4">
-        <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory">
-            @foreach ($categories as $category)
-                <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
-                        data-category-target="category{{ $category->id }}">
-                    {{ $category->name }}
-                </button>
-            @endforeach
+        <div class="relative">
+            <button type="button" class="scroll-arrow scroll-arrow-left hidden" aria-label="Desplazar a la izquierda">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12.5 5l-5 5 5 5"></path>
+                </svg>
+            </button>
+            <button type="button" class="scroll-arrow scroll-arrow-right hidden" aria-label="Desplazar a la derecha">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M7.5 5l5 5-5 5"></path>
+                </svg>
+            </button>
+            <div class="flex gap-3 overflow-x-auto py-3 snap-x snap-mandatory scroll-hint">
+                @foreach ($categories as $category)
+                    <button class="category-chip snap-start whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md hover:scale-105 transition category-nav-link"
+                            data-category-target="category{{ $category->id }}">
+                        {{ $category->name }}
+                    </button>
+                @endforeach
+            </div>
         </div>
     </div>
 @endif
@@ -317,8 +394,34 @@
     const menuModal = document.getElementById('categoryMenu');
     const overlay = document.getElementById('menuOverlay');
     const toggleMenuBtn = document.getElementById('toggleMenu');
+    const toggleDesktopMenuBtn = document.getElementById('toggleDesktopMenu');
     const closeMenuBtn = document.getElementById('closeMenu');
     const navLinks = document.querySelectorAll('.category-nav-link');
+    const scrollAreas = document.querySelectorAll('.scroll-hint');
+
+    const setupScrollArrows = (container) => {
+        const wrapper = container.parentElement;
+        const leftBtn = wrapper?.querySelector('.scroll-arrow-left');
+        const rightBtn = wrapper?.querySelector('.scroll-arrow-right');
+        if (!leftBtn || !rightBtn) {
+            return;
+        }
+        const update = () => {
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            const hasOverflow = maxScroll > 4;
+            leftBtn.classList.toggle('hidden', !hasOverflow || container.scrollLeft <= 2);
+            rightBtn.classList.toggle('hidden', !hasOverflow || container.scrollLeft >= maxScroll - 2);
+        };
+        leftBtn.addEventListener('click', () => {
+            container.scrollBy({ left: -180, behavior: 'smooth' });
+        });
+        rightBtn.addEventListener('click', () => {
+            container.scrollBy({ left: 180, behavior: 'smooth' });
+        });
+        container.addEventListener('scroll', update);
+        window.addEventListener('resize', update);
+        update();
+    };
 
     const openMenu = () => {
         menuModal?.classList.remove('-translate-y-full');
@@ -338,6 +441,10 @@
         } else {
             closeMenu();
         }
+    });
+    scrollAreas.forEach(setupScrollArrows);
+    toggleDesktopMenuBtn?.addEventListener('click', () => {
+        document.body.classList.toggle('sidebar-collapsed');
     });
 
     closeMenuBtn?.addEventListener('click', closeMenu);
