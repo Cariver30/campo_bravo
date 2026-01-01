@@ -29,6 +29,7 @@ use App\Http\Controllers\Loyalty\VisitConfirmationController;
 use App\Http\Controllers\HomeController;
 
 // Rutas públicas
+Route::view('/terraza-ambiente', 'seo.terraza')->name('terraza.seo');
 Route::get('/', [HomeController::class, 'cover'])->name('cover');
 Route::get('/menu', [MenuController::class, 'index'])->name('menu');
 Route::get('/cocktails', [CocktailController::class, 'index'])->name('cocktails.index');
