@@ -81,9 +81,9 @@
                 <div class="max-w-6xl mx-auto">
                     @auth
                         <div class="flex justify-end mb-4 lg:hidden">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/80 to-rose-500/80 text-sm font-semibold text-white">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-semibold text-white">
                                     <span>⏻</span> Cerrar sesión
                                 </button>
                             </form>
@@ -96,6 +96,15 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        window.onDomReady = (callback) => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', callback);
+            } else {
+                callback();
+            }
+        };
+    </script>
     @stack('scripts')
 </body>
 </html>

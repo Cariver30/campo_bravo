@@ -186,7 +186,7 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    onDomReady(() => {
         document.querySelectorAll('.cocktail-category-sortable').forEach(list => {
             new Sortable(list, {
                 animation: 150,

@@ -257,7 +257,7 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    onDomReady(() => {
         const saveCategoryOrder = (orderedIds) => {
             fetch('{{ route('categories.reorder') }}', {
                 method: 'POST',

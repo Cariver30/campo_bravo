@@ -289,7 +289,7 @@
         width: 100%;
         padding: 0.75rem;
         border-radius: 9999px;
-        background: linear-gradient(120deg,#fcd34d,#f97316);
+        background: #fbbf24;
         color: #111827;
         font-weight: 600;
     }
@@ -365,7 +365,7 @@
         border: none;
     }
     .btn-primary {
-        background: linear-gradient(90deg, #fbbf24, #f97316);
+        background: #fbbf24;
         color: #111827;
         font-weight: 600;
     }
@@ -385,47 +385,47 @@
 
 @push('scripts')
 <script>
-    const tabs = document.querySelectorAll('#adminTabs .tab-button');
-    const panels = document.querySelectorAll('.section-panel');
+    onDomReady(() => {
+        const tabs = document.querySelectorAll('#adminTabs .tab-button');
+        const panels = document.querySelectorAll('.section-panel');
 
-    function openSection(target) {
-        if (!target || !document.getElementById(target)) return;
-        tabs.forEach(t => t.classList.remove('active'));
-        const nav = document.querySelector(`#adminTabs .tab-button[data-section="${target}"]`);
-        nav?.classList.add('active');
-        panels.forEach(panel => panel.classList.remove('active'));
-        document.getElementById(target).classList.add('active');
-        window.history.replaceState({}, '', `?section=${target}`);
-    }
+        const openSection = (target) => {
+            if (!target || !document.getElementById(target)) return;
+            tabs.forEach(t => t.classList.remove('active'));
+            const nav = document.querySelector(`#adminTabs .tab-button[data-section="${target}"]`);
+            nav?.classList.add('active');
+            panels.forEach(panel => panel.classList.remove('active'));
+            document.getElementById(target).classList.add('active');
+            window.history.replaceState({}, '', `?section=${target}`);
+        };
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => openSection(tab.dataset.section));
-    });
-
-    document.querySelectorAll('[data-section]').forEach(trigger => {
-        if (trigger.closest('#adminTabs')) return;
-        trigger.addEventListener('click', () => openSection(trigger.dataset.section));
-    });
-
-    window.toggleVisibility = function(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.classList.toggle('hidden');
-        }
-    };
-
-    document.querySelectorAll('.subnav-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const targetId = button.dataset.target;
-            const container = button.closest('.inner-panel');
-            container.querySelectorAll('.subnav-button').forEach(b => b.classList.remove('active'));
-            container.querySelectorAll('.subnav-panel').forEach(panel => panel.classList.remove('show'));
-            button.classList.add('active');
-            container.querySelector(`#${targetId}`).classList.add('show');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => openSection(tab.dataset.section));
         });
-    });
 
-    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-section]').forEach(trigger => {
+            if (trigger.closest('#adminTabs')) return;
+            trigger.addEventListener('click', () => openSection(trigger.dataset.section));
+        });
+
+        window.toggleVisibility = function(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('hidden');
+            }
+        };
+
+        document.querySelectorAll('.subnav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const container = button.closest('.inner-panel');
+                container.querySelectorAll('.subnav-button').forEach(b => b.classList.remove('active'));
+                container.querySelectorAll('.subnav-panel').forEach(panel => panel.classList.remove('show'));
+                button.classList.add('active');
+                container.querySelector(`#${targetId}`).classList.add('show');
+            });
+        });
+
         const params = new URLSearchParams(window.location.search);
         const section = params.get('section');
         if (section && document.getElementById(section)) {
