@@ -40,11 +40,13 @@ return [
             'transport' => 'smtp',
             // Avoid hidden server-level MAIL_URL overriding explicit SMTP credentials.
             'url' => null,
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD') ?: env('SENDGRID_API_KEY'),
+            'host' => env('SENDGRID_SMTP_HOST', env('MAIL_HOST', '127.0.0.1')),
+            'port' => env('SENDGRID_SMTP_PORT', env('MAIL_PORT', 2525)),
+            'encryption' => env('SENDGRID_SMTP_ENCRYPTION', env('MAIL_ENCRYPTION', 'tls')),
+            'username' => env('SENDGRID_SMTP_USERNAME', env('MAIL_USERNAME')),
+            'password' => env('SENDGRID_SMTP_PASSWORD')
+                ?: env('SENDGRID_API_KEY')
+                ?: env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
