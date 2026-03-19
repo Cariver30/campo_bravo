@@ -21,7 +21,9 @@
                                 <span class="badge {{ $dish->visible ? 'bg-success' : 'bg-secondary' }}">{{ $dish->visible ? 'Visible' : 'Oculto' }}</span>
                             </div>
                             <p class="card-text small text-muted mb-2">{{ $dish->description }}</p>
-                            <p class="card-text fw-semibold">${{ $dish->price }}</p>
+                            @if((float) ($dish->price ?? 0) > 0)
+                                <p class="card-text fw-semibold">${{ $dish->price }}</p>
+                            @endif
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a href="{{ route('dishes.edit', $dish) }}" class="btn btn-outline-primary btn-sm">Editar</a>
                                 <button class="btn btn-outline-danger btn-sm" form="delete-dish-{{ $dish->id }}">Eliminar</button>
@@ -146,7 +148,7 @@
                                                     <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $dish->id }}">
                                                         <span class="text-muted">&#x2630;</span>
                                                         <span class="flex-fill">
-                                                            {{ $dish->name }} - ${{ $dish->price }}
+                                                            {{ $dish->name }}@if((float) ($dish->price ?? 0) > 0) - ${{ $dish->price }}@endif
                                                             @if($dish->featured_on_cover)
                                                                 <span class="badge bg-warning text-dark ms-2">Destacado</span>
                                                             @endif
@@ -169,7 +171,7 @@
                                     <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $dish->id }}">
                                         <span class="text-muted">&#x2630;</span>
                                         <span class="flex-fill">
-                                            {{ $dish->name }} - ${{ $dish->price }}
+                                            {{ $dish->name }}@if((float) ($dish->price ?? 0) > 0) - ${{ $dish->price }}@endif
                                             @if($dish->featured_on_cover)
                                                 <span class="badge bg-warning text-dark ms-2">Destacado</span>
                                             @endif

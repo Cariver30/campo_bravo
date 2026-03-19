@@ -19,7 +19,9 @@
                                 <span class="badge {{ $wine->visible ? 'bg-success' : 'bg-secondary' }}">{{ $wine->visible ? 'Visible' : 'Oculto' }}</span>
                             </div>
                             <p class="card-text small text-muted mb-2">{{ $wine->description }}</p>
-                            <p class="card-text fw-semibold">${{ $wine->price }}</p>
+                            @if((float) ($wine->price ?? 0) > 0)
+                                <p class="card-text fw-semibold">${{ $wine->price }}</p>
+                            @endif
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a href="{{ route('wines.edit', $wine) }}" class="btn btn-outline-primary btn-sm">Editar</a>
                                 <button class="btn btn-outline-danger btn-sm" form="delete-wine-{{ $wine->id }}">Eliminar</button>
@@ -93,7 +95,7 @@
                                     <li class="list-group-item d-flex align-items-center gap-2 sortable-item" data-id="{{ $item->id }}">
                                         <span class="text-muted">&#x2630;</span>
                                         <span class="flex-fill">
-                                            {{ $item->name }} - ${{ $item->price }}
+                                            {{ $item->name }}@if((float) ($item->price ?? 0) > 0) - ${{ $item->price }}@endif
                                             @if($item->featured_on_cover)
                                                 <span class="badge bg-warning text-dark ms-2">Destacado</span>
                                             @endif

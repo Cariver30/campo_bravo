@@ -182,11 +182,13 @@
             </div>
             <div class="d-flex flex-wrap justify-content-center">
                 @foreach ($category->items as $item)
-                    <div class="dish-card" onclick="showDetailsModal('{{ addslashes($item->name) }}', '{{ addslashes($item->description) }}', '{{ number_format($item->price, 2) }}', '{{ asset('storage/' . $item->image) }}')">
+                    <div class="dish-card" onclick="showDetailsModal('{{ addslashes($item->name) }}', '{{ addslashes($item->description) }}', '{{ (float) ($item->price ?? 0) > 0 ? number_format((float) $item->price, 2, '.', '') : '' }}', '{{ asset('storage/' . $item->image) }}')">
                         <img src="{{ asset('storage/' . $item->image) }}" class="dish-img" alt="{{ $item->name }}">
                         <div class="card-content">
                             <h5 class="card-title">{{ $item->name }}</h5>
-                            <p class="card-text price">${{ $item->price }}</p>
+                            @if((float) ($item->price ?? 0) > 0)
+                                <p class="card-text price">${{ $item->price }}</p>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -255,7 +257,7 @@ function showDetailsModal(name, description, price, imageSrc) {
 
     modalTitle.textContent = name;
     modalDescription.textContent = description;
-    modalPrice.textContent = `$${price}`;
+    modalPrice.textContent = price ? `$${price}` : '';
     modalImage.src = imageSrc;
     modalImage.alt = name;
 

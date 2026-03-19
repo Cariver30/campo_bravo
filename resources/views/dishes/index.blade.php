@@ -12,7 +12,9 @@
         <div>
             <h2>{{ $dish->name }}</h2>
             <p>{{ $dish->description }}</p>
-            <p>{{ $dish->price }}</p>
+            @if((float) ($dish->price ?? 0) > 0)
+                <p>${{ number_format((float) $dish->price, 2) }}</p>
+            @endif
             <!-- Add more fields as necessary -->
         </div>
     @endforeach

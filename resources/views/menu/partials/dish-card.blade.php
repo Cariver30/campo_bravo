@@ -14,7 +14,7 @@
            opacity: {{ $settings->card_opacity_menu ?? 0.9 }};"
     data-name="{{ $dish->name }}"
     data-description="{{ $dish->description }}"
-    data-price="${{ number_format($dish->price, 2) }}"
+    data-price="{{ (float) ($dish->price ?? 0) > 0 ? '$' . number_format((float) $dish->price, 2) : '' }}"
     data-image="{{ $resolveMedia($dish->image) }}"
     data-wines="{{ e($dish->wines->map(fn($wine) => $wine->id.'::'.$wine->name)->implode('|')) }}"
     data-recommended="{{ e($dish->recommendedDishes->map(fn($recommended) => $recommended->id.'::'.$recommended->name)->implode('|')) }}"
@@ -32,7 +32,9 @@
 
     <div class="flex-1">
         <h3 class="text-xl font-bold">{{ $dish->name }}</h3>
-        <p class="text-sm mb-2">${{ number_format($dish->price, 2) }}</p>
+        @if((float) ($dish->price ?? 0) > 0)
+            <p class="text-sm mb-2">${{ number_format((float) $dish->price, 2) }}</p>
+        @endif
 
 
         @if ($dish->wines && $dish->wines->count())

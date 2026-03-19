@@ -313,7 +313,7 @@
                          style="background-color: {{ $cardBg }}; opacity: {{ $cardOpacity }};"
                          data-name="{{ $drink->name }}"
                          data-description="{{ strip_tags($drink->description) }}"
-                         data-price="${{ number_format($drink->price, 2) }}"
+                         data-price="{{ (float) ($drink->price ?? 0) > 0 ? '$' . number_format((float) $drink->price, 2) : '' }}"
                          data-image="{{ $resolveMedia($drink->image) }}"
                          data-extras='@json($drinkExtrasPayload)'>
 
@@ -327,7 +327,9 @@
 
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">{{ $drink->name }}</h3>
-                            <p class="text-sm mb-2">${{ number_format($drink->price, 2) }}</p>
+                            @if((float) ($drink->price ?? 0) > 0)
+                                <p class="text-sm mb-2">${{ number_format((float) $drink->price, 2) }}</p>
+                            @endif
 
 
                             @if (!empty($drink->volume) || !empty($drink->garnish))
@@ -499,7 +501,7 @@
 
         document.getElementById('drinkModalTitle').textContent = name;
         document.getElementById('drinkModalDescription').textContent = description;
-        document.getElementById('drinkModalPrice').textContent = price;
+        document.getElementById('drinkModalPrice').textContent = price || '';
         document.getElementById('drinkModalImage').src = image;
 
         const extrasSection = document.getElementById('drinkModalExtras');

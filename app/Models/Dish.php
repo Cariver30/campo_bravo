@@ -27,6 +27,11 @@ class Dish extends Model
         'featured_on_cover' => 'boolean',
     ];
 
+    public function setDescriptionAttribute($value): void
+    {
+        $this->attributes['description'] = $value ?? '';
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

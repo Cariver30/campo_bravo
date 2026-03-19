@@ -586,7 +586,7 @@
 
         document.getElementById('modalTitle').textContent = name;
         document.getElementById('modalDescription').textContent = description;
-        document.getElementById('modalPrice').textContent = price;
+        document.getElementById('modalPrice').textContent = price || '';
         document.getElementById('modalImage').src = image;
 
         const wineList = document.getElementById('wineList');

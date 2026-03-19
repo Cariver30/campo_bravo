@@ -269,7 +269,9 @@
                         <h3 class="card-title">{{ $dish->name }}</h3>
                         <img src="{{ asset('storage/' . $dish->image) }}" alt="{{ $dish->name }}" class="img-fluid">
                         <p class="card-text">{{ $dish->description }}</p>
-                        <p class="card-text">${{ $dish->price }}</p>
+                        @if((float) ($dish->price ?? 0) > 0)
+                            <p class="card-text">${{ $dish->price }}</p>
+                        @endif
                         <a href="{{ route('dishes.edit', $dish) }}" class="btn btn-outline-primary">Editar</a>
                         <button class="btn btn-outline-danger" form="delete-dish-{{ $dish->id }}">Eliminar</button>
                         <form id="delete-dish-{{ $dish->id }}" method="POST" action="{{ route('dishes.destroy', $dish) }}" style="display:none;">
@@ -306,7 +308,7 @@
                                 @if($category->dishes->count() > 0)
                                     <ul>
                                         @foreach($category->dishes as $dish)
-                                            <li>{{ $dish->name }} - ${{ $dish->price }}</li>
+                                            <li>{{ $dish->name }}@if((float) ($dish->price ?? 0) > 0) - ${{ $dish->price }}@endif</li>
                                         @endforeach
                                     </ul>
                                 @else
@@ -339,7 +341,9 @@
                         <h3 class="card-title">{{ $cocktail->name }}</h3>
                         <img src="{{ asset('storage/' . $cocktail->image) }}" alt="{{ $cocktail->name }}" class="img-fluid">
                         <p class="card-text">{{ $cocktail->description }}</p>
-                        <p class="card-text">${{ $cocktail->price }}</p>
+                        @if((float) ($cocktail->price ?? 0) > 0)
+                            <p class="card-text">${{ $cocktail->price }}</p>
+                        @endif
                         <a href="{{ route('cocktails.edit', $cocktail) }}" class="btn btn-outline-primary">Editar</a>
                         <button class="btn btn-outline-danger" form="delete-cocktail-{{ $cocktail->id }}">Eliminar</button>
                         <form id="delete-cocktail-{{ $cocktail->id }}" method="POST" action="{{ route('cocktails.destroy', $cocktail) }}" style="display:none;">
@@ -375,7 +379,7 @@
                                 @if($category->items->count() > 0)
                                     <ul>
                                         @foreach($category->items as $item)
-                                            <li>{{ $item->name }} - ${{ $item->price }}</li>
+                                            <li>{{ $item->name }}@if((float) ($item->price ?? 0) > 0) - ${{ $item->price }}@endif</li>
                                         @endforeach
                                     </ul>
                                 @else
@@ -409,7 +413,9 @@
                         <h3 class="card-title">{{ $wine->name }}</h3>
                         <img src="{{ asset('storage/' . $wine->image) }}" alt="{{ $wine->name }}" class="img-fluid">
                         <p class="card-text">{{ $wine->description }}</p>
-                        <p class="card-text">${{ $wine->price }}</p>
+                        @if((float) ($wine->price ?? 0) > 0)
+                            <p class="card-text">${{ $wine->price }}</p>
+                        @endif
                         <a href="{{ route('wines.edit', $wine) }}" class="btn btn-outline-primary">Editar</a>
                         <button class="btn btn-outline-danger" form="delete-wine-{{ $wine->id }}">Eliminar</button>
                         <form id="delete-wine-{{ $wine->id }}" method="POST" action="{{ route('wines.destroy', $wine) }}" style="display:none;">
@@ -444,7 +450,7 @@
                                 @if($category->items->count() > 0)
                                     <ul>
                                         @foreach($category->items as $item)
-                                            <li>{{ $item->name }} - ${{ $item->price }}</li>
+                                            <li>{{ $item->name }}@if((float) ($item->price ?? 0) > 0) - ${{ $item->price }}@endif</li>
                                         @endforeach
                                     </ul>
                                 @else

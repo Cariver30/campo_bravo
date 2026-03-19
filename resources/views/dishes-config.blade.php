@@ -11,7 +11,9 @@
                         <h3 class="card-title">{{ $dish->name }}</h3>
                         <img src="{{ asset('storage/' . $dish->image) }}" alt="{{ $dish->name }}" class="img-fluid">
                         <p class="card-text">{{ $dish->description }}</p>
-                        <p class="card-text">${{ $dish->price }}</p>
+                        @if((float) ($dish->price ?? 0) > 0)
+                            <p class="card-text">${{ $dish->price }}</p>
+                        @endif
                         <a href="{{ route('dishes.edit', $dish) }}" class="btn btn-outline-primary">Editar</a>
                         <button class="btn btn-outline-danger" form="delete-dish-{{ $dish->id }}">Eliminar</button>
                         <form id="delete-dish-{{ $dish->id }}" method="POST" action="{{ route('dishes.destroy', $dish) }}" style="display:none;">

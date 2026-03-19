@@ -473,7 +473,7 @@
                              style="opacity: {{ $drinkCardOpacity }};"
                              data-name="{{ $drink->name }}"
                              data-description="{{ $drink->description }}"
-                             data-price="${{ number_format($drink->price, 2) }}"
+                             data-price="{{ (float) ($drink->price ?? 0) > 0 ? '$' . number_format((float) $drink->price, 2) : '' }}"
                              data-image="{{ $drinkImage }}"
                              data-region="{{ $drink->region->name ?? '' }}"
                              data-type="{{ $drink->type->name ?? '' }}"
@@ -494,9 +494,11 @@
                                 <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la cava' }}</p>
                                 <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Región no disponible' }}</p>
                             </div>
-                            <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
-                                ${{ number_format($drink->price, 2) }}
-                            </span>
+                            @if((float) ($drink->price ?? 0) > 0)
+                                <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
+                                    ${{ number_format((float) $drink->price, 2) }}
+                                </span>
+                            @endif
                         </div>
 
                         <p class="text-sm opacity-90">{{ $drink->description }}</p>
@@ -559,7 +561,7 @@
                      style="opacity: {{ $drinkCardOpacity }};"
                      data-name="{{ $drink->name }}"
                      data-description="{{ $drink->description }}"
-                     data-price="${{ number_format($drink->price, 2) }}"
+                     data-price="{{ (float) ($drink->price ?? 0) > 0 ? '$' . number_format((float) $drink->price, 2) : '' }}"
                      data-image="{{ $drinkImage }}"
                      data-region="{{ $drink->region->name ?? '' }}"
                      data-type="{{ $drink->type->name ?? '' }}"
@@ -580,9 +582,11 @@
                             <p class="text-sm opacity-80">{{ $drink->type->name ?? 'Especialidad de la cava' }}</p>
                             <p class="text-sm opacity-70">{{ $drink->region->name ?? 'Región no disponible' }}</p>
                         </div>
-                        <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
-                            ${{ number_format($drink->price, 2) }}
-                        </span>
+                        @if((float) ($drink->price ?? 0) > 0)
+                            <span class="text-lg font-semibold" style="color: var(--drink-accent-color);">
+                                ${{ number_format((float) $drink->price, 2) }}
+                            </span>
+                        @endif
                     </div>
 
                     <p class="text-sm opacity-90">{{ $drink->description }}</p>
@@ -803,7 +807,7 @@
 
         document.getElementById('drinkModalTitle').textContent = name;
         document.getElementById('drinkModalDescription').textContent = description;
-        document.getElementById('drinkModalPrice').textContent = price;
+        document.getElementById('drinkModalPrice').textContent = price || '';
         document.getElementById('drinkModalImage').src = image;
         document.getElementById('drinkModalSpecs').textContent = [type, region].filter(Boolean).join(' · ');
 
